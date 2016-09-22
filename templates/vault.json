@@ -1,0 +1,382 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Vault by HashiCorp Quickstart for AWS: Vault instances sub-template",
+    "Parameters": {
+        "KeyPair": {
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "Default": "id_rsa_aws",
+            "ConstraintDescription": "Must be the name of an existing EC2 KeyPair."
+        },
+        "vaultInstanceType": {
+            "Type": "String",
+            "Description": "vault node instance type",
+            "AllowedValues": [
+                "t2.micro",
+                "t2.small",
+                "t2.medium",
+                "t2.large",
+                "m4.large",
+                "m4.xlarge",
+                "m4.2xlarge",
+                "m4.4xlarge",
+                "m4.10xlarge",
+                "m3.medium",
+                "m3.large",
+                "m3.xlarge",
+                "m3.2xlarge",
+                "c4.large",
+                "c4.xlarge",
+                "c4.2xlarge",
+                "c4.4xlarge",
+                "c4.8xlarge",
+                "c3.large",
+                "c3.xlarge",
+                "c3.2xlarge",
+                "c3.4xlarge",
+                "c3.8xlarge",
+                "r3.large",
+                "r3.xlarge",
+                "r3.2xlarge",
+                "r3.4xlarge",
+                "r3.8xlarge",
+                "i2.xlarge",
+                "i2.2xlarge",
+                "i2.4xlarge",
+                "i2.8xlarge"
+            ],
+            "ConstraintDescription": "Choose an instance type. m3.medium or larger recommended.",
+            "Default": "m3.medium"
+        },
+        "AtlasToken": {
+            "Type": "String",
+            "Description": "Optional - Atlas token - used to check vault nodes into Atlas"
+        }
+    },
+    "Mappings": {
+        "AWSAMIRegionMap": {
+            "AMI": {
+                "US1404HVM": "ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-20160406"
+            },
+            "eu-west-1": {
+                "US1404HVM": "ami-ed82e39e"
+            },
+            "ap-northeast-1": {
+                "US1404HVM": "ami-f5bbab9b"
+            },
+            "ap-northeast-2": {
+                "US1404HVM": "ami-45975c2b"
+            },
+            "ap-south-1": {
+                "US1404HVM": "ami-42569022"
+            },
+            "ap-southeast-1": {
+                "US1404HVM": "ami-b6c613d5"
+            },
+            "ap-southeast-2": {
+                "US1404HVM": "ami-2a644649"
+            },
+            "eu-central-1": {
+                "US1404HVM": "ami-821cfded"
+            },
+            "sa-east-1": {
+                "US1404HVM": "ami-6008870c"
+            },
+            "us-east-1": {
+                "US1404HVM": "ami-2b594f41"
+            },
+            "us-west-1": {
+                "US1404HVM": "ami-12512d72"
+            },
+            "us-west-2": {
+                "US1404HVM": "ami-63ac5803"
+            }
+        }
+    },
+    "Resources": {
+      "VaultLogGroup": {
+          "Type": "AWS::Logs::LogGroup",
+          "Properties": {
+            "LogGroupName": {
+                "Fn::Join": [
+                    "-", [{
+                            "Ref": "AWS::StackName"
+                        },
+                        "Vault-Audit-Logs"
+                    ]
+                ]
+            },
+              "RetentionInDays": 0
+          }
+      },
+      "vaultinstancerole": {
+         "Type": "AWS::IAM::Role",
+         "Properties": {
+            "AssumeRolePolicyDocument": {
+               "Version" : "2012-10-17",
+               "Statement": [ {
+                  "Effect": "Allow",
+                  "Principal": {
+                     "Service": [ "ec2.amazonaws.com" ]
+                  },
+                  "Action": [ "sts:AssumeRole" ]
+               } ]
+            },
+            "Path": "/",
+            "Policies": [{
+                "PolicyName": "root",
+                "PolicyDocument": {
+
+                    "Version": "2012-10-17",
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Action": [
+                            "logs:CreateLogGroup",
+                            "logs:CreateLogStream",
+                            "logs:PutLogEvents",
+                            "logs:DescribeLogStreams"
+                        ],
+                        "Resource": [
+                            "arn:aws:logs:*:*:*"
+                        ]
+                    }]
+                }
+            }]
+            }
+            },
+            "vaultinstanceprofile": {
+               "Type": "AWS::IAM::InstanceProfile",
+               "Properties": {
+                  "Path": "/",
+                  "Roles": [ {
+                     "Ref": "vaultinstancerole"
+                  } ]
+               }
+            },
+      "vault1": {
+          "Type": "AWS::EC2::Instance",
+          "Properties": {
+              "AvailabilityZone": {
+                "Fn::Select": [
+                    "0",
+                    {
+                        "Fn::GetAZs": {
+                            "Ref": "AWS::Region"
+                        }
+                    }
+                ]
+              },
+              "InstanceType": {
+                  "Ref": "vaultInstanceType"
+              },
+              "KeyName": {
+                  "Ref": "KeyPair"
+              },
+              "ImageId": {
+                  "Fn::FindInMap": [
+                      "AWSAMIRegionMap", {
+                          "Ref": "AWS::Region"
+                      },
+                      "US1404HVM"
+                  ]
+              },
+              "BlockDeviceMappings": [
+                  {
+                      "DeviceName": "/dev/sda1",
+                      "Ebs": {
+                          "VolumeSize": "20",
+                          "VolumeType": "gp2"
+                      }
+                  }
+              ],
+              "UserData": {
+                  "Fn::Base64": {
+                      "Fn::Join": [
+                          "", [
+                            "#!/bin/bash\n",
+                            "sudo apt-get update\n",
+                            "#installing the cloudwatch logs agent\n",
+                            "curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O\n",
+                            "chmod +x ./awslogs-agent-setup.py\n",
+                            "./awslogs-agent-setup.py -n -r ",
+                            {
+                                "Ref": "AWS::Region"
+                            },
+                            " -c s3://myawsbucket/my-config-file\n",
+                            "#need the following two files in the QS s3 bucket:",
+                            "wget vault-boostrap.sh\n",
+                            "wget vault-upstart.conf && mv vault-upstart.conf /etc/init/vault-upstart.conf",
+                            "#TODO: point Vault conf file at Consul master https://www.vaultproject.io/docs/config/index.html"
+                          ]
+                      ]
+                  }
+              },
+              "IamInstanceProfile": {"Ref": "vaultinstanceprofile"},
+              "Tags": [
+                  {
+                      "Key": "Name",
+                      "Value": {
+                          "Fn::Join": [
+                              "-",
+                              [
+                                  {
+                                      "Ref": "AWS::StackName"
+                                  },
+                                  "vault1"
+                              ]
+                          ]
+                      }
+                  }
+              ]
+          }
+      },
+      "vault1RecoveryAlarm": {
+          "Type": "AWS::CloudWatch::Alarm",
+          "Properties": {
+              "AlarmDescription": "EC2 Autorecovery for vault1 node. Autorecover if we fail EC2 status checks for 5 minutes.",
+              "Namespace": "AWS/EC2",
+              "MetricName": "StatusCheckFailed_System",
+              "Statistic": "Minimum",
+              "Period": "60",
+              "EvaluationPeriods": "5",
+              "ComparisonOperator": "GreaterThanThreshold",
+              "Threshold": "0",
+              "AlarmActions": [
+                  {
+                      "Fn::Join": [
+                          "",
+                          [
+                              "arn:aws:automate:",
+                              {
+                                  "Ref": "AWS::Region"
+                              },
+                              ":ec2:recover"
+                          ]
+                      ]
+                  }
+              ],
+              "Dimensions": [
+                  {
+                      "Name": "InstanceId",
+                      "Value": {
+                          "Ref": "vault1"
+                      }
+                  }
+              ]
+          }
+      },
+      "vault2": {
+          "Type": "AWS::EC2::Instance",
+          "Properties": {
+              "AvailabilityZone": {
+                "Fn::Select": [
+                    "1",
+                    {
+                        "Fn::GetAZs": {
+                            "Ref": "AWS::Region"
+                        }
+                    }
+                ]
+              },
+              "InstanceType": {
+                  "Ref": "vaultInstanceType"
+              },
+              "KeyName": {
+                  "Ref": "KeyPair"
+              },
+              "ImageId": {
+                  "Fn::FindInMap": [
+                      "AWSAMIRegionMap", {
+                          "Ref": "AWS::Region"
+                      },
+                      "US1404HVM"
+                  ]
+              },
+              "BlockDeviceMappings": [
+                  {
+                      "DeviceName": "/dev/sda1",
+                      "Ebs": {
+                          "VolumeSize": "20",
+                          "VolumeType": "gp2"
+                      }
+                  }
+              ],
+              "UserData": {
+                  "Fn::Base64": {
+                      "Fn::Join": [
+                          "", [
+                            "#!/bin/bash\n",
+                            "sudo apt-get update\n",
+                            "#installing the cloudwatch logs agent\n",
+                            "curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O\n",
+                            "chmod +x ./awslogs-agent-setup.py\n",
+                            "./awslogs-agent-setup.py -n -r ",
+                            {
+                                "Ref": "AWS::Region"
+                            },
+                            " -c s3://myawsbucket/my-config-file\n",
+                            "#need the following two files in the QS s3 bucket:",
+                            "wget vault-boostrap.sh\n",
+                            "wget vault-upstart.conf && mv vault-upstart.conf /etc/init/vault-upstart.conf",
+                            "#TODO: point Vault conf file at Consul master https://www.vaultproject.io/docs/config/index.html"
+                          ]
+                      ]
+                  }
+              },
+              "IamInstanceProfile": {"Ref": "vaultinstanceprofile"},
+              "Tags": [
+                  {
+                      "Key": "Name",
+                      "Value": {
+                          "Fn::Join": [
+                              "-",
+                              [
+                                  {
+                                      "Ref": "AWS::StackName"
+                                  },
+                                  "vault2"
+                              ]
+                          ]
+                      }
+                  }
+              ]
+          }
+      },
+      "vault2RecoveryAlarm": {
+          "Type": "AWS::CloudWatch::Alarm",
+          "Properties": {
+              "AlarmDescription": "EC2 Autorecovery for vault2 node. Autorecover if we fail EC2 status checks for 5 minutes.",
+              "Namespace": "AWS/EC2",
+              "MetricName": "StatusCheckFailed_System",
+              "Statistic": "Minimum",
+              "Period": "60",
+              "EvaluationPeriods": "5",
+              "ComparisonOperator": "GreaterThanThreshold",
+              "Threshold": "0",
+              "AlarmActions": [
+                  {
+                      "Fn::Join": [
+                          "",
+                          [
+                              "arn:aws:automate:",
+                              {
+                                  "Ref": "AWS::Region"
+                              },
+                              ":ec2:recover"
+                          ]
+                      ]
+                  }
+              ],
+              "Dimensions": [
+                  {
+                      "Name": "InstanceId",
+                      "Value": {
+                          "Ref": "vault2"
+                      }
+                  }
+              ]
+          }
+      },
+
+            }
+        }
