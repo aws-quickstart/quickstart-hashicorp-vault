@@ -289,7 +289,7 @@
                             "#TODO: point Vault conf file at Consul master https://www.vaultproject.io/docs/config/index.html\n",
                             "wget https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-base.conf && mv /etc/vault.d/vault-base.conf\n",
                             "wget ${S3SCRIPT_PATH}/vault-boostrap.sh\n",
-                            "chmod +x ./ault-boostrap.sh\n",
+                            "chmod +x ./vault-boostrap.sh\n",
                             "./vault-boostrap.sh",
                             "# TODO add upstart for vault /etc/init/vault-upstart.conf"
                           ]
