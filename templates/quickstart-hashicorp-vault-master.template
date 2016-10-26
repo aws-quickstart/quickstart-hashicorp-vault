@@ -452,9 +452,7 @@
                   ]
                 ]
               },
-            "QSS3KeyPrefix": {
-              "Ref": "QSS3KeyPrefix"
-            }
+            "QSS3KeyPrefix": "hashicorp/consul/latest"
           }
         }
       },
