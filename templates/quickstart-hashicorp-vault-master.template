@@ -1,0 +1,537 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Hashicorp Consul+Vault template master, License: Apache 2.0 (Please do not remove) Oct,26,2016",
+  "Metadata": {
+    "AWS::CloudFormation::Interface": {
+      "ParameterGroups": [{
+        "Label": {
+          "default": " VPC Network Configuration"
+        },
+        "Parameters": [
+          "AvailabilityZones",
+          "VPCCIDR",
+          "PrivateSubnet1CIDR",
+          "PrivateSubnet2CIDR",
+          "PrivateSubnet3CIDR",
+          "PublicSubnet1CIDR",
+          "PublicSubnet2CIDR",
+          "PublicSubnet3CIDR",
+          "AccessCIDR",
+          "NATInstanceType"
+        ]
+      }, {
+        "Label": {
+          "default": "Consul Setup"
+        },
+        "Parameters": [
+          "AtlasToken",
+          "ConsulNodes",
+          "ConsulInstanceType",
+          "KeyPairName"
+        ]
+      }, {
+        "Label": {
+          "default": "AWS Quick Start Configuration"
+        },
+        "Parameters": [
+          "QSS3BucketName",
+          "QSS3KeyPrefix"
+        ]
+      }],
+      "ParameterLabels": {
+        "AvailabilityZones": {
+          "default": "Availability Zones"
+        },
+        "KeyPairName": {
+          "default": "Key Name"
+        },
+        "NATInstanceType": {
+          "default": "NAT Instance Type"
+        },
+        "PrivateSubnet1CIDR": {
+          "default": "Private Subnet 1 CIDR"
+        },
+        "PrivateSubnet2CIDR": {
+          "default": "Private Subnet 2 CIDR"
+        },
+        "PublicSubnet1CIDR": {
+          "default": "Public Subnet 1 CIDR"
+        },
+        "PublicSubnet2CIDR": {
+          "default": "Public Subnet 2 CIDR"
+        },
+        "QSS3BucketName": {
+          "default": "Quick Start S3 Bucket Name"
+        },
+        "QSS3KeyPrefix": {
+          "default": "Quick Start S3 Key Prefix"
+        },
+        "AccessCIDR": {
+          "default": "Permitted IP range"
+        },
+        "VPCCIDR": {
+          "default": "VPC CIDR"
+        },
+        "ConsulNodes": {
+          "default": "Consul nodes"
+        },
+        "ConsulInstanceType": {
+          "default": "Consul cluster node instance type"
+        }
+      }
+    }
+  },
+  "Parameters": {
+    "AvailabilityZones": {
+      "Description": "List of Availability Zones to use for the subnets in the VPC. Note: The logical order is preserved (3 AZs are used for this deployment)",
+      "Type": "List<AWS::EC2::AvailabilityZone::Name>"
+    },
+    "KeyPairName": {
+      "Description": "Public/private key pairs allow you to securely connect to your instance after it launches",
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "NATInstanceType": {
+      "AllowedValues": [
+        "t2.nano",
+        "t2.micro",
+        "t2.small",
+        "t2.medium",
+        "t2.large",
+        "m3.medium",
+        "m3.large",
+        "m4.large"
+      ],
+      "Default": "t2.small",
+      "Description": "Amazon EC2 instance type for the NAT Instances. This is only used if the region does not support NAT gateways.",
+      "Type": "String"
+    },
+    "PrivateSubnet1CIDR": {
+      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
+      "Default": "10.0.0.0/19",
+      "Description": "CIDR block for private subnet 1 located in Availability Zone 1.",
+      "Type": "String"
+    },
+    "PrivateSubnet2CIDR": {
+      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
+      "Default": "10.0.32.0/19",
+      "Description": "CIDR block for private subnet 2 located in Availability Zone 2.",
+      "Type": "String"
+    },
+    "PrivateSubnet3CIDR": {
+      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
+      "Default": "10.0.64.0/19",
+      "Description": "CIDR block for private subnet 3 located in Availability Zone 3.",
+      "Type": "String"
+    },
+    "PublicSubnet1CIDR": {
+      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
+      "Default": "10.0.128.0/20",
+      "Description": "CIDR Block for the public DMZ subnet 1 located in Availability Zone 1",
+      "Type": "String"
+    },
+    "PublicSubnet2CIDR": {
+      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
+      "Default": "10.0.144.0/20",
+      "Description": "CIDR Block for the public DMZ subnet 2 located in Availability Zone 2",
+      "Type": "String"
+    },
+    "PublicSubnet3CIDR": {
+      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
+      "Default": "10.0.160.0/20",
+      "Description": "CIDR Block for the public DMZ subnet 3 located in Availability Zone 3",
+      "Type": "String"
+    },
+    "QSS3BucketName": {
+      "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
+      "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
+      "Default": "quickstart-reference",
+      "Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
+      "Type": "String"
+    },
+    "QSS3KeyPrefix": {
+      "AllowedPattern": "^[0-9a-zA-Z-]+(/[0-9a-zA-Z-]+)*$",
+      "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
+      "Default": "hashicorp/vault/latest",
+      "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
+      "Type": "String"
+    },
+    "VPCCIDR": {
+      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
+      "Default": "10.0.0.0/16",
+      "Description": "CIDR Block for the VPC",
+      "Type": "String"
+    },
+    "AccessCIDR": {
+      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
+      "Description": "The CIDR IP range that is permitted to access Consul Note: a value of 0.0.0.0/0 will allow access from ANY ip address",
+      "Type": "String"
+    },
+    "ConsulServerNodes": {
+      "Type": "String",
+      "Description": "Sets DesiredCapacity and MaxSize ",
+      "AllowedValues": ["3","5","7"],
+      "Default": "3"
+    },
+    "ConsulClientNodes": {
+      "Type": "String",
+      "Description": "Sets DesiredCapacity and MaxSize ",
+      "Default": "3"
+    },
+    "ConsulInstanceType": {
+      "Type": "String",
+      "Default": "t2.medium",
+      "Description": "Consul node instance type",
+      "AllowedValues": [
+        "t2.micro",
+        "t2.small",
+        "t2.medium",
+        "t2.large",
+        "m4.large",
+        "m4.xlarge",
+        "m4.2xlarge",
+        "m4.4xlarge",
+        "m4.10xlarge",
+        "m3.medium",
+        "m3.large",
+        "m3.xlarge",
+        "m3.2xlarge",
+        "c4.large",
+        "c4.xlarge",
+        "c4.2xlarge",
+        "c4.4xlarge",
+        "c4.8xlarge",
+        "c3.large",
+        "c3.xlarge",
+        "c3.2xlarge",
+        "c3.4xlarge",
+        "c3.8xlarge",
+        "r3.large",
+        "r3.xlarge",
+        "r3.2xlarge",
+        "r3.4xlarge",
+        "r3.8xlarge",
+        "i2.xlarge",
+        "i2.2xlarge",
+        "i2.4xlarge",
+        "i2.8xlarge"
+      ],
+      "ConstraintDescription": "Choose an instance type. m3.medium or larger recommended."
+      }
+    },
+    "Mappings": {
+      "AWSInfoRegionMap": {
+        "ap-northeast-1": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        },
+        "ap-northeast-2": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        },
+        "ap-south-1": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        },
+        "ap-southeast-1": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        },
+        "ap-southeast-2": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        },
+        "eu-central-1": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        },
+        "eu-west-1": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        },
+        "sa-east-1": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        },
+        "us-east-1": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        },
+        "us-east-2": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        },
+        "us-gov-west-1": {
+          "Partition": "aws-us-gov",
+          "QuickStartS3URL": "https://s3-us-gov-west-1.amazonaws.com"
+        },
+        "us-west-1": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        },
+        "us-west-2": {
+          "Partition": "aws",
+          "QuickStartS3URL": "https://s3.amazonaws.com"
+        }
+      }
+    },
+    "Resources": {
+      "VPCStack": {
+        "Type": "AWS::CloudFormation::Stack",
+        "Properties": {
+          "TemplateURL": {
+            "Fn::Join": [
+              "/", [{
+                  "Fn::FindInMap": [
+                    "AWSInfoRegionMap", {
+                      "Ref": "AWS::Region"
+                    },
+                    "QuickStartS3URL"
+                  ]
+                }, {
+                  "Ref": "QSS3BucketName"
+                },
+                "aws/vpc/latest/templates/aws-vpc.template"
+              ]
+            ]
+          },
+          "Parameters": {
+            "AvailabilityZones": {
+              "Fn::Join": [
+                ",", {
+                  "Ref": "AvailabilityZones"
+                }
+              ]
+            },
+            "KeyPairName": {
+              "Ref": "KeyPairName"
+            },
+            "NATInstanceType": {
+              "Ref": "NATInstanceType"
+            },
+            "NumberOfAZs": "3",
+            "PrivateSubnet1ACIDR": {
+              "Ref": "PrivateSubnet1CIDR"
+            },
+            "PrivateSubnet2ACIDR": {
+              "Ref": "PrivateSubnet2CIDR"
+            },
+            "PrivateSubnet3ACIDR": {
+              "Ref": "PrivateSubnet3CIDR"
+            },
+            "PublicSubnet1CIDR": {
+              "Ref": "PublicSubnet1CIDR"
+            },
+            "PublicSubnet2CIDR": {
+              "Ref": "PublicSubnet2CIDR"
+            },
+            "PublicSubnet3CIDR": {
+              "Ref": "PublicSubnet3CIDR"
+            },
+            "VPCCIDR": {
+              "Ref": "VPCCIDR"
+            }
+          }
+        }
+      },
+      "HashiCorpConsulStack": {
+        "DependsOn": "VPCStack",
+        "Type": "AWS::CloudFormation::Stack",
+        "Properties": {
+          "TemplateURL": {
+            "Fn::Join": [
+              "/", [{
+                  "Fn::FindInMap": [
+                    "AWSInfoRegionMap", {
+                      "Ref": "AWS::Region"
+                    },
+                    "QuickStartS3URL"
+                  ]
+                }, {
+                  "Ref": "QSS3BucketName"
+                }, 
+                "hashicorp/consul/latest/templates/quickstart-hashicorp-consul.template"
+              ]
+            ]
+          },
+          "Parameters": {
+            "AvailabilityZones": {
+              "Fn::Join": [
+                ",", {
+                  "Ref": "AvailabilityZones"
+                }
+              ]
+            },
+            "PrivateSubnet1ID": {
+              "Fn::GetAtt": [
+                  "VPCStack",
+                  "Outputs.PrivateSubnet1AID"
+              ]
+            },
+            "PrivateSubnet2ID": {
+                "Fn::GetAtt": [
+                    "VPCStack",
+                    "Outputs.PrivateSubnet2AID"
+                ]
+            },
+            "PrivateSubnet3ID": {
+                "Fn::GetAtt": [
+                    "VPCStack",
+                    "Outputs.PrivateSubnet3AID"
+                ]
+            },
+            "PublicSubnet1ID": {
+                "Fn::GetAtt": [
+                    "VPCStack",
+                    "Outputs.PublicSubnet1ID"
+                ]
+            },
+            "PublicSubnet2ID": {
+                "Fn::GetAtt": [
+                    "VPCStack",
+                    "Outputs.PublicSubnet2ID"
+                ]
+            },
+              "PublicSubnet3ID": {
+                "Fn::GetAtt": [
+                    "VPCStack",
+                    "Outputs.PublicSubnet3ID"
+                ]
+            },
+            "VPCID": {
+                "Fn::GetAtt": [
+                    "VPCStack",
+                    "Outputs.VPCID"
+                ]
+            },
+            "PrivateSubnet1CIDR": {
+              "Ref": "PublicSubnet1CIDR"
+            },
+            "PrivateSubnet2CIDR": {
+              "Ref": "PublicSubnet2CIDR"
+            },
+            "PrivateSubnet3CIDR": {
+              "Ref": "PublicSubnet3CIDR"
+            },
+            "PublicSubnet1CIDR": {
+              "Ref": "PublicSubnet1CIDR"
+            },
+            "PublicSubnet2CIDR": {
+              "Ref": "PublicSubnet2CIDR"
+            },
+            "PublicSubnet3CIDR": {
+              "Ref": "PublicSubnet3CIDR"
+            },
+            "VPCCIDR": {
+                "Ref": "VPCCIDR"
+            },
+            "ConsulServerNodes": {
+              "Ref": "ConsulServerNodes"
+            },
+            "ConsulClientNodes": {
+              "Ref": "ConsulClientNodes"
+            },
+            "ConsulInstanceType": {
+              "Ref": "ConsulInstanceType"
+            },
+            "KeyPair": {
+              "Ref": "KeyPairName"
+            },
+            "AccessCIDR": {
+              "Ref": "AccessCIDR"
+            },
+            "QuickStartS3URL": {
+            "Fn::Join": [
+                "/", [{
+                    "Fn::FindInMap": [
+                      "AWSInfoRegionMap", {
+                          "Ref": "AWS::Region"
+                          },
+                        "QuickStartS3URL"
+                      ]
+                    }
+                  ]
+                ]
+              },
+            "QSS3KeyPrefix": {
+              "Ref": "QSS3KeyPrefix"
+            }
+          }
+        }
+      },
+      "HashiCorpVaultStack": {
+        "DependsOn": "HashiCorpConsulStack",
+        "Type": "AWS::CloudFormation::Stack",
+        "Properties": {
+          "TemplateURL": {
+            "Fn::Join": [
+              "/", [{
+                  "Fn::FindInMap": [
+                    "AWSInfoRegionMap", {
+                      "Ref": "AWS::Region"
+                    },
+                    "QuickStartS3URL"
+                  ]
+                }, {
+                  "Ref": "QSS3BucketName"
+                }, {
+                  "Ref": "QSS3KeyPrefix"
+                },
+                "templates/quickstart-hashicorp-vault.template"
+              ]
+            ]
+          },
+          "Parameters": {
+            "PrivateSubnet1ID": {
+              "Fn::GetAtt": [
+                  "VPCStack",
+                  "Outputs.PrivateSubnet1AID"
+              ]
+            },
+            "PrivateSubnet2ID": {
+                "Fn::GetAtt": [
+                    "VPCStack",
+                    "Outputs.PrivateSubnet2AID"
+                ]
+            },
+            "VPCID": {
+                "Fn::GetAtt": [
+                    "VPCStack",
+                    "Outputs.VPCID"
+                ]
+            },
+            "ConsulMasterPrivateIP": {
+                "Fn::GetAtt": [
+                    "HashiCorpConsulStack",
+                    "Outputs.ConsulMasterPrivateIP"
+                ]
+            },
+            "VPCCIDR": {
+                "Ref": "VPCCIDR"
+            },
+            "KeyPair": {
+              "Ref": "KeyPairName"
+            },
+            "AccessCIDR": {
+              "Ref": "AccessCIDR"
+            },
+            "QuickStartS3URL": {
+            "Fn::Join": [
+                "/", [{
+                    "Fn::FindInMap": [
+                      "AWSInfoRegionMap", {
+                          "Ref": "AWS::Region"
+                          },
+                        "QuickStartS3URL"
+                      ]
+                    }
+                  ]
+                ]
+              },
+            "QSS3KeyPrefix": {
+              "Ref": "QSS3KeyPrefix"
+            }
+          }
+        }
+      }
+    }
+  }
