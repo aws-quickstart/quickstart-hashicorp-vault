@@ -129,6 +129,9 @@
             "us-east-1": {
                 "US1404HVM": "ami-2d39803a"
             },
+            "us-east-2": {
+                "US1404HVM": "ami-53eeb536"
+            },
             "us-west-1": {
                 "US1404HVM": "ami-992661f9"
             },
