@@ -71,7 +71,7 @@
         "EmailAddress": {
             "Type": "String",
             "Description": "Email Address for SNS Topic. Alarms for Vault instance memory utilzation",
-            "Default": "none@example.com",
+            "Default": "none@example.com"
         },
         "PrivateSubnet1ID": {
             "Description": "ID of the private subnet 1 in Availability Zone 1 (e.g., subnet-xxxxxxxx)",
@@ -343,14 +343,14 @@
                             "/usr/local/bin": "https://releases.hashicorp.com/vault/0.6.1/vault_0.6.1_linux_amd64.zip"
                         },
                         "files": {
-                            "/tmp/vault.hcl.template": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault/vault.hcl",
+                            "/etc/vault.d/vault.hcl": {
+                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault.hcl",
                                 "mode": "000700",
                                 "owner": "root",
                                 "group": "root"
                             },
                             "/etc/init/vault-upstart.conf": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault/vault-upstart.conf",
+                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-upstart.conf",
                                 "mode": "000700",
                                 "owner": "root",
                                 "group": "root"
@@ -364,9 +364,11 @@
                     },
                     "run_vault": {
                         "commands": {
-                            "01_run_vault_binary": {
-                                "command": "vault server -config /etc/vault.d/vault.hcl",
-                                "cwd": "/usr/local/bin/"
+                            "01_register_vault_binary": {
+                                "command": "chmod 755 vault",
+                                "command": "update-rc.d  vault  defaults",
+                                "command": "update-rc.d  vault  enable",
+                                "cwd": "/etc/init.d/"
                             }
                         }
                     }
@@ -430,7 +432,10 @@
                                 {
                                   "Ref": "ConsulMasterPrivateIP"
                                 },"\"\n",
-                                "sed -e /tmp/vault.hcl.template sed -e s/__CONSULMASTER__/${CONSULMASTER}/ >/etc/vault.d/vault.hcl",
+                                "sed -i -e  s/__CONSULMASTER__/${CONSULMASTER}/ /etc/vault.d/vault.hcl",
+                                "\n",
+                                "echo \"Starting Vault Server \" \n",
+                                "vault server -config /etc/vault.d/vault.hcl",
                                 "\n",
                                 "/usr/local/bin/cfn-signal -e $? ",
                                 "  --stack ", {
@@ -565,10 +570,11 @@
                     },
                     "run_vault": {
                         "commands": {
-                            "01_run_vault_binary": {
-                                "command": "vault server -config /etc/vault.d/vault.hcl",
-                                "cwd": "/usr/local/bin/"
-                            }
+                            "01_register_vault_binary": {
+                                "command": "chmod 755 vault",
+                                "command": "update-rc.d  vault  defaults",
+                                "command": "update-rc.d  vault  enable",
+                                "cwd": "/etc/init.d/"                            }
                         }
                     }
                 }
@@ -631,7 +637,10 @@
                                 {
                                   "Ref": "ConsulMasterPrivateIP"
                                 },"\"\n",
-                                "sed -e /tmp/vault.hcl.template sed -e s/__CONSULMASTER__/${CONSULMASTER}/ >/etc/vault.d/vault.hcl",
+                                "sed -i -e  s/__CONSULMASTER__/${CONSULMASTER}/ /etc/vault.d/vault.hcl",
+                                "\n",
+                                "echo \"Starting Vault Server \" \n",
+                                "vault server -config /etc/vault.d/vault.hcl",
                                 "\n",
                                 "/usr/local/bin/cfn-signal -e $? ",
                                 " --stack ", {
