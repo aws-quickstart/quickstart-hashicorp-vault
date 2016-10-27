@@ -68,6 +68,11 @@
             "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
             "Type": "String"
         },
+        "EmailAddress": {
+            "Type": "String",
+            "Description": "Email Address for SNS Topic. Alarms for Vault instance memory utilzation",
+            "Default": "none@example.com",
+        },
         "PrivateSubnet1ID": {
             "Description": "ID of the private subnet 1 in Availability Zone 1 (e.g., subnet-xxxxxxxx)",
             "Type": "AWS::EC2::Subnet::Id"
@@ -94,7 +99,7 @@
             "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
             "Description": "The CIDR IP range that is permitted to access Consul Note: a value of 0.0.0.0/0 will allow access from ANY ip address",
             "Type": "String"
-        },
+        }
 
     },
     "Mappings": {
@@ -140,341 +145,534 @@
             }
         }
     },
-    "Resources": {
-       "VaultSecGroup": {
-            "Type": "AWS::EC2::SecurityGroup",
+     "Resources": {
+        "VaultSNSTopic": {
+            "Type": "AWS::SNS::Topic",
             "Properties": {
-                "GroupDescription": "Enables SSH access to the Consul Master.",
-                "VpcId": {
-                    "Ref": "VPCID"
+                "Subscription": [{
+                    "Endpoint": {
+                        "Ref": "EmailAddress"
                     },
-                    "SecurityGroupIngress": [
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "22",
-                        "ToPort": "22",
-                        "CidrIp": {
-                            "Ref": "AccessCIDR"
-                        }
-                    },
-                    {
-                        "IpProtocol": "tcp",
-                        "FromPort": "0",
-                        "ToPort": "65535",
-                        "CidrIp": {
-                            "Ref": "VPCCIDR"
-                        }
-                    }
-                ],
-                "Tags": [{
-                    "Key": "Name",
-                    "Value": "VaultSecGroup"
+                    "Protocol": "email"
                 }]
             }
         },
-      "VaultLogGroup": {
-          "Type": "AWS::Logs::LogGroup",
-          "Properties": {
-            "LogGroupName": {
-                "Fn::Join": [
-                    "-", [{
-                            "Ref": "AWS::StackName"
-                        },
-                        "Vault-Audit-Logs"
+        "Vault1MemoryAlarm": {
+            "Type": "AWS::CloudWatch::Alarm",
+            "Properties": {
+                "AlarmDescription": "Memory alarm for my instance",
+                "AlarmActions": [{
+                    "Ref": "VaultSNSTopic"
+                }],
+                "MetricName": "MemoryUtilization",
+                "Namespace": "AWS/EC2",
+                "Statistic": "Average",
+                "Period": "60",
+                "EvaluationPeriods": "3",
+                "Threshold": "75",
+                "ComparisonOperator": "GreaterThanThreshold",
+                "Dimensions": [{
+                    "Name": "InstanceId",
+                    "Value": {
+                        "Ref": "Vault1"
+                    }
+                }]
+            }
+        },
+        "Vault2MemoryAlarm": {
+            "Type": "AWS::CloudWatch::Alarm",
+            "Properties": {
+                "AlarmDescription": "Memory alarm for my instance",
+                "AlarmActions": [{
+                    "Ref": "VaultSNSTopic"
+                }],
+                "MetricName": "MemoryUtilization",
+                "Namespace": "AWS/EC2",
+                "Statistic": "Average",
+                "Period": "60",
+                "EvaluationPeriods": "3",
+                "Threshold": "75",
+                "ComparisonOperator": "GreaterThanThreshold",
+                "Dimensions": [{
+                    "Name": "InstanceId",
+                    "Value": {
+                        "Ref": "Vault2"
+                    }
+                }]
+            }
+        },
+        "VaultLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+                "LogGroupName": {
+                    "Fn::Join": [
+                        "-", [{
+                                "Ref": "AWS::StackName"
+                            },
+                            "Vault-Audit-Logs"
+                        ]
                     ]
-                ]
-            },
-              "RetentionInDays": 1
-          }
-      },
-      "VaultInstanceRole": {
-         "Type": "AWS::IAM::Role",
-         "Properties": {
-            "AssumeRolePolicyDocument": {
-               "Version" : "2012-10-17",
-               "Statement": [ {
-                  "Effect": "Allow",
-                  "Principal": {
-                     "Service": [ "ec2.amazonaws.com" ]
-                  },
-                  "Action": [ "sts:AssumeRole" ]
-               } ]
-            },
-            "Path": "/",
-            "Policies": [{
-                "PolicyName": "root",
-                "PolicyDocument": {
-
+                },
+                "RetentionInDays": 7
+            }
+        },
+        "vaultinstancerole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
                     "Version": "2012-10-17",
                     "Statement": [{
                         "Effect": "Allow",
-                        "Action": [
-                            "logs:CreateLogGroup",
-                            "logs:CreateLogStream",
-                            "logs:PutLogEvents",
-                            "logs:DescribeLogStreams"
-                        ],
-                        "Resource": [
-                            "arn:aws:logs:*:*:*"
-                        ]
+                        "Principal": {
+                            "Service": ["ec2.amazonaws.com"]
+                        },
+                        "Action": ["sts:AssumeRole"]
                     }]
-                }
-            }]
-            }
-            },
-            "VaultInstanceProfile": {
-               "Type": "AWS::IAM::InstanceProfile",
-               "Properties": {
-                  "Path": "/",
-                  "Roles": [ {
-                     "Ref": "VaultInstanceRole"
-                  } ]
-               }
-            },
-      "Vault1": {
-          "Type": "AWS::EC2::Instance",
-          "Properties": {
-              "InstanceType": {
-                  "Ref": "VaultInstanceType"
-              },
-              "NetworkInterfaces": [{
-                    "DeleteOnTermination": "true",
-                    "DeviceIndex": 0,
-                    "SubnetId": {
-                        "Ref": "PrivateSubnet1ID"
-                    },
-                    "GroupSet": [{
-                        "Ref": "VaultSecGroup"
-                    }]
-                }],
-              "KeyName": {
-                  "Ref": "KeyPair"
-              },
-              "ImageId": {
-                  "Fn::FindInMap": [
-                      "AWSAMIRegionMap", {
-                          "Ref": "AWS::Region"
-                      },
-                      "US1404HVM"
-                  ]
-              },
-              "BlockDeviceMappings": [
-                  {
-                      "DeviceName": "/dev/sda1",
-                      "Ebs": {
-                          "VolumeSize": "20",
-                          "VolumeType": "gp2"
-                      }
-                  }
-              ],
-              "UserData": {
-                  "Fn::Base64": {
-                      "Fn::Join": [
-                          "", [
-                            "#!/bin/bash\n",
-                            "sudo apt-get update\n",
-                            "mkdir /etc/vault.d",
-                            "#installing the cloudwatch logs agent\n",
-                            "curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O\n",
-                            "chmod +x ./awslogs-agent-setup.py\n",
-                            "./awslogs-agent-setup.py -n -r ",
-                            {
-                                "Ref": "AWS::Region"
-                            },
-                            " -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-awslogs-config\n",
-                            "#need the following two files in the QS s3 bucket:",
-                            "S3SCRIPT_PATH='https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/'\n",
-                            "CONSULMASTER=",
-                            {
-                                "Ref": "ConsulMasterPrivateIP"
-                            },"\"\n",
-                            "curl  ${S3SCRIPT_PATH}/base_json | sed -e s/__CONSULMASTER__/${CONSULMASTER}/ >  ${VAULTCONFIGDIR}/vault-base.json\n",
-                            "#TODO: point Vault conf file at Consul master https://www.vaultproject.io/docs/config/index.html\n",
-                            "wget https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-base.conf && mv /etc/vault.d/vault-base.conf\n",
-                            "wget ${S3SCRIPT_PATH}/vault-boostrap.sh\n",
-                            "chmod +x ./vault-boostrap.sh\n",
-                            "./vault-boostrap.sh",
-                            "# TODO add upstart for vault /etc/init/vault-upstart.conf"
-                          ]
-                      ]
-                  }
-              },
-              "IamInstanceProfile": {"Ref": "VaultInstanceProfile"},
-              "Tags": [
-                  {
-                      "Key": "Name",
-                      "Value": {
-                          "Fn::Join": [
-                              "-",
-                              [
-                                  {
-                                      "Ref": "AWS::StackName"
-                                  },
-                                  "Vault1"
-                              ]
-                          ]
-                      }
-                  }
-              ]
-          }
-      },
-      "Vault1RecoveryAlarm": {
-          "Type": "AWS::CloudWatch::Alarm",
-          "Properties": {
-              "AlarmDescription": "EC2 Autorecovery for Vault1 node. Autorecover if we fail EC2 status checks for 5 minutes.",
-              "Namespace": "AWS/EC2",
-              "MetricName": "StatusCheckFailed_System",
-              "Statistic": "Minimum",
-              "Period": "60",
-              "EvaluationPeriods": "5",
-              "ComparisonOperator": "GreaterThanThreshold",
-              "Threshold": "0",
-              "AlarmActions": [
-                  {
-                      "Fn::Join": [
-                          "",
-                          [
-                              "arn:aws:automate:",
-                              {
-                                  "Ref": "AWS::Region"
-                              },
-                              ":ec2:recover"
-                          ]
-                      ]
-                  }
-              ],
-              "Dimensions": [
-                  {
-                      "Name": "InstanceId",
-                      "Value": {
-                          "Ref": "Vault1"
-                      }
-                  }
-              ]
-          }
-      },
-      "Vault2": {
-          "Type": "AWS::EC2::Instance",
-          "Properties": {
-              "InstanceType": {
-                  "Ref": "VaultInstanceType"
-              },
-              "NetworkInterfaces": [{
-                    "DeleteOnTermination": "true",
-                    "DeviceIndex": 0,
-                    "SubnetId": {
-                        "Ref": "PrivateSubnet1ID"
-                    },
-                    "GroupSet": [{
-                        "Ref": "VaultSecGroup"
-                    }]
-                }],
-              "KeyName": {
-                  "Ref": "KeyPair"
-              },
-              "ImageId": {
-                  "Fn::FindInMap": [
-                      "AWSAMIRegionMap", {
-                          "Ref": "AWS::Region"
-                      },
-                      "US1404HVM"
-                  ]
-              },
-              "BlockDeviceMappings": [
-                  {
-                      "DeviceName": "/dev/sda1",
-                      "Ebs": {
-                          "VolumeSize": "20",
-                          "VolumeType": "gp2"
-                      }
-                  }
-              ],
-              "UserData": {
-                  "Fn::Base64": {
-                      "Fn::Join": [
-                          "", [
-                            "#!/bin/bash\n",
-                            "sudo apt-get update\n",
-                            "mkdir /etc/vault.d",
-                            "#installing the cloudwatch logs agent\n",
-                            "curl https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py -O\n",
-                            "chmod +x ./awslogs-agent-setup.py\n",
-                            "./awslogs-agent-setup.py -n -r ",
-                            {
-                                "Ref": "AWS::Region"
-                            },
-                            " -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-awslogs-config\n",
-                            "#need the following two files in the QS s3 bucket:",
-                            "S3SCRIPT_PATH='https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/'\n",
-                            "CONSULMASTER=",
-                            {
-                                "Ref": "ConsulMasterPrivateIP"
-                            },"\"\n",
-                            "curl  ${S3SCRIPT_PATH}/base_json | sed -e s/__CONSULMASTER__/${CONSULMASTER}/ >  ${VAULTCONFIGDIR}/vault-base.json\n",
-                            "#TODO: point Vault conf file at Consul master https://www.vaultproject.io/docs/config/index.html\n",
-                            "wget https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-base.conf && mv /etc/vault.d/vault-base.conf\n",
-                            "wget ${S3SCRIPT_PATH}/vault-boostrap.sh\n",
-                            "chmod +x ./vault-boostrap.sh\n",
-                            "./vault-boostrap.sh",
-                            "# TODO add upstart for vault /etc/init/vault-upstart.conf"
-                          ]
-                      ]
-                  }
-              },
-              "IamInstanceProfile": {"Ref": "VaultInstanceProfile"},
-              "Tags": [
-                  {
-                      "Key": "Name",
-                      "Value": {
-                          "Fn::Join": [
-                              "-",
-                              [
-                                  {
-                                      "Ref": "AWS::StackName"
-                                  },
-                                  "Vault2"
-                              ]
-                          ]
-                      }
-                  }
-              ]
-          }
-      },
-      "Vault2RecoveryAlarm": {
-          "Type": "AWS::CloudWatch::Alarm",
-          "Properties": {
-              "AlarmDescription": "EC2 Autorecovery for Vault2 node. Autorecover if we fail EC2 status checks for 5 minutes.",
-              "Namespace": "AWS/EC2",
-              "MetricName": "StatusCheckFailed_System",
-              "Statistic": "Minimum",
-              "Period": "60",
-              "EvaluationPeriods": "5",
-              "ComparisonOperator": "GreaterThanThreshold",
-              "Threshold": "0",
-              "AlarmActions": [
-                  {
-                      "Fn::Join": [
-                          "",
-                          [
-                              "arn:aws:automate:",
-                              {
-                                  "Ref": "AWS::Region"
-                              },
-                              ":ec2:recover"
-                          ]
-                      ]
-                  }
-              ],
-              "Dimensions": [
-                  {
-                      "Name": "InstanceId",
-                      "Value": {
-                          "Ref": "Vault2"
-                      }
-                  }
-              ]
-          }
-      },
+                },
+                "Path": "/",
+                "Policies": [{
+                    "PolicyName": "root",
+                    "PolicyDocument": {
 
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                            "Effect": "Allow",
+                            "Action": [
+                                "logs:CreateLogGroup",
+                                "logs:CreateLogStream",
+                                "logs:PutLogEvents",
+                                "logs:DescribeLogStreams"
+                            ],
+                            "Resource": [
+                                "arn:aws:logs:*:*:*"
+                            ]
+                        }]
+                    }
+                }]
+            }
+        },
+        "vaultinstanceprofile": {
+            "Type": "AWS::IAM::InstanceProfile",
+            "Properties": {
+                "Path": "/",
+                "Roles": [{
+                    "Ref": "vaultinstancerole"
+                }]
+            }
+        },
+        "Vault1": {
+            "Type": "AWS::EC2::Instance",
+            "Metadata": {
+                "AWS::CloudFormation::Init": {
+                    "configSets": {
+                        "vault_install": [ "install_cloudwatch_logs_and_mon_scripts", "install_vault", "run_vault" ]
+                    },
+                    "install_cloudwatch_logs_and_mon_scripts": {
+                        "packages": {
+                            "apt": {
+                                "unzip": [],
+                                "libwww-perl": [],
+                                "libdatetime-perl": []
+                            }
+                        },
+                        "sources": {
+                            "/usr/local": "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
+                        },
+                        "files": {
+                            "/etc/cron.hourly/cloudwatch-monitoring": {
+                                "content": [ "*/5 * * * * /usr/local/aws-scripts-mon/mon-put-instance-data.pl --mem-util --mem-used --from-cron" ],
+                                "mode": "000700",
+                                "owner": "root",
+                                "group": "root"
+                            },
+                            "/usr/local/awslogs-agent-setup.py": {
+                                "source": "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py",
+                                "mode": "000700",
+                                "owner": "root",
+                                "group": "root"
+                            }
+                        },
+                        "commands": {
+                            "01_run_awslogs_agent_setup.py": {
+                                "command": {
+                                    "Fn::Sub": ["python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file", {
+                                        "Region": {
+                                            "Ref": "AWS::Region"
+                                        }
+                                    }]
+                                }
+                            },
+                            "02_make_mon_put_instance_data_exececutable": {
+                                "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
+                            }
+                        }
+                    },
+                    "install_vault": {
+                        "sources": {
+                            "/usr/local/bin": "https://releases.hashicorp.com/vault/0.6.1/vault_0.6.1_linux_amd64.zip"
+                        },
+                        "files": {
+                            "/tmp/vault.hcl.template": {
+                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault/vault.hcl",
+                                "mode": "000700",
+                                "owner": "root",
+                                "group": "root"
+                            },
+                            "/etc/init/vault-upstart.conf": {
+                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault/vault-upstart.conf",
+                                "mode": "000700",
+                                "owner": "root",
+                                "group": "root"
+                            }
+                        },
+                        "commands": {
+                            "01_chmod_and_chown_vault": {
+                                "command": "chmod 0755 /usr/local/bin/vault && chown root:root /usr/local/bin/vault"
+                            }
+                        }
+                    },
+                    "run_vault": {
+                        "commands": {
+                            "01_run_vault_binary": {
+                                "command": "vault server -config /etc/vault.d/vault.hcl",
+                                "cwd": "/usr/local/bin/"
+                            }
+                        }
+                    }
+                }
+            },
+            "Properties": {
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "0", {
+                            "Fn::GetAZs": {
+                                "Ref": "AWS::Region"
+                            }
+                        }
+                    ]
+                },
+                "InstanceType": {
+                    "Ref": "VaultInstanceType"
+                },
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSAMIRegionMap", {
+                            "Ref": "AWS::Region"
+                        },
+                        "US1404HVM"
+                    ]
+                },
+                "BlockDeviceMappings": [{
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                        "VolumeSize": "20",
+                        "VolumeType": "gp2"
+                    }
+                }],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "", [
+                                "#!/bin/bash -e\n",
+                                "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
+                                "apt-get -y update\n",
+                                "#install the cfn-init tools\n",
+                                "apt-get -y install python-pip\n",
+                                "pip install pyOpenSSL ndg-httpsclient pyasn1\n",
+                                "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+                                "ln -s /root/aws-cfn-bootstrap-latest/init/ubuntu/cfn-hup /etc/init.d/cfn-hup\n",
+                                "/usr/local/bin/cfn-init",
+                                " --verbose ",
+                                " --stack ", {
+                                    "Ref": "AWS::StackName"
+                                },
+                                " --resource Vault1",
+                                " --configsets vault_install",
+                                " --region ", {
+                                    "Ref": "AWS::Region"
+                                }, "\n",
+                                "CONSULMASTER=",
+                                {
+                                  "Ref": "ConsulMasterPrivateIP"
+                                },"\"\n",
+                                "sed -e /tmp/vault.hcl.template sed -e s/__CONSULMASTER__/${CONSULMASTER}/ >/etc/vault.d/vault.hcl",
+                                "\n",
+                                "/usr/local/bin/cfn-signal -e $? ",
+                                "  --stack ", {
+                                    "Ref": "AWS::StackName"
+                                },
+                                " --resource Vault1 ",
+                                " --region ", {
+                                    "Ref": "AWS::Region"
+                                }, "\n"
+                            ]
+                        ]
+                    }
+                },
+                "IamInstanceProfile": {
+                    "Ref": "vaultinstanceprofile"
+                },
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": {
+                        "Fn::Join": [
+                            "-", [{
+                                    "Ref": "AWS::StackName"
+                                },
+                                "Vault1"
+                            ]
+                        ]
+                    }
+                }]
+            }
+        },
+        "Vault1RecoveryAlarm": {
+            "Type": "AWS::CloudWatch::Alarm",
+            "Properties": {
+                "AlarmDescription": "EC2 Autorecovery for Vault1 node. Autorecover if we fail EC2 status checks for 5 minutes.",
+                "Namespace": "AWS/EC2",
+                "MetricName": "StatusCheckFailed_System",
+                "Statistic": "Minimum",
+                "Period": "60",
+                "EvaluationPeriods": "5",
+                "ComparisonOperator": "GreaterThanThreshold",
+                "Threshold": "0",
+                "AlarmActions": [{
+                    "Ref": "VaultSNSTopic"
+                }, {
+                    "Fn::Join": [
+                        "", [
+                            "arn:aws:automate:", {
+                                "Ref": "AWS::Region"
+                            },
+                            ":ec2:recover"
+                        ]
+                    ]
+                }],
+                "Dimensions": [{
+                    "Name": "InstanceId",
+                    "Value": {
+                        "Ref": "Vault1"
+                    }
+                }]
+            }
+        },
+        "Vault2": {
+            "Type": "AWS::EC2::Instance",
+            "Metadata": {
+                "AWS::CloudFormation::Init": {
+                    "configSets": {
+                        "vault_install": ["install_cloudwatch_logs_and_mon_scripts", "install_vault", "run_vault"]
+                    },
+                    "install_cloudwatch_logs_and_mon_scripts": {
+                        "packages": {
+                            "apt": {
+                                "unzip": [],
+                                "libwww-perl": [],
+                                "libdatetime-perl": []
+                            }
+                        },
+                        "sources": {
+                            "/usr/local": "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
+                        },
+                        "files": {
+                            "/etc/cron.hourly/cloudwatch-monitoring": {
+                                "content": [ "*/5 * * * * /usr/local/aws-scripts-mon/mon-put-instance-data.pl --mem-util --mem-used --from-cron" ],
+                                "mode": "000700",
+                                "owner": "root",
+                                "group": "root"
+                            },
+                            "/usr/local/awslogs-agent-setup.py": {
+                                "source": "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py",
+                                "mode": "000700",
+                                "owner": "root",
+                                "group": "root"
+                            }
+                        },
+                        "commands": {
+                            "01_run_awslogs_agent_setup.py": {
+                                "command": {
+                                    "Fn::Sub": ["python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault/awslogs-config-file", {
+                                        "Region": {
+                                            "Ref": "AWS::Region"
+                                        }
+                                    }]
+                                }
+                            },
+                            "02_make_mon_put_instance_data_exececutable": {
+                                "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
+                            }
+                        }
+                    },
+                    "install_vault": {
+                        "sources": {
+                            "/usr/local/bin": "https://releases.hashicorp.com/vault/0.6.1/vault_0.6.1_linux_amd64.zip"
+                        },
+                        "files": {
+                            "/etc/vault.d/vault.hcl": {
+                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault/vault.hcl",
+                                "mode": "000700",
+                                "owner": "root",
+                                "group": "root"
+                            },
+                            "/etc/init/vault-upstart.conf": {
+                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault/vault-upstart.conf",
+                                "mode": "000700",
+                                "owner": "root",
+                                "group": "root"
+                            }
+                        },
+                        "commands": {
+                            "01_chmod_and_chown_vault": {
+                                "command": "chmod 0755 /usr/local/bin/vault && chown root:root /usr/local/bin/vault"
+                            }
+                        }
+                    },
+                    "run_vault": {
+                        "commands": {
+                            "01_run_vault_binary": {
+                                "command": "vault server -config /etc/vault.d/vault.hcl",
+                                "cwd": "/usr/local/bin/"
+                            }
+                        }
+                    }
+                }
+            },
+            "Properties": {
+                "AvailabilityZone": {
+                    "Fn::Select": [
+                        "1", {
+                            "Fn::GetAZs": {
+                                "Ref": "AWS::Region"
+                            }
+                        }
+                    ]
+                },
+                "InstanceType": {
+                    "Ref": "VaultInstanceType"
+                },
+                "KeyName": {
+                    "Ref": "KeyPair"
+                },
+                "ImageId": {
+                    "Fn::FindInMap": [
+                        "AWSAMIRegionMap", {
+                            "Ref": "AWS::Region"
+                        },
+                        "US1404HVM"
+                    ]
+                },
+                "BlockDeviceMappings": [{
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                        "VolumeSize": "20",
+                        "VolumeType": "gp2"
+                    }
+                }],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "", [
+                                "#!/bin/bash -e\n",
+                                "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
+                                "apt-get -y update\n",
+                                "#install the cfn-init tools\n",
+                                "apt-get -y install python-pip\n",
+                                "pip install pyOpenSSL ndg-httpsclient pyasn1\n",
+                                "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+                                "ln -s /root/aws-cfn-bootstrap-latest/init/ubuntu/cfn-hup /etc/init.d/cfn-hup\n",
+                                "/usr/local/bin/cfn-init",
+                                " --verbose ",
+                                " --stack ", {
+                                    "Ref": "AWS::StackName"
+                                },
+                                " --resource Vault2",
+                                " --configsets vault_install",
+                                " --region ", {
+                                    "Ref": "AWS::Region"
+                                }, "\n",
+                                "CONSULMASTER=",
+                                {
+                                  "Ref": "ConsulMasterPrivateIP"
+                                },"\"\n",
+                                "sed -e /tmp/vault.hcl.template sed -e s/__CONSULMASTER__/${CONSULMASTER}/ >/etc/vault.d/vault.hcl",
+                                "\n",
+                                "/usr/local/bin/cfn-signal -e $? ",
+                                " --stack ", {
+                                    "Ref": "AWS::StackName"
+                                },
+                                "  --resource Vault2 ",
+                                "  --region ", {
+                                    "Ref": "AWS::Region"
+                                }, "\n"
+                            ]
+                        ]
+                    }
+                },
+                "IamInstanceProfile": {
+                    "Ref": "vaultinstanceprofile"
+                },
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": {
+                        "Fn::Join": [
+                            "-", [{
+                                    "Ref": "AWS::StackName"
+                                },
+                                "Vault2"
+                            ]
+                        ]
+                    }
+                }]
+            }
+        },
+        "Vault2RecoveryAlarm": {
+            "Type": "AWS::CloudWatch::Alarm",
+            "Properties": {
+                "AlarmDescription": "EC2 Autorecovery for Vault2 node. Autorecover if we fail EC2 status checks for 5 minutes.",
+                "Namespace": "AWS/EC2",
+                "MetricName": "StatusCheckFailed_System",
+                "Statistic": "Minimum",
+                "Period": "60",
+                "EvaluationPeriods": "5",
+                "ComparisonOperator": "GreaterThanThreshold",
+                "Threshold": "0",
+                "AlarmActions": [{
+                    "Ref": "VaultSNSTopic"
+                }, {
+                    "Fn::Join": [
+                        "", [
+                            "arn:aws:automate:", {
+                                "Ref": "AWS::Region"
+                            },
+                            ":ec2:recover"
+                        ]
+                    ]
+                }],
+                "Dimensions": [{
+                    "Name": "InstanceId",
+                    "Value": {
+                        "Ref": "Vault2"
+                    }
+                }]
             }
         }
+    },
+    "Outputs": {
+        "VaultNode1PrivateIp": {
+            "Description": "Private IP of Vault Node #1",
+            "Value": {
+                "Fn::GetAtt": ["Vault1", "PrivateIp"]
+            }
+        },
+        "VaultNode2PrivateIp": {
+            "Description": "Private IP of Vault Node #2",
+            "Value": {
+                "Fn::GetAtt": ["Vault2", "PrivateIp"]
+            }
+        }
+    }
+}

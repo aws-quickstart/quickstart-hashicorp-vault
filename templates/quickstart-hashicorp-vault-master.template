@@ -21,12 +21,10 @@
         ]
       }, {
         "Label": {
-          "default": "Consul Setup"
+          "default": "Vault Setup"
         },
         "Parameters": [
-          "AtlasToken",
-          "ConsulNodes",
-          "ConsulInstanceType",
+          "EmailAddress",      
           "KeyPairName"
         ]
       }, {
@@ -90,6 +88,10 @@
       "Description": "Public/private key pairs allow you to securely connect to your instance after it launches",
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
+    "EmailAddress": {
+            "Type": "String",
+            "Description": "Email Address for SNS Topic. Alarms for Vault instance memory utilzation"
+        },
     "NATInstanceType": {
       "AllowedValues": [
         "t2.nano",
