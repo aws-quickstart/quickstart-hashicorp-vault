@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Hashicorp Consul+Vault template master, License: Apache 2.0 (Please do not remove) Oct,26,2016",
+  "Description": "Hashicorp Consul+Vault template master, License: Apache 2.0 (Please do not remove) Oct,27,2016",
   "Metadata": {
     "AWS::CloudFormation::Interface": {
       "ParameterGroups": [{
@@ -481,6 +481,13 @@
             ]
           },
           "Parameters": {
+            "AvailabilityZones": {
+              "Fn::Join": [
+                ",", {
+                  "Ref": "AvailabilityZones"
+                }
+              ]
+            },
             "PrivateSubnet1ID": {
               "Fn::GetAtt": [
                   "VPCStack",
@@ -513,6 +520,9 @@
             },
             "AccessCIDR": {
               "Ref": "AccessCIDR"
+            },
+            "EmailAddress": {
+              "Ref": "EmailAddress"
             },
             "QuickStartS3URL": {
             "Fn::Join": [
