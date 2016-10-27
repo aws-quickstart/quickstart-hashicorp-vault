@@ -2,10 +2,6 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "QS(0037) HashiCorp Consul License: Apache 2.0 (Please do not remove) Oct,27,2016",
     "Parameters": {
-        "AvailabilityZones": {
-            "Description": "List of Availability Zones to use for the subnets in the VPC. Note: The logical order is preserved and only 2 AZs are used for this deployment.",
-            "Type": "List<AWS::EC2::AvailabilityZone::Name>"
-        },
         "KeyPair": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
             "Type": "AWS::EC2::KeyPair::KeyName",

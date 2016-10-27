@@ -481,13 +481,6 @@
             ]
           },
           "Parameters": {
-            "AvailabilityZones": {
-              "Fn::Join": [
-                ",", {
-                  "Ref": "AvailabilityZones"
-                }
-              ]
-            },
             "PrivateSubnet1ID": {
               "Fn::GetAtt": [
                   "VPCStack",
