@@ -1,6 +1,6 @@
 backend "consul" {
   address = "__CONSULMASTER__:8500"
-  path = "vault"
+  path = "vault/"
 }
 
 listener "tcp" {

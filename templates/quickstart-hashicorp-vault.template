@@ -296,7 +296,7 @@
             "Metadata": {
                 "AWS::CloudFormation::Init": {
                     "configSets": {
-                        "vault_install": [ "install_cloudwatch_logs_and_mon_scripts", "install_vault", "run_vault" ]
+                        "vault_install": [ "install_vault", "run_vault", "install_cloudwatch_logs_and_mon_scripts" ]
                     },
                     "install_cloudwatch_logs_and_mon_scripts": {
                         "packages": {
@@ -410,14 +410,13 @@
                     "Fn::Base64": {
                         "Fn::Join": [
                             "", [
-                                "#!/bin/bash -e\n",
+                                "#!/bin/bash -x\n",
                                 "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 "apt-get -y update\n",
                                 "#install the cfn-init tools\n",
                                 "apt-get -y install python-pip\n",
                                 "pip install pyOpenSSL ndg-httpsclient pyasn1\n",
                                 "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
-                                "ln -s /root/aws-cfn-bootstrap-latest/init/ubuntu/cfn-hup /etc/init.d/cfn-hup\n",
                                 "/usr/local/bin/cfn-init",
                                 " --verbose ",
                                 " --stack ", {
@@ -428,7 +427,7 @@
                                 " --region ", {
                                     "Ref": "AWS::Region"
                                 }, "\n",
-                                "CONSULMASTER=",
+                                "CONSULMASTER=\"",
                                 {
                                   "Ref": "ConsulMasterPrivateIP"
                                 },"\"\n",
@@ -502,7 +501,7 @@
             "Metadata": {
                 "AWS::CloudFormation::Init": {
                     "configSets": {
-                        "vault_install": ["install_cloudwatch_logs_and_mon_scripts", "install_vault", "run_vault"]
+                        "vault_install": [ "install_vault", "run_vault", "install_cloudwatch_logs_and_mon_scripts" ]
                     },
                     "install_cloudwatch_logs_and_mon_scripts": {
                         "packages": {
@@ -615,14 +614,13 @@
                     "Fn::Base64": {
                         "Fn::Join": [
                             "", [
-                                "#!/bin/bash -e\n",
+                                "#!/bin/bash -x\n",
                                 "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 "apt-get -y update\n",
                                 "#install the cfn-init tools\n",
                                 "apt-get -y install python-pip\n",
                                 "pip install pyOpenSSL ndg-httpsclient pyasn1\n",
                                 "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
-                                "ln -s /root/aws-cfn-bootstrap-latest/init/ubuntu/cfn-hup /etc/init.d/cfn-hup\n",
                                 "/usr/local/bin/cfn-init",
                                 " --verbose ",
                                 " --stack ", {
@@ -633,7 +631,7 @@
                                 " --region ", {
                                     "Ref": "AWS::Region"
                                 }, "\n",
-                                "CONSULMASTER=",
+                                "CONSULMASTER\"=",
                                 {
                                   "Ref": "ConsulMasterPrivateIP"
                                 },"\"\n",
