@@ -81,10 +81,10 @@
             "Description": "ID of the private subnet 2 in Availability Zone 2 (e.g., subnet-xxxxxxxx)",
             "Type": "AWS::EC2::Subnet::Id"
         },
-        "ConsulMasterPrivateIP": {
+        "ConsulSeedPrivateIP": {
             "Default": "",
             "Type": "String",
-            "Description": "ConsulMasterPrivateIP"
+            "Description": "ConsulSeedPrivateIP"
         },
         "VPCID": {
             "Description": "VPC ID",
@@ -160,7 +160,7 @@
         "VaultSecGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
-                "GroupDescription": "Enables SSH access to the Consul Master.",
+                "GroupDescription": "Enables SSH access to the Consul Seed.",
                 "VpcId": {
                     "Ref": "VPCID"
                     },
@@ -427,11 +427,11 @@
                                 " --region ", {
                                     "Ref": "AWS::Region"
                                 }, "\n",
-                                "CONSULMASTER=\"",
+                                "CONSULSEED=\"",
                                 {
-                                  "Ref": "ConsulMasterPrivateIP"
+                                  "Ref": "ConsulSeedPrivateIP"
                                 },"\"\n",
-                                "sed -i -e  s/__CONSULMASTER__/${CONSULMASTER}/ /etc/vault.d/vault.hcl",
+                                "sed -i -e  s/__CONSULSEED__/${CONSULSEED}/ /etc/vault.d/vault.hcl",
                                 "\n",
                                 "echo \"Starting Vault Server \" \n",
                                 "vault server -config /etc/vault.d/vault.hcl",
@@ -631,11 +631,11 @@
                                 " --region ", {
                                     "Ref": "AWS::Region"
                                 }, "\n",
-                                "CONSULMASTER\"=",
+                                "CONSULSEED\"=",
                                 {
-                                  "Ref": "ConsulMasterPrivateIP"
+                                  "Ref": "ConsulSeedPrivateIP"
                                 },"\"\n",
-                                "sed -i -e  s/__CONSULMASTER__/${CONSULMASTER}/ /etc/vault.d/vault.hcl",
+                                "sed -i -e  s/__CONSULSEED__/${CONSULSEED}/ /etc/vault.d/vault.hcl",
                                 "\n",
                                 "echo \"Starting Vault Server \" \n",
                                 "vault server -config /etc/vault.d/vault.hcl",
