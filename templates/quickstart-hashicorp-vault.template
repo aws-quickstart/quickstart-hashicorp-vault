@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "QS(0037) HashiCorp Consul License: Apache 2.0 (Please do not remove) Oct,31,2016",
+    "Description": "QS(0037) HashiCorp Consul License: Apache 2.0 (Please do not remove) Nov,3,2016",
     "Parameters": {
         "KeyPair": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
@@ -349,11 +349,12 @@
                                 "owner": "root",
                                 "group": "root"
                             },
-                            "/etc/init/vault-upstart.conf": {
+                            "/etc/init/vault.conf": {
                                 "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-upstart.conf",
                                 "mode": "000700",
                                 "owner": "root",
-                                "group": "root"
+                                "group": "root",
+                                "command": "echo 'export VAULT_ADDR=http://127.0.0.1:8200' > /etc/profile.d/vault.sh"
                             }
                         },
                         "commands": {
@@ -365,10 +366,7 @@
                     "run_vault": {
                         "commands": {
                             "01_register_vault_binary": {
-                                "command": "chmod 755 vault",
-                                "command": "update-rc.d  vault  defaults",
-                                "command": "update-rc.d  vault  enable",
-                                "cwd": "/etc/init.d/"
+                                "command": "start vault",
                             }
                         }
                     }
@@ -411,12 +409,18 @@
                         "Fn::Join": [
                             "", [
                                 "#!/bin/bash -x\n",
-                                "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 "apt-get -y update\n",
-                                "#install the cfn-init tools\n",
-                                "apt-get -y install python-pip\n",
-                                "pip install pyOpenSSL ndg-httpsclient pyasn1\n",
+                                "apt-get -y install  python-setuptools\n",
                                 "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+                                "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
+                                "SEEDIP=\"",
+                                {
+                                  "Ref": "ConsulSeedPrivateIP"
+                                },"\"\n",
+                                "wget https://s3.amazonaws.com/quickstart-reference/hashicorp/consul/latest/scripts/consul_client_bootstrap.sh\n",
+                                "chmod 755 ./consul_client_bootstrap.sh\n",
+                                "./consul_client_bootstrap.sh --s3url https://s3.amazonaws.com --s3bucket quickstart-reference --s3prefix hashicorp/consul/latest --seedip ${SEEDIP}",
+                                "\n",
                                 "/usr/local/bin/cfn-init",
                                 " --verbose ",
                                 " --stack ", {
@@ -427,15 +431,6 @@
                                 " --region ", {
                                     "Ref": "AWS::Region"
                                 }, "\n",
-                                "CONSULSEED=\"",
-                                {
-                                  "Ref": "ConsulSeedPrivateIP"
-                                },"\"\n",
-                                "sed -i -e  s/__CONSULSEED__/${CONSULSEED}/ /etc/vault.d/vault.hcl",
-                                "\n",
-                                "echo \"Starting Vault Server \" \n",
-                                "vault server -config /etc/vault.d/vault.hcl",
-                                "\n",
                                 "/usr/local/bin/cfn-signal -e $? ",
                                 "  --stack ", {
                                     "Ref": "AWS::StackName"
@@ -531,7 +526,7 @@
                         "commands": {
                             "01_run_awslogs_agent_setup.py": {
                                 "command": {
-                                    "Fn::Sub": ["python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault/awslogs-config-file", {
+                                    "Fn::Sub": ["python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file", {
                                         "Region": {
                                             "Ref": "AWS::Region"
                                         }
@@ -549,16 +544,17 @@
                         },
                         "files": {
                             "/etc/vault.d/vault.hcl": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault/vault.hcl",
+                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault.hcl",
                                 "mode": "000700",
                                 "owner": "root",
                                 "group": "root"
                             },
-                            "/etc/init/vault-upstart.conf": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault/vault-upstart.conf",
+                            "/etc/init/vault.conf": {
+                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-upstart.conf",
                                 "mode": "000700",
                                 "owner": "root",
-                                "group": "root"
+                                "group": "root",
+                                "command": "echo 'export VAULT_ADDR=http://127.0.0.1:8200' > /etc/profile.d/vault.sh"
                             }
                         },
                         "commands": {
@@ -570,10 +566,8 @@
                     "run_vault": {
                         "commands": {
                             "01_register_vault_binary": {
-                                "command": "chmod 755 vault",
-                                "command": "update-rc.d  vault  defaults",
-                                "command": "update-rc.d  vault  enable",
-                                "cwd": "/etc/init.d/"                            }
+                                "command": "start vault",
+                            }
                         }
                     }
                 }
@@ -618,9 +612,16 @@
                                 "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 "apt-get -y update\n",
                                 "#install the cfn-init tools\n",
-                                "apt-get -y install python-pip\n",
-                                "pip install pyOpenSSL ndg-httpsclient pyasn1\n",
+                                "apt-get install python-setuptools\n",
                                 "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
+                                "SEEDIP=\"",
+                                {
+                                  "Ref": "ConsulSeedPrivateIP"
+                                },"\"\n",
+                                "wget https://s3.amazonaws.com/quickstart-reference/hashicorp/consul/latest/scripts/consul_client_bootstrap.sh\n",
+                                "chmod 755 ./consul_client_bootstrap.sh\n",
+                                "./consul_client_bootstrap.sh --s3url https://s3.amazonaws.com --s3bucket quickstart-reference --s3prefix hashicorp/consul/latest --seedip ${SEEDIP}",
+                                "\n",
                                 "/usr/local/bin/cfn-init",
                                 " --verbose ",
                                 " --stack ", {
@@ -631,15 +632,6 @@
                                 " --region ", {
                                     "Ref": "AWS::Region"
                                 }, "\n",
-                                "CONSULSEED\"=",
-                                {
-                                  "Ref": "ConsulSeedPrivateIP"
-                                },"\"\n",
-                                "sed -i -e  s/__CONSULSEED__/${CONSULSEED}/ /etc/vault.d/vault.hcl",
-                                "\n",
-                                "echo \"Starting Vault Server \" \n",
-                                "vault server -config /etc/vault.d/vault.hcl",
-                                "\n",
                                 "/usr/local/bin/cfn-signal -e $? ",
                                 " --stack ", {
                                     "Ref": "AWS::StackName"

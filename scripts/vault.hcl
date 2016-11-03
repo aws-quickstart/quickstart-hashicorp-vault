@@ -1,5 +1,5 @@
 backend "consul" {
-  address = "__CONSULSEED__:8500"
+  address = "consul.service.consul:8500"
   path = "vault/"
 }
 
