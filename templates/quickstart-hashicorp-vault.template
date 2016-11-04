@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "QS(0037) HashiCorp Consul License: Apache 2.0 (Please do not remove) Nov,3,2016",
+    "Description": "QS(0039) HashiCorp Consul License: Apache 2.0 (Please do not remove) Nov,3,2016",
     "Parameters": {
         "KeyPair": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
