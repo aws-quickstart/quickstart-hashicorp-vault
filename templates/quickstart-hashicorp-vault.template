@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "QS(0039) HashiCorp Consul License: Apache 2.0 (Please do not remove) Nov,3,2016",
+    "Description": "QS(0039) HashiCorp Consul License: Apache 2.0 (Please do not remove) Nov,7,2016",
     "Parameters": {
         "KeyPair": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
@@ -340,7 +340,7 @@
                     },
                     "install_vault": {
                         "sources": {
-                            "/usr/local/bin": "https://releases.hashicorp.com/vault/0.6.1/vault_0.6.1_linux_amd64.zip"
+                            "/usr/local/bin": "https://releases.hashicorp.com/vault/0.6.2/vault_0.6.2_linux_amd64.zip"
                         },
                         "files": {
                             "/etc/vault.d/vault.hcl": {
@@ -353,8 +353,7 @@
                                 "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-upstart.conf",
                                 "mode": "000700",
                                 "owner": "root",
-                                "group": "root",
-                                "command": "echo 'export VAULT_ADDR=http://127.0.0.1:8200' > /etc/profile.d/vault.sh"
+                                "group": "root"
                             }
                         },
                         "commands": {
@@ -540,7 +539,7 @@
                     },
                     "install_vault": {
                         "sources": {
-                            "/usr/local/bin": "https://releases.hashicorp.com/vault/0.6.1/vault_0.6.1_linux_amd64.zip"
+                            "/usr/local/bin": "https://releases.hashicorp.com/vault/0.6.2/vault_0.6.2_linux_amd64.zip"
                         },
                         "files": {
                             "/etc/vault.d/vault.hcl": {

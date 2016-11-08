@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Hashicorp Consul+Vault, License: Apache 2.0 (Please do not remove) Nov,3,2016",
+  "Description": "Hashicorp Consul+Vault, License: Apache 2.0 (Please do not remove) Nov,7,2016",
   "Metadata": {
     "AWS::CloudFormation::Interface": {
       "ParameterGroups": [{
@@ -90,7 +90,7 @@
     },
     "EmailAddress": {
             "Type": "String",
-            "Description": "Email Address for SNS Topic. Alarms for Vault instance memory utilzation"
+            "Description": "Email Address for SNS Topic. Alarms for Vault instance memory utilization"
         },
     "NATInstanceType": {
       "AllowedValues": [
