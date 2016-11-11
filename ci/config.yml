@@ -16,9 +16,11 @@ global:
     - us-west-2
   reporting: true
 tests:
-  test1:
-    parameter_input: quickstart-hashicorp-vault-exampleparams1.json
-    template_file: quickstart-hashicorp-vault-example1.template
-  test2:
-    parameter_input: quickstart-hashicorp-vault-exampleparams2.json
-    template_file: quickstart-hashicorp-vault-example2.template
+  consul-vault:
+    parameter_input: quickstart-hashicorp-vault-master.json
+    template_file:  quickstart-hashicorp-vault-master.template
+  regions:
+    - ap-southeast-2
+    - eu-west-1
+    - us-west-2
+    - us-east-1
