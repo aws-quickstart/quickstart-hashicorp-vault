@@ -100,61 +100,62 @@
             "Description": "The CIDR IP range that is permitted to access Consul Note: a value of 0.0.0.0/0 will allow access from ANY ip address",
             "Type": "String"
         }
-
     },
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1404HVM": "ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-20160627"
+                "US1404HVM": "ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-20161020"
             },
             "ap-northeast-1": {
-                "US1404HVM": "ami-2e63924f"
+                "US1404HVM": "ami-c88325a9"
             },
             "ap-northeast-2": {
-                "US1404HVM": "ami-979258f9"
+                "US1404HVM": "ami-8ce236e2"
             },
             "ap-south-1": {
-                "US1404HVM": "ami-4a90fa25"
+                "US1404HVM": "ami-0155216e"
             },
             "ap-southeast-1": {
-                "US1404HVM": "ami-ea2bf989"
+                "US1404HVM": "ami-1c2e887f"
             },
             "ap-southeast-2": {
-                "US1404HVM": "ami-396a415a"
+                "US1404HVM": "ami-bf3d00dc"
             },
             "eu-central-1": {
-                "US1404HVM": "ami-4bd03b24"
+                "US1404HVM": "ami-9c09f0f3"
             },
             "eu-west-1": {
-                "US1404HVM": "ami-02b62c71"
+                "US1404HVM": "ami-1c4a046f"
             },
             "sa-east-1": {
-                "US1404HVM": "ami-d952c7b5"
+                "US1404HVM": "ami-900b96fc"
             },
             "us-east-1": {
-                "US1404HVM": "ami-2d39803a"
+                "US1404HVM": "ami-c8580bdf"
             },
             "us-east-2": {
-                "US1404HVM": "ami-53eeb536"
+                "US1404HVM": "ami-b7075dd2"
             },
             "us-west-1": {
-                "US1404HVM": "ami-992661f9"
+                "US1404HVM": "ami-61074c01"
             },
             "us-west-2": {
-                "US1404HVM": "ami-42569022"
+                "US1404HVM": "ami-01f05461"
             }
         }
     },
-     "Resources": {
+    "Resources": {
         "VaultSNSTopic": {
             "Type": "AWS::SNS::Topic",
             "Properties": {
-                "Subscription": [{
-                    "Endpoint": {
-                        "Ref": "EmailAddress"
-                    },
-                    "Protocol": "email"
-                }]
+                "Subscription": [
+                    {
+                        "Endpoint": {
+                            "Ref": "EmailAddress"
+                        },
+                        "Protocol": "email"
+                    }
+                ]
             }
         },
         "VaultSecGroup": {
@@ -163,8 +164,8 @@
                 "GroupDescription": "Enables SSH access to the Consul Seed.",
                 "VpcId": {
                     "Ref": "VPCID"
-                    },
-                    "SecurityGroupIngress": [
+                },
+                "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
                         "FromPort": "22",
@@ -182,19 +183,23 @@
                         }
                     }
                 ],
-                "Tags": [{
-                    "Key": "Name",
-                    "Value": "VaultSecGroup"
-                }]
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "VaultSecGroup"
+                    }
+                ]
             }
         },
         "Vault1MemoryAlarm": {
             "Type": "AWS::CloudWatch::Alarm",
             "Properties": {
                 "AlarmDescription": "Memory alarm for my instance",
-                "AlarmActions": [{
-                    "Ref": "VaultSNSTopic"
-                }],
+                "AlarmActions": [
+                    {
+                        "Ref": "VaultSNSTopic"
+                    }
+                ],
                 "MetricName": "MemoryUtilization",
                 "Namespace": "AWS/EC2",
                 "Statistic": "Average",
@@ -202,21 +207,25 @@
                 "EvaluationPeriods": "3",
                 "Threshold": "75",
                 "ComparisonOperator": "GreaterThanThreshold",
-                "Dimensions": [{
-                    "Name": "InstanceId",
-                    "Value": {
-                        "Ref": "Vault1"
+                "Dimensions": [
+                    {
+                        "Name": "InstanceId",
+                        "Value": {
+                            "Ref": "Vault1"
+                        }
                     }
-                }]
+                ]
             }
         },
         "Vault2MemoryAlarm": {
             "Type": "AWS::CloudWatch::Alarm",
             "Properties": {
                 "AlarmDescription": "Memory alarm for my instance",
-                "AlarmActions": [{
-                    "Ref": "VaultSNSTopic"
-                }],
+                "AlarmActions": [
+                    {
+                        "Ref": "VaultSNSTopic"
+                    }
+                ],
                 "MetricName": "MemoryUtilization",
                 "Namespace": "AWS/EC2",
                 "Statistic": "Average",
@@ -224,12 +233,14 @@
                 "EvaluationPeriods": "3",
                 "Threshold": "75",
                 "ComparisonOperator": "GreaterThanThreshold",
-                "Dimensions": [{
-                    "Name": "InstanceId",
-                    "Value": {
-                        "Ref": "Vault2"
+                "Dimensions": [
+                    {
+                        "Name": "InstanceId",
+                        "Value": {
+                            "Ref": "Vault2"
+                        }
                     }
-                }]
+                ]
             }
         },
         "VaultLogGroup": {
@@ -237,7 +248,9 @@
             "Properties": {
                 "LogGroupName": {
                     "Fn::Join": [
-                        "-", [{
+                        "-",
+                        [
+                            {
                                 "Ref": "AWS::StackName"
                             },
                             "Vault-Audit-Logs"
@@ -252,43 +265,54 @@
             "Properties": {
                 "AssumeRolePolicyDocument": {
                     "Version": "2012-10-17",
-                    "Statement": [{
-                        "Effect": "Allow",
-                        "Principal": {
-                            "Service": ["ec2.amazonaws.com"]
-                        },
-                        "Action": ["sts:AssumeRole"]
-                    }]
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "ec2.amazonaws.com"
+                                ]
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
                 },
                 "Path": "/",
-                "Policies": [{
-                    "PolicyName": "root",
-                    "PolicyDocument": {
-
-                        "Version": "2012-10-17",
-                        "Statement": [{
-                            "Effect": "Allow",
-                            "Action": [
-                                "logs:CreateLogGroup",
-                                "logs:CreateLogStream",
-                                "logs:PutLogEvents",
-                                "logs:DescribeLogStreams"
-                            ],
-                            "Resource": [
-                                "arn:aws:logs:*:*:*"
+                "Policies": [
+                    {
+                        "PolicyName": "root",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "logs:CreateLogGroup",
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents",
+                                        "logs:DescribeLogStreams"
+                                    ],
+                                    "Resource": [
+                                        "arn:aws:logs:*:*:*"
+                                    ]
+                                }
                             ]
-                        }]
+                        }
                     }
-                }]
+                ]
             }
         },
         "vaultinstanceprofile": {
             "Type": "AWS::IAM::InstanceProfile",
             "Properties": {
                 "Path": "/",
-                "Roles": [{
-                    "Ref": "vaultinstancerole"
-                }]
+                "Roles": [
+                    {
+                        "Ref": "vaultinstancerole"
+                    }
+                ]
             }
         },
         "Vault1": {
@@ -296,7 +320,11 @@
             "Metadata": {
                 "AWS::CloudFormation::Init": {
                     "configSets": {
-                        "vault_install": [ "install_vault", "run_vault", "install_cloudwatch_logs_and_mon_scripts" ]
+                        "vault_install": [
+                            "install_vault",
+                            "run_vault",
+                            "install_cloudwatch_logs_and_mon_scripts"
+                        ]
                     },
                     "install_cloudwatch_logs_and_mon_scripts": {
                         "packages": {
@@ -311,7 +339,9 @@
                         },
                         "files": {
                             "/etc/cron.hourly/cloudwatch-monitoring": {
-                                "content": [ "*/5 * * * * /usr/local/aws-scripts-mon/mon-put-instance-data.pl --mem-util --mem-used --from-cron" ],
+                                "content": [
+                                    "*/5 * * * * /usr/local/aws-scripts-mon/mon-put-instance-data.pl --mem-util --mem-used --from-cron"
+                                ],
                                 "mode": "000700",
                                 "owner": "root",
                                 "group": "root"
@@ -326,11 +356,14 @@
                         "commands": {
                             "01_run_awslogs_agent_setup.py": {
                                 "command": {
-                                    "Fn::Sub": ["python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file", {
-                                        "Region": {
-                                            "Ref": "AWS::Region"
+                                    "Fn::Sub": [
+                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file",
+                                        {
+                                            "Region": {
+                                                "Ref": "AWS::Region"
+                                            }
                                         }
-                                    }]
+                                    ]
                                 }
                             },
                             "02_make_mon_put_instance_data_exececutable": {
@@ -378,35 +411,43 @@
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "NetworkInterfaces": [{
-                    "DeleteOnTermination": "true",
-                    "DeviceIndex": 0,
-                    "SubnetId": {
-                        "Ref": "PrivateSubnet1ID"
-                    },  
-                    "GroupSet": [{
-                        "Ref": "VaultSecGroup"
-                    }]  
-                }],
+                "NetworkInterfaces": [
+                    {
+                        "DeleteOnTermination": "true",
+                        "DeviceIndex": 0,
+                        "SubnetId": {
+                            "Ref": "PrivateSubnet1ID"
+                        },
+                        "GroupSet": [
+                            {
+                                "Ref": "VaultSecGroup"
+                            }
+                        ]
+                    }
+                ],
                 "ImageId": {
                     "Fn::FindInMap": [
-                        "AWSAMIRegionMap", {
+                        "AWSAMIRegionMap",
+                        {
                             "Ref": "AWS::Region"
                         },
                         "US1404HVM"
                     ]
                 },
-                "BlockDeviceMappings": [{
-                    "DeviceName": "/dev/sda1",
-                    "Ebs": {
-                        "VolumeSize": "20",
-                        "VolumeType": "gp2"
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "VolumeSize": "20",
+                            "VolumeType": "gp2"
+                        }
                     }
-                }],
+                ],
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [
-                            "", [
+                            "",
+                            [
                                 "#!/bin/bash -x\n",
                                 "apt-get -y update\n",
                                 "apt-get -y install  python-setuptools\n",
@@ -414,30 +455,37 @@
                                 "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 "SEEDIP=\"",
                                 {
-                                  "Ref": "ConsulSeedPrivateIP"
-                                },"\"\n",
+                                    "Ref": "ConsulSeedPrivateIP"
+                                },
+                                "\"\n",
                                 "wget https://s3.amazonaws.com/quickstart-reference/hashicorp/consul/latest/scripts/consul_client_bootstrap.sh\n",
                                 "chmod 755 ./consul_client_bootstrap.sh\n",
                                 "./consul_client_bootstrap.sh --s3url https://s3.amazonaws.com --s3bucket quickstart-reference --s3prefix hashicorp/consul/latest --seedip ${SEEDIP}",
                                 "\n",
                                 "/usr/local/bin/cfn-init",
                                 " --verbose ",
-                                " --stack ", {
+                                " --stack ",
+                                {
                                     "Ref": "AWS::StackName"
                                 },
                                 " --resource Vault1",
                                 " --configsets vault_install",
-                                " --region ", {
+                                " --region ",
+                                {
                                     "Ref": "AWS::Region"
-                                }, "\n",
+                                },
+                                "\n",
                                 "/usr/local/bin/cfn-signal -e $? ",
-                                "  --stack ", {
+                                "  --stack ",
+                                {
                                     "Ref": "AWS::StackName"
                                 },
                                 " --resource Vault1 ",
-                                " --region ", {
+                                " --region ",
+                                {
                                     "Ref": "AWS::Region"
-                                }, "\n"
+                                },
+                                "\n"
                             ]
                         ]
                     }
@@ -445,18 +493,22 @@
                 "IamInstanceProfile": {
                     "Ref": "vaultinstanceprofile"
                 },
-                "Tags": [{
-                    "Key": "Name",
-                    "Value": {
-                        "Fn::Join": [
-                            "-", [{
-                                    "Ref": "AWS::StackName"
-                                },
-                                "Vault1"
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "-",
+                                [
+                                    {
+                                        "Ref": "AWS::StackName"
+                                    },
+                                    "Vault1"
+                                ]
                             ]
-                        ]
+                        }
                     }
-                }]
+                ]
             }
         },
         "Vault1RecoveryAlarm": {
@@ -470,24 +522,31 @@
                 "EvaluationPeriods": "5",
                 "ComparisonOperator": "GreaterThanThreshold",
                 "Threshold": "0",
-                "AlarmActions": [{
-                    "Ref": "VaultSNSTopic"
-                }, {
-                    "Fn::Join": [
-                        "", [
-                            "arn:aws:automate:", {
-                                "Ref": "AWS::Region"
-                            },
-                            ":ec2:recover"
+                "AlarmActions": [
+                    {
+                        "Ref": "VaultSNSTopic"
+                    },
+                    {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "arn:aws:automate:",
+                                {
+                                    "Ref": "AWS::Region"
+                                },
+                                ":ec2:recover"
+                            ]
                         ]
-                    ]
-                }],
-                "Dimensions": [{
-                    "Name": "InstanceId",
-                    "Value": {
-                        "Ref": "Vault1"
                     }
-                }]
+                ],
+                "Dimensions": [
+                    {
+                        "Name": "InstanceId",
+                        "Value": {
+                            "Ref": "Vault1"
+                        }
+                    }
+                ]
             }
         },
         "Vault2": {
@@ -495,7 +554,11 @@
             "Metadata": {
                 "AWS::CloudFormation::Init": {
                     "configSets": {
-                        "vault_install": [ "install_vault", "run_vault", "install_cloudwatch_logs_and_mon_scripts" ]
+                        "vault_install": [
+                            "install_vault",
+                            "run_vault",
+                            "install_cloudwatch_logs_and_mon_scripts"
+                        ]
                     },
                     "install_cloudwatch_logs_and_mon_scripts": {
                         "packages": {
@@ -510,7 +573,9 @@
                         },
                         "files": {
                             "/etc/cron.hourly/cloudwatch-monitoring": {
-                                "content": [ "*/5 * * * * /usr/local/aws-scripts-mon/mon-put-instance-data.pl --mem-util --mem-used --from-cron" ],
+                                "content": [
+                                    "*/5 * * * * /usr/local/aws-scripts-mon/mon-put-instance-data.pl --mem-util --mem-used --from-cron"
+                                ],
                                 "mode": "000700",
                                 "owner": "root",
                                 "group": "root"
@@ -525,11 +590,14 @@
                         "commands": {
                             "01_run_awslogs_agent_setup.py": {
                                 "command": {
-                                    "Fn::Sub": ["python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file", {
-                                        "Region": {
-                                            "Ref": "AWS::Region"
+                                    "Fn::Sub": [
+                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file",
+                                        {
+                                            "Region": {
+                                                "Ref": "AWS::Region"
+                                            }
                                         }
-                                    }]
+                                    ]
                                 }
                             },
                             "02_make_mon_put_instance_data_exececutable": {
@@ -578,35 +646,43 @@
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "NetworkInterfaces": [{
-                    "DeleteOnTermination": "true",
-                    "DeviceIndex": 0,
-                    "SubnetId": {
-                        "Ref": "PrivateSubnet2ID"
-                    },  
-                    "GroupSet": [{
-                        "Ref": "VaultSecGroup"
-                    }]  
-                }],
+                "NetworkInterfaces": [
+                    {
+                        "DeleteOnTermination": "true",
+                        "DeviceIndex": 0,
+                        "SubnetId": {
+                            "Ref": "PrivateSubnet2ID"
+                        },
+                        "GroupSet": [
+                            {
+                                "Ref": "VaultSecGroup"
+                            }
+                        ]
+                    }
+                ],
                 "ImageId": {
                     "Fn::FindInMap": [
-                        "AWSAMIRegionMap", {
+                        "AWSAMIRegionMap",
+                        {
                             "Ref": "AWS::Region"
                         },
                         "US1404HVM"
                     ]
                 },
-                "BlockDeviceMappings": [{
-                    "DeviceName": "/dev/sda1",
-                    "Ebs": {
-                        "VolumeSize": "20",
-                        "VolumeType": "gp2"
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1",
+                        "Ebs": {
+                            "VolumeSize": "20",
+                            "VolumeType": "gp2"
+                        }
                     }
-                }],
+                ],
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [
-                            "", [
+                            "",
+                            [
                                 "#!/bin/bash -x\n",
                                 "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 "apt-get -y update\n",
@@ -615,30 +691,37 @@
                                 "easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz\n",
                                 "SEEDIP=\"",
                                 {
-                                  "Ref": "ConsulSeedPrivateIP"
-                                },"\"\n",
+                                    "Ref": "ConsulSeedPrivateIP"
+                                },
+                                "\"\n",
                                 "wget https://s3.amazonaws.com/quickstart-reference/hashicorp/consul/latest/scripts/consul_client_bootstrap.sh\n",
                                 "chmod 755 ./consul_client_bootstrap.sh\n",
                                 "./consul_client_bootstrap.sh --s3url https://s3.amazonaws.com --s3bucket quickstart-reference --s3prefix hashicorp/consul/latest --seedip ${SEEDIP}",
                                 "\n",
                                 "/usr/local/bin/cfn-init",
                                 " --verbose ",
-                                " --stack ", {
+                                " --stack ",
+                                {
                                     "Ref": "AWS::StackName"
                                 },
                                 " --resource Vault2",
                                 " --configsets vault_install",
-                                " --region ", {
+                                " --region ",
+                                {
                                     "Ref": "AWS::Region"
-                                }, "\n",
+                                },
+                                "\n",
                                 "/usr/local/bin/cfn-signal -e $? ",
-                                " --stack ", {
+                                " --stack ",
+                                {
                                     "Ref": "AWS::StackName"
                                 },
                                 "  --resource Vault2 ",
-                                "  --region ", {
+                                "  --region ",
+                                {
                                     "Ref": "AWS::Region"
-                                }, "\n"
+                                },
+                                "\n"
                             ]
                         ]
                     }
@@ -646,18 +729,22 @@
                 "IamInstanceProfile": {
                     "Ref": "vaultinstanceprofile"
                 },
-                "Tags": [{
-                    "Key": "Name",
-                    "Value": {
-                        "Fn::Join": [
-                            "-", [{
-                                    "Ref": "AWS::StackName"
-                                },
-                                "Vault2"
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Fn::Join": [
+                                "-",
+                                [
+                                    {
+                                        "Ref": "AWS::StackName"
+                                    },
+                                    "Vault2"
+                                ]
                             ]
-                        ]
+                        }
                     }
-                }]
+                ]
             }
         },
         "Vault2RecoveryAlarm": {
@@ -671,24 +758,31 @@
                 "EvaluationPeriods": "5",
                 "ComparisonOperator": "GreaterThanThreshold",
                 "Threshold": "0",
-                "AlarmActions": [{
-                    "Ref": "VaultSNSTopic"
-                }, {
-                    "Fn::Join": [
-                        "", [
-                            "arn:aws:automate:", {
-                                "Ref": "AWS::Region"
-                            },
-                            ":ec2:recover"
+                "AlarmActions": [
+                    {
+                        "Ref": "VaultSNSTopic"
+                    },
+                    {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "arn:aws:automate:",
+                                {
+                                    "Ref": "AWS::Region"
+                                },
+                                ":ec2:recover"
+                            ]
                         ]
-                    ]
-                }],
-                "Dimensions": [{
-                    "Name": "InstanceId",
-                    "Value": {
-                        "Ref": "Vault2"
                     }
-                }]
+                ],
+                "Dimensions": [
+                    {
+                        "Name": "InstanceId",
+                        "Value": {
+                            "Ref": "Vault2"
+                        }
+                    }
+                ]
             }
         }
     },
@@ -696,13 +790,19 @@
         "VaultNode1PrivateIp": {
             "Description": "Private IP of Vault Node #1",
             "Value": {
-                "Fn::GetAtt": ["Vault1", "PrivateIp"]
+                "Fn::GetAtt": [
+                    "Vault1",
+                    "PrivateIp"
+                ]
             }
         },
         "VaultNode2PrivateIp": {
             "Description": "Private IP of Vault Node #2",
             "Value": {
-                "Fn::GetAtt": ["Vault2", "PrivateIp"]
+                "Fn::GetAtt": [
+                    "Vault2",
+                    "PrivateIp"
+                ]
             }
         }
     }
