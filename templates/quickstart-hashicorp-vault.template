@@ -365,7 +365,7 @@
                     "run_vault": {
                         "commands": {
                             "01_register_vault_binary": {
-                                "command": "start vault",
+                                "command": "start vault"
                             }
                         }
                     }
@@ -565,7 +565,7 @@
                     "run_vault": {
                         "commands": {
                             "01_register_vault_binary": {
-                                "command": "start vault",
+                                "command": "start vault"
                             }
                         }
                     }
