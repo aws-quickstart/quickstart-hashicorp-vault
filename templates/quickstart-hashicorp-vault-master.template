@@ -335,8 +335,10 @@
                   ]
                 }, {
                   "Ref": "QSS3BucketName"
+                }, {
+                  "Ref": "QSS3KeyPrefix"
                 },
-                "aws/vpc/latest/templates/aws-vpc.template"
+                "submodules/quickstart-aws-vpc/templates/aws-vpc.template"
               ]
             ]
           },

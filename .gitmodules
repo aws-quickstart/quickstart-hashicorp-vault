@@ -1,0 +1,8 @@
+[submodule "submodules/quickstart-hashicorp-consul"]
+	path = submodules/quickstart-hashicorp-consul
+	url = git@github.com:aws-quickstart/quickstart-hashicorp-consul.git
+	branch = master
+[submodule "submodules/quickstart-aws-vpc"]
+	path = submodules/quickstart-aws-vpc
+	url = git@github.com:aws-quickstart/quickstart-aws-vpc.git
+	branch = master
