@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "QS(0039) HashiCorp Consul License: Apache 2.0 (Please do not remove) Nov,14,2016",
+    "Description": "QS(0039) HashiCorp Consul License: Apache 2.0 (Please do not remove) Nov,22,2016",
     "Parameters": {
         "KeyPair": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
@@ -255,7 +255,7 @@
                     }
                 ],
                 "MetricName": "MemoryUtilization",
-                "Namespace": "AWS/EC2",
+                "Namespace": "System/Linux",
                 "Statistic": "Average",
                 "Period": "60",
                 "EvaluationPeriods": "3",
@@ -281,7 +281,7 @@
                     }
                 ],
                 "MetricName": "MemoryUtilization",
-                "Namespace": "AWS/EC2",
+                "Namespace": "System/Linux",
                 "Statistic": "Average",
                 "Period": "60",
                 "EvaluationPeriods": "3",
@@ -347,10 +347,23 @@
                                         "logs:CreateLogStream",
                                         "logs:PutLogEvents",
                                         "logs:DescribeLogStreams"
+
                                     ],
                                     "Resource": [
                                         "arn:aws:logs:*:*:*"
                                     ]
+                                },
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "cloudwatch:PutMetricData",
+                                        "cloudwatch:GetMetricStatistics",
+                                        "cloudwatch:ListMetrics"
+                                
+                                    ],
+                                    "Resource": [
+                                    "*"
+                                ]
                                 }
                             ]
                         }
@@ -392,10 +405,8 @@
                             "/usr/local": "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
                         },
                         "files": {
-                            "/etc/cron.hourly/cloudwatch-monitoring": {
-                                "content": [
-                                    "*/5 * * * * /usr/local/aws-scripts-mon/mon-put-instance-data.pl --mem-util --mem-used --from-cron"
-                                ],
+                            "/etc/cron.hourly/cloudwatch-monitoring.sh": {
+                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/cloudwatch-monitoring.sh",
                                 "mode": "000700",
                                 "owner": "root",
                                 "group": "root"
@@ -422,6 +433,9 @@
                             },
                             "02_make_mon_put_instance_data_exececutable": {
                                 "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
+                            },
+                            "03_install_crontab": {
+                                "command": "crontab  /etc/cron.hourly/cloudwatch-monitoring.sh"
                             }
                         }
                     },
@@ -626,10 +640,8 @@
                             "/usr/local": "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
                         },
                         "files": {
-                            "/etc/cron.hourly/cloudwatch-monitoring": {
-                                "content": [
-                                    "*/5 * * * * /usr/local/aws-scripts-mon/mon-put-instance-data.pl --mem-util --mem-used --from-cron"
-                                ],
+                            "/etc/cron.hourly/cloudwatch-monitoring.sh": {
+                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/cloudwatch-monitoring.sh",
                                 "mode": "000700",
                                 "owner": "root",
                                 "group": "root"
@@ -656,6 +668,9 @@
                             },
                             "02_make_mon_put_instance_data_exececutable": {
                                 "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
+                            },
+                            "03_install_crontab": {
+                                "command": "crontab  /etc/cron.hourly/cloudwatch-monitoring.sh"
                             }
                         }
                     },
@@ -674,8 +689,7 @@
                                 "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-upstart.conf",
                                 "mode": "000700",
                                 "owner": "root",
-                                "group": "root",
-                                "command": "echo 'export VAULT_ADDR=http://127.0.0.1:8200' > /etc/profile.d/vault.sh"
+                                "group": "root"
                             }
                         },
                         "commands": {
