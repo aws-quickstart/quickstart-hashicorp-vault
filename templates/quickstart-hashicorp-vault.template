@@ -300,16 +300,7 @@
         "VaultLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-                "LogGroupName": {
-                    "Fn::Join": [
-                        "-",
-                        [
-                            {
-                                "Ref": "AWS::StackName"
-                            },
-                            "Vault-Audit-Logs"
-                        ]
-                    ]
+                "LogGroupName": "Vault-Audit-Logs"
                 },
                 "RetentionInDays": 7
             }
