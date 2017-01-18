@@ -158,43 +158,43 @@
         },
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1404HVM": "ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-20161109"
+                "US1404HVM": "ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-20161213"
             },
             "ap-northeast-1": {
-                "US1404HVM": "ami-51de7730"
+                "US1404HVM": "ami-5dd8b73a"
             },
             "ap-northeast-2": {
-                "US1404HVM": "ami-d98156b7"
+                "US1404HVM": "ami-7669be18"
             },
             "ap-south-1": {
-                "US1404HVM": "ami-c3d7a3ac"
+                "US1404HVM": "ami-19f78076"
             },
             "ap-southeast-1": {
-                "US1404HVM": "ami-63f15200"
+                "US1404HVM": "ami-35bc1356"
             },
             "ap-southeast-2": {
-                "US1404HVM": "ami-e8320d8b"
+                "US1404HVM": "ami-8083bbe3"
             },
             "eu-central-1": {
-                "US1404HVM": "ami-99ca30f6"
+                "US1404HVM": "ami-7612d319"
             },
             "eu-west-1": {
-                "US1404HVM": "ami-bea5f3cd"
+                "US1404HVM": "ami-b9b394ca"
             },
             "sa-east-1": {
-                "US1404HVM": "ami-839609ef"
+                "US1404HVM": "ami-8bcc54e7"
             },
             "us-east-1": {
-                "US1404HVM": "ami-b3123fa4"
+                "US1404HVM": "ami-5ac2cd4d"
             },
             "us-east-2": {
-                "US1404HVM": "ami-bb6832de"
+                "US1404HVM": "ami-41d48e24"
             },
             "us-west-1": {
-                "US1404HVM": "ami-4c03562c"
+                "US1404HVM": "ami-7790c617"
             },
             "us-west-2": {
-                "US1404HVM": "ami-34913254"
+                "US1404HVM": "ami-30e65350"
             }
         }
     },
@@ -302,7 +302,7 @@
             "Properties": {
                 "LogGroupName": "Vault-Audit-Logs",
                 "RetentionInDays": 7
-                }
+            }
         },
         "vaultinstancerole": {
             "Type": "AWS::IAM::Role",
