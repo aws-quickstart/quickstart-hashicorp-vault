@@ -300,10 +300,9 @@
         "VaultLogGroup": {
             "Type": "AWS::Logs::LogGroup",
             "Properties": {
-                "LogGroupName": "Vault-Audit-Logs"
-                },
+                "LogGroupName": "Vault-Audit-Logs",
                 "RetentionInDays": 7
-            }
+                }
         },
         "vaultinstancerole": {
             "Type": "AWS::IAM::Role",
