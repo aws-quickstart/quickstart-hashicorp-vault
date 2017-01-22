@@ -508,24 +508,7 @@
         "DependsOn": "HashiCorpConsulStack",
         "Type": "AWS::CloudFormation::Stack",
         "Properties": {
-          "TemplateURL": {
-            "Fn::Join": [
-              "/", [{
-                  "Fn::FindInMap": [
-                    "AWSInfoRegionMap", {
-                      "Ref": "AWS::Region"
-                    },
-                    "QuickStartS3URL"
-                  ]
-                }, {
-                  "Ref": "QSS3BucketName"
-                }, {
-                  "Ref": "QSS3KeyPrefix"
-                },
-                "templates/quickstart-hashicorp-vault.template"
-              ]
-            ]
-          },
+          "TemplateURL": "https://github.com/T-Wong/quickstart-hashicorp-vault/raw/develop/templates/quickstart-hashicorp-vault-master.template",
           "Parameters": {
             "PrivateSubnet1ID": {
               "Fn::GetAtt": [

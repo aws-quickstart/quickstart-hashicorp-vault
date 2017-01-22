@@ -376,9 +376,10 @@
                 "AWS::CloudFormation::Init": {
                     "configSets": {
                         "vault_install": [
-                            "install_vault",
-                            "run_vault",
-                            "install_cloudwatch_logs_and_mon_scripts"
+                            "install_cloudwatch_logs_and_mon_scripts",
+                            "install_chef",
+                            "download_cookbooks",
+                            "run_chef"
                         ]
                     },
                     "install_cloudwatch_logs_and_mon_scripts": {
@@ -427,36 +428,78 @@
                             }
                         }
                     },
-                    "install_vault": {
-                        "sources": {
-                            "/usr/local/bin": "https://releases.hashicorp.com/vault/0.6.2/vault_0.6.2_linux_amd64.zip"
+                    "install_chef": {
+                      "sources" : {
+                        "/var/chef/chef-repo" : "http://github.com/opscode/chef-repo/tarball/master"
+                      },
+                      "files" : {
+                        "/tmp/install.sh" : {
+                          "source" : "https://www.opscode.com/chef/install.sh",
+                          "mode"  : "000400",
+                          "owner" : "root",
+                          "group" : "root"
                         },
-                        "files": {
-                            "/etc/vault.d/vault.hcl": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault.hcl",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            },
-                            "/etc/init/vault.conf": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-upstart.conf",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            }
+                        "/var/chef/chef-repo/.chef/knife.rb" : {
+                          "content" : { "Fn::Join": [ "", [
+                            "cookbook_path [ '/var/chef/chef-repo/cookbooks' ]\n",
+                            "node_path [ '/var/chef/chef-repo/nodes' ]\n"
+                          ]]},
+                          "mode"  : "000400",
+                          "owner" : "root",
+                          "group" : "root"
                         },
-                        "commands": {
-                            "01_chmod_and_chown_vault": {
-                                "command": "chmod 0755 /usr/local/bin/vault && chown root:root /usr/local/bin/vault"
-                            }
+                        "/var/chef/chef-repo/.chef/client.rb" : {
+                          "content" : { "Fn::Join": [ "", [
+                            "cookbook_path [ '/var/chef/chef-repo/cookbooks' ]\n",
+                            "node_path [ '/var/chef/chef-repo/nodes' ]\n"
+                          ]]},
+                          "mode"  : "000400",
+                          "owner" : "root",
+                          "group" : "root"
                         }
+                      },
+                      "commands" : {
+                        "01_make_chef_readable" : {
+                          "command" : "chmod +rx /var/chef"
+                        },
+                        "02_install_chef" : {
+                          "command" : "bash /tmp/install.sh",
+                          "cwd"  : "/var/chef"
+                        },
+                        "03_create_node_list" : {
+                          "command" : "chef-client -z -c /var/chef/chef-repo/.chef/client.rb",
+                          "cwd" : "/var/chef/chef-repo",
+                          "env" : { "HOME" : "/var/chef" }
+                        }
+                      }
                     },
-                    "run_vault": {
-                        "commands": {
-                            "01_register_vault_binary": {
-                                "command": "start vault"
-                            }
+                    "download_cookbooks": {
+                      "files" : {
+                        "/var/chef/chef-repo/cookbooks.tar.gz" : {
+                          "source": "https://github.com/T-Wong/tyw_hashicorp_vault/raw/master/cookbooks-1485009468.tar.gz",
+                          "mode": "000700",
+                          "owner": "root",
+                          "group": "root"
                         }
+                      },
+                      "commands": {
+                        "01_remove_cookbooks_dir" : {
+                          "command": "rm /var/chef/chef-repo/cookbooks/ -rf",
+                        },
+                        "02_unpack_cookbooks" : {
+                          "command": "tar -xzvf cookbooks.tar.gz",
+                          "cwd": "/var/chef/chef-repo"
+                        }
+                      }
+                    },
+                    "run_chef": {
+                      "commands": {
+                        "01_run_chef_client": {
+                          "command": "chef-client -z -r tyw_hashicorp_vault::default",
+                          "cwd": "/var/chef/chef-repo/cookbooks/tyw_hashicorp_vault",
+                          "env": { "HOME" : "/var/chef" }
+                        }
+                      }
                     }
                 }
             },
@@ -608,92 +651,135 @@
         "Vault2": {
             "Type": "AWS::EC2::Instance",
             "Metadata": {
-                "AWS::CloudFormation::Init": {
-                    "configSets": {
-                        "vault_install": [
-                            "install_vault",
-                            "run_vault",
-                            "install_cloudwatch_logs_and_mon_scripts"
-                        ]
+              "AWS::CloudFormation::Init": {
+                  "configSets": {
+                      "vault_install": [
+                          "install_cloudwatch_logs_and_mon_scripts",
+                          "install_chef",
+                          "download_cookbooks",
+                          "run_chef"
+                      ]
+                  },
+                  "install_cloudwatch_logs_and_mon_scripts": {
+                      "packages": {
+                          "apt": {
+                              "unzip": [],
+                              "libwww-perl": [],
+                              "libdatetime-perl": []
+                          }
+                      },
+                      "sources": {
+                          "/usr/local": "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
+                      },
+                      "files": {
+                          "/etc/cron.hourly/cloudwatch-monitoring.sh": {
+                              "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/cloudwatch-monitoring.sh",
+                              "mode": "000700",
+                              "owner": "root",
+                              "group": "root"
+                          },
+                          "/usr/local/awslogs-agent-setup.py": {
+                              "source": "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py",
+                              "mode": "000700",
+                              "owner": "root",
+                              "group": "root"
+                          }
+                      },
+                      "commands": {
+                          "01_run_awslogs_agent_setup.py": {
+                              "command": {
+                                  "Fn::Sub": [
+                                      "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file",
+                                      {
+                                          "Region": {
+                                              "Ref": "AWS::Region"
+                                          }
+                                      }
+                                  ]
+                              }
+                          },
+                          "02_make_mon_put_instance_data_exececutable": {
+                              "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
+                          },
+                          "03_install_crontab": {
+                              "command": "crontab  /etc/cron.hourly/cloudwatch-monitoring.sh"
+                          }
+                      }
+                  },
+                  "install_chef": {
+                    "sources" : {
+                      "/var/chef/chef-repo" : "http://github.com/opscode/chef-repo/tarball/master"
                     },
-                    "install_cloudwatch_logs_and_mon_scripts": {
-                        "packages": {
-                            "apt": {
-                                "unzip": [],
-                                "libwww-perl": [],
-                                "libdatetime-perl": []
-                            }
-                        },
-                        "sources": {
-                            "/usr/local": "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
-                        },
-                        "files": {
-                            "/etc/cron.hourly/cloudwatch-monitoring.sh": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/cloudwatch-monitoring.sh",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            },
-                            "/usr/local/awslogs-agent-setup.py": {
-                                "source": "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            }
-                        },
-                        "commands": {
-                            "01_run_awslogs_agent_setup.py": {
-                                "command": {
-                                    "Fn::Sub": [
-                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file",
-                                        {
-                                            "Region": {
-                                                "Ref": "AWS::Region"
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            "02_make_mon_put_instance_data_exececutable": {
-                                "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
-                            },
-                            "03_install_crontab": {
-                                "command": "crontab  /etc/cron.hourly/cloudwatch-monitoring.sh"
-                            }
-                        }
+                    "files" : {
+                      "/tmp/install.sh" : {
+                        "source" : "https://www.opscode.com/chef/install.sh",
+                        "mode"  : "000400",
+                        "owner" : "root",
+                        "group" : "root"
+                      },
+                      "/var/chef/chef-repo/.chef/knife.rb" : {
+                        "content" : { "Fn::Join": [ "", [
+                          "cookbook_path [ '/var/chef/chef-repo/cookbooks' ]\n",
+                          "node_path [ '/var/chef/chef-repo/nodes' ]\n"
+                        ]]},
+                        "mode"  : "000400",
+                        "owner" : "root",
+                        "group" : "root"
+                      },
+                      "/var/chef/chef-repo/.chef/client.rb" : {
+                        "content" : { "Fn::Join": [ "", [
+                          "cookbook_path [ '/var/chef/chef-repo/cookbooks' ]\n",
+                          "node_path [ '/var/chef/chef-repo/nodes' ]\n"
+                        ]]},
+                        "mode"  : "000400",
+                        "owner" : "root",
+                        "group" : "root"
+                      }
                     },
-                    "install_vault": {
-                        "sources": {
-                            "/usr/local/bin": "https://releases.hashicorp.com/vault/0.6.2/vault_0.6.2_linux_amd64.zip"
-                        },
-                        "files": {
-                            "/etc/vault.d/vault.hcl": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault.hcl",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            },
-                            "/etc/init/vault.conf": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-upstart.conf",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            }
-                        },
-                        "commands": {
-                            "01_chmod_and_chown_vault": {
-                                "command": "chmod 0755 /usr/local/bin/vault && chown root:root /usr/local/bin/vault"
-                            }
-                        }
-                    },
-                    "run_vault": {
-                        "commands": {
-                            "01_register_vault_binary": {
-                                "command": "start vault"
-                            }
-                        }
+                    "commands" : {
+                      "01_make_chef_readable" : {
+                        "command" : "chmod +rx /var/chef"
+                      },
+                      "02_install_chef" : {
+                        "command" : "bash /tmp/install.sh",
+                        "cwd"  : "/var/chef"
+                      },
+                      "03_create_node_list" : {
+                        "command" : "chef-client -z -c /var/chef/chef-repo/.chef/client.rb",
+                        "cwd" : "/var/chef/chef-repo",
+                        "env" : { "HOME" : "/var/chef" }
+                      }
                     }
-                }
+                  },
+                  "download_cookbooks": {
+                    "files" : {
+                      "/var/chef/chef-repo/cookbooks.tar.gz" : {
+                        "source": "https://github.com/T-Wong/tyw_hashicorp_vault/raw/master/cookbooks-1485009468.tar.gz",
+                        "mode": "000700",
+                        "owner": "root",
+                        "group": "root"
+                      }
+                    },
+                    "commands": {
+                      "01_remove_cookbooks_dir" : {
+                        "command": "rm /var/chef/chef-repo/cookbooks/ -rf",
+                      },
+                      "02_unpack_cookbooks" : {
+                        "command": "tar -xzvf cookbooks.tar.gz",
+                        "cwd": "/var/chef/chef-repo"
+                      }
+                    }
+                  },
+                  "run_chef": {
+                    "commands": {
+                      "01_run_chef_client": {
+                        "command": "chef-client -z -r tyw_hashicorp_vault::default",
+                        "cwd": "/var/chef/chef-repo/cookbooks/tyw_hashicorp_vault",
+                        "env": { "HOME" : "/var/chef" }
+                      }
+                    }
+                  }
+              }
             },
             "Properties": {
                 "InstanceType": {
