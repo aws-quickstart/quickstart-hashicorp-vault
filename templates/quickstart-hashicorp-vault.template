@@ -373,92 +373,109 @@
         "Vault1": {
             "Type": "AWS::EC2::Instance",
             "Metadata": {
-                "AWS::CloudFormation::Init": {
-                    "configSets": {
-                        "vault_install": [
-                            "install_vault",
-                            "run_vault",
-                            "install_cloudwatch_logs_and_mon_scripts"
-                        ]
-                    },
-                    "install_cloudwatch_logs_and_mon_scripts": {
-                        "packages": {
-                            "apt": {
-                                "unzip": [],
-                                "libwww-perl": [],
-                                "libdatetime-perl": []
-                            }
-                        },
-                        "sources": {
-                            "/usr/local": "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
-                        },
-                        "files": {
-                            "/etc/cron.hourly/cloudwatch-monitoring.sh": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/cloudwatch-monitoring.sh",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            },
-                            "/usr/local/awslogs-agent-setup.py": {
-                                "source": "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            }
-                        },
-                        "commands": {
-                            "01_run_awslogs_agent_setup.py": {
-                                "command": {
-                                    "Fn::Sub": [
-                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file",
-                                        {
-                                            "Region": {
-                                                "Ref": "AWS::Region"
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            "02_make_mon_put_instance_data_exececutable": {
-                                "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
-                            },
-                            "03_install_crontab": {
-                                "command": "crontab  /etc/cron.hourly/cloudwatch-monitoring.sh"
-                            }
-                        }
-                    },
-                    "install_vault": {
-                        "sources": {
-                            "/usr/local/bin": "https://releases.hashicorp.com/vault/0.6.2/vault_0.6.2_linux_amd64.zip"
-                        },
-                        "files": {
-                            "/etc/vault.d/vault.hcl": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault.hcl",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            },
-                            "/etc/init/vault.conf": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-upstart.conf",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            }
-                        },
-                        "commands": {
-                            "01_chmod_and_chown_vault": {
-                                "command": "chmod 0755 /usr/local/bin/vault && chown root:root /usr/local/bin/vault"
-                            }
-                        }
-                    },
-                    "run_vault": {
-                        "commands": {
-                            "01_register_vault_binary": {
-                                "command": "start vault"
-                            }
-                        }
+              "AWS::CloudFormation::Init": {
+                  "configSets": {
+                      "vault_install": [
+                          "install_cloudwatch_logs_and_mon_scripts",
+                          "install_chefdk",
+                          "pull_cookbooks",
+                          "run_chef"
+                      ]
+                  },
+                  "install_cloudwatch_logs_and_mon_scripts": {
+                      "packages": {
+                          "apt": {
+                              "unzip": [],
+                              "libwww-perl": [],
+                              "libdatetime-perl": []
+                          }
+                      },
+                      "sources": {
+                          "/usr/local": "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
+                      },
+                      "files": {
+                          "/etc/cron.hourly/cloudwatch-monitoring.sh": {
+                              "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/cloudwatch-monitoring.sh",
+                              "mode": "000700",
+                              "owner": "root",
+                              "group": "root"
+                          },
+                          "/usr/local/awslogs-agent-setup.py": {
+                              "source": "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py",
+                              "mode": "000700",
+                              "owner": "root",
+                              "group": "root"
+                          }
+                      },
+                      "commands": {
+                          "01_run_awslogs_agent_setup.py": {
+                              "command": {
+                                  "Fn::Sub": [
+                                      "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file",
+                                      {
+                                          "Region": {
+                                              "Ref": "AWS::Region"
+                                          }
+                                      }
+                                  ]
+                              }
+                          },
+                          "02_make_mon_put_instance_data_exececutable": {
+                              "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
+                          },
+                          "03_install_crontab": {
+                              "command": "crontab  /etc/cron.hourly/cloudwatch-monitoring.sh"
+                          }
+                      }
+                  },
+                  "install_chefdk": {
+                    "commands": {
+                      "01_install_chefdk": {
+                        "command": "curl -LO https://omnitruck.chef.io/install.sh && sudo bash ./install.sh -v 1.1.16 -P chefdk && rm install.sh"
+                      }
                     }
-                }
+                  },
+                  "pull_cookbooks": {
+                    "files" : {
+                      "/tmp/tyw_hashicorp_vault.tar.gz": {
+                        "source": "https://github.com/T-Wong/tyw_hashicorp_vault/archive/master.tar.gz",
+                        "mode": "000700",
+                        "owner": "root",
+                        "group": "root"
+                      }
+                    },
+                    "commands": {
+                      "01_make_parent_dir": {
+                        "command": "mkdir /var/chef",
+                        "mode": "000755",
+                        "owner": "root",
+                        "group": "root"
+                      },
+                      "02_generate_repo": {
+                        "command": "chef generate repo /var/chef/chef-repo",
+                        "cwd": "/var/chef"
+                      },
+                      "03_untar_cookbook": {
+                        "command": "tar -xzvf /tmp/tyw_hashicorp_vault.tar.gz",
+                        "cwd": "/var/chef/chef-repo/cookbooks"
+                      },
+                      "04_pull_dependencies": {
+                        "command": "berks vendor /var/chef/chef-repo/cookbooks",
+                        "cwd": "/var/chef/chef-repo/cookbooks/tyw_hashicorp_vault-master",
+                        "env": { "HOME" : "/var/chef" }
+                      }
+                    }
+                  },
+                  "run_chef": {
+                    "commands": {
+                      "01_run_chef_client": {
+                        "command": "chef-client -z -r tyw_hashicorp_vault::default",
+                        "cwd": "/var/chef/chef-repo/cookbooks/tyw_hashicorp_vault-master",
+                        "env": { "HOME" : "/var/chef" }
+                      }
+                    }
+                  }
+              }
             },
             "Properties": {
                 "InstanceType": {
@@ -608,92 +625,109 @@
         "Vault2": {
             "Type": "AWS::EC2::Instance",
             "Metadata": {
-                "AWS::CloudFormation::Init": {
-                    "configSets": {
-                        "vault_install": [
-                            "install_vault",
-                            "run_vault",
-                            "install_cloudwatch_logs_and_mon_scripts"
-                        ]
-                    },
-                    "install_cloudwatch_logs_and_mon_scripts": {
-                        "packages": {
-                            "apt": {
-                                "unzip": [],
-                                "libwww-perl": [],
-                                "libdatetime-perl": []
-                            }
-                        },
-                        "sources": {
-                            "/usr/local": "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
-                        },
-                        "files": {
-                            "/etc/cron.hourly/cloudwatch-monitoring.sh": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/cloudwatch-monitoring.sh",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            },
-                            "/usr/local/awslogs-agent-setup.py": {
-                                "source": "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            }
-                        },
-                        "commands": {
-                            "01_run_awslogs_agent_setup.py": {
-                                "command": {
-                                    "Fn::Sub": [
-                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file",
-                                        {
-                                            "Region": {
-                                                "Ref": "AWS::Region"
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            "02_make_mon_put_instance_data_exececutable": {
-                                "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
-                            },
-                            "03_install_crontab": {
-                                "command": "crontab  /etc/cron.hourly/cloudwatch-monitoring.sh"
-                            }
-                        }
-                    },
-                    "install_vault": {
-                        "sources": {
-                            "/usr/local/bin": "https://releases.hashicorp.com/vault/0.6.2/vault_0.6.2_linux_amd64.zip"
-                        },
-                        "files": {
-                            "/etc/vault.d/vault.hcl": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault.hcl",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            },
-                            "/etc/init/vault.conf": {
-                                "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/vault-upstart.conf",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            }
-                        },
-                        "commands": {
-                            "01_chmod_and_chown_vault": {
-                                "command": "chmod 0755 /usr/local/bin/vault && chown root:root /usr/local/bin/vault"
-                            }
-                        }
-                    },
-                    "run_vault": {
-                        "commands": {
-                            "01_register_vault_binary": {
-                                "command": "start vault"
-                            }
-                        }
+              "AWS::CloudFormation::Init": {
+                  "configSets": {
+                      "vault_install": [
+                          "install_cloudwatch_logs_and_mon_scripts",
+                          "install_chefdk",
+                          "pull_cookbooks",
+                          "run_chef"
+                      ]
+                  },
+                  "install_cloudwatch_logs_and_mon_scripts": {
+                      "packages": {
+                          "apt": {
+                              "unzip": [],
+                              "libwww-perl": [],
+                              "libdatetime-perl": []
+                          }
+                      },
+                      "sources": {
+                          "/usr/local": "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
+                      },
+                      "files": {
+                          "/etc/cron.hourly/cloudwatch-monitoring.sh": {
+                              "source": "https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/cloudwatch-monitoring.sh",
+                              "mode": "000700",
+                              "owner": "root",
+                              "group": "root"
+                          },
+                          "/usr/local/awslogs-agent-setup.py": {
+                              "source": "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py",
+                              "mode": "000700",
+                              "owner": "root",
+                              "group": "root"
+                          }
+                      },
+                      "commands": {
+                          "01_run_awslogs_agent_setup.py": {
+                              "command": {
+                                  "Fn::Sub": [
+                                      "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/quickstart-reference/hashicorp/vault/latest/scripts/awslogs-config-file",
+                                      {
+                                          "Region": {
+                                              "Ref": "AWS::Region"
+                                          }
+                                      }
+                                  ]
+                              }
+                          },
+                          "02_make_mon_put_instance_data_exececutable": {
+                              "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
+                          },
+                          "03_install_crontab": {
+                              "command": "crontab  /etc/cron.hourly/cloudwatch-monitoring.sh"
+                          }
+                      }
+                  },
+                  "install_chefdk": {
+                    "commands": {
+                      "01_install_chefdk": {
+                        "command": "curl -LO https://omnitruck.chef.io/install.sh && sudo bash ./install.sh -v 1.1.16 -P chefdk && rm install.sh"
+                      }
                     }
-                }
+                  },
+                  "pull_cookbooks": {
+                    "files" : {
+                      "/tmp/tyw_hashicorp_vault.tar.gz": {
+                        "source": "https://github.com/T-Wong/tyw_hashicorp_vault/archive/master.tar.gz",
+                        "mode": "000700",
+                        "owner": "root",
+                        "group": "root"
+                      }
+                    },
+                    "commands": {
+                      "01_make_parent_dir": {
+                        "command": "mkdir /var/chef",
+                        "mode": "000755",
+                        "owner": "root",
+                        "group": "root"
+                      },
+                      "02_generate_repo": {
+                        "command": "chef generate repo /var/chef/chef-repo",
+                        "cwd": "/var/chef"
+                      },
+                      "03_untar_cookbook": {
+                        "command": "tar -xzvf /tmp/tyw_hashicorp_vault.tar.gz",
+                        "cwd": "/var/chef/chef-repo/cookbooks"
+                      },
+                      "04_pull_dependencies": {
+                        "command": "berks vendor /var/chef/chef-repo/cookbooks",
+                        "cwd": "/var/chef/chef-repo/cookbooks/tyw_hashicorp_vault-master",
+                        "env": { "HOME" : "/var/chef" }
+                      }
+                    }
+                  },
+                  "run_chef": {
+                    "commands": {
+                      "01_run_chef_client": {
+                        "command": "chef-client -z -r tyw_hashicorp_vault::default",
+                        "cwd": "/var/chef/chef-repo/cookbooks/tyw_hashicorp_vault-master",
+                        "env": { "HOME" : "/var/chef" }
+                      }
+                    }
+                  }
+              }
             },
             "Properties": {
                 "InstanceType": {
