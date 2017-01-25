@@ -1,0 +1,12 @@
+env:
+  - AWS_DEFAULT_REGION=us-west-2
+  - AWS_ACCESS_KEY_ID=aws_access
+  - AWS_SECRET_ACCESS_KEY=aws_secret
+
+before_install:
+  - pip install --user awscli
+  - export PATH=$PATH:$HOME/.local/bin
+
+script:
+  - aws cloudformation validate-template --template-body file:./templates/quickstart-hashicorp-vault.template
+  - aws cloudformation validate-template --template-body file:./templates/quickstart-hashicorp-vault-master.template
