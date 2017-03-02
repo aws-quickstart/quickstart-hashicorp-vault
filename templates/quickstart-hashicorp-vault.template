@@ -158,43 +158,43 @@
         },
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1404HVM": "ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-20161213"
+                "US1404HVM": "ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-20170222"
             },
             "ap-northeast-1": {
-                "US1404HVM": "ami-5dd8b73a"
+                "US1404HVM": "ami-71d79f16"
             },
             "ap-northeast-2": {
-                "US1404HVM": "ami-7669be18"
+                "US1404HVM": "ami-921ecefc"
             },
             "ap-south-1": {
-                "US1404HVM": "ami-19f78076"
+                "US1404HVM": "ami-b53e4eda"
             },
             "ap-southeast-1": {
-                "US1404HVM": "ami-35bc1356"
+                "US1404HVM": "ami-0dc1706e"
             },
             "ap-southeast-2": {
-                "US1404HVM": "ami-8083bbe3"
+                "US1404HVM": "ami-4ba3a328"
             },
             "eu-central-1": {
-                "US1404HVM": "ami-7612d319"
+                "US1404HVM": "ami-892ee4e6"
             },
             "eu-west-1": {
-                "US1404HVM": "ami-b9b394ca"
+                "US1404HVM": "ami-e5082583"
             },
             "sa-east-1": {
-                "US1404HVM": "ami-8bcc54e7"
+                "US1404HVM": "ami-930e68ff"
             },
             "us-east-1": {
-                "US1404HVM": "ami-5ac2cd4d"
+                "US1404HVM": "ami-822bfa94"
             },
             "us-east-2": {
-                "US1404HVM": "ami-41d48e24"
+                "US1404HVM": "ami-1aa98c7f"
             },
             "us-west-1": {
-                "US1404HVM": "ami-7790c617"
+                "US1404HVM": "ami-09e8b769"
             },
             "us-west-2": {
-                "US1404HVM": "ami-30e65350"
+                "US1404HVM": "ami-17ac2c77"
             }
         }
     },
