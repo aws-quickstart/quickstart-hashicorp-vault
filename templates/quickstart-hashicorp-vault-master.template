@@ -420,7 +420,8 @@
                 }, {
                   "Ref": "QSS3KeyPrefix"
                 },
-                "submodules/quickstart-aws-vpc/templates/aws-vpc.template"
+                "submodules/quickstart-aws-vpc",
+                "templates/aws-vpc.template"
               ]
             ]
           },
@@ -482,8 +483,7 @@
                 },
                 {
                   "Ref": "QSS3BucketName"
-                },
-                {
+                }, {
                   "Ref": "QSS3KeyPrefix"
                 },
                 "submodules/quickstart-linux-bastion",
@@ -553,9 +553,11 @@
                   ]
                 }, {
                   "Ref": "QSS3BucketName"
-                }, {
+                },
+                {
                   "Ref": "QSS3KeyPrefix"
                 },
+                "submodules/quickstart-hashicorp-consul",
                 "templates/quickstart-hashicorp-consul.template"
               ]
             ]
@@ -614,7 +616,11 @@
               "Ref": "QSS3BucketName"
             },
             "QSS3KeyPrefix": {
-              "Ref": "QSS3KeyPrefix"
+              "Fn::Join": [
+                "/",
+                [{ "Ref": "QSS3KeyPrefix" },
+                "submodules/quickstart-hashicorp-consul"]
+              ]
             },
             "VPCID": {
                 "Fn::GetAtt": [
@@ -672,9 +678,6 @@
                   }
                 ]
               ]
-            },
-            "QSS3KeyPrefix": {
-              "Ref": "QSS3KeyPrefix"
             }
           }
         }
@@ -694,7 +697,8 @@
                   ]
                 }, {
                   "Ref": "QSS3BucketName"
-                }, {
+                },
+                {
                   "Ref": "QSS3KeyPrefix"
                 },
                 "templates/quickstart-hashicorp-vault.template"

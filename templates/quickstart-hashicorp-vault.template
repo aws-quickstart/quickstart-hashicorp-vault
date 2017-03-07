@@ -472,10 +472,16 @@
                                     ]
                                 }
                             },
-                            "02_make_mon_put_instance_data_exececutable": {
+                            "02_enable_awslogs_service": {
+                                "command": "systemctl enable awslogs"
+                            },
+                            "03_start_awslogs_service": {
+                                "command": "systemctl start awslogs"
+                            },
+                            "04_make_mon_put_instance_data_exececutable": {
                                 "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
                             },
-                            "03_install_crontab": {
+                            "05_install_crontab": {
                                 "command": "crontab  /etc/cron.hourly/cloudwatch-monitoring.sh"
                             }
                         }
@@ -590,7 +596,7 @@
                                 "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 {
                                     "Fn::Sub": [
-                                      "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/consul_client_bootstrap.sh\n",
+                                      "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh\n",
                                       {
                                           "QSS3BucketName": {
                                               "Ref": "QSS3BucketName"
@@ -617,7 +623,11 @@
                                               "Ref": "QSS3BucketName"
                                           },
                                           "QSS3KeyPrefix": {
-                                              "Ref": "QSS3KeyPrefix"
+                                            "Fn::Join": [
+                                              "/",
+                                              [{ "Ref": "QSS3KeyPrefix" },
+                                              "submodules/quickstart-hashicorp-consul"]
+                                            ]
                                           }
                                       }
                                   ]
@@ -777,10 +787,16 @@
                                     ]
                                 }
                             },
-                            "02_make_mon_put_instance_data_exececutable": {
+                            "02_enable_awslogs_service": {
+                                "command": "systemctl enable awslogs"
+                            },
+                            "03_start_awslogs_service": {
+                                "command": "systemctl start awslogs"
+                            },
+                            "04_make_mon_put_instance_data_exececutable": {
                                 "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
                             },
-                            "03_install_crontab": {
+                            "05_install_crontab": {
                                 "command": "crontab  /etc/cron.hourly/cloudwatch-monitoring.sh"
                             }
                         }
@@ -895,7 +911,7 @@
                                 "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 {
                                     "Fn::Sub": [
-                                      "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/consul_client_bootstrap.sh\n",
+                                      "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh\n",
                                       {
                                           "QSS3BucketName": {
                                               "Ref": "QSS3BucketName"
@@ -922,7 +938,11 @@
                                               "Ref": "QSS3BucketName"
                                           },
                                           "QSS3KeyPrefix": {
-                                              "Ref": "QSS3KeyPrefix"
+                                            "Fn::Join": [
+                                              "/",
+                                              [{ "Ref": "QSS3KeyPrefix" },
+                                              "submodules/quickstart-hashicorp-consul"]
+                                            ]
                                           }
                                       }
                                   ]
