@@ -381,10 +381,7 @@
                                 {
                                   "Effect": "Allow",
                                   "Action": [
-                                    "ec2:DescribeInstances",
-                                    "ec2:DescribeTags",
-                                    "autoscaling:DescribeAutoScalingGroups",
-                                    "ec2:DescribeInstanceStatus"
+                                    "ec2:DescribeInstances"
                                   ],
                                   "Resource": "*"
                                 }
