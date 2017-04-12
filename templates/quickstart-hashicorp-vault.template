@@ -170,46 +170,46 @@
         },
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20161221"
+                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20170330"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-18afc47f"
+                "US1604HVM": "ami-53624634"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-93d600fd"
+                "US1604HVM": "ami-8a7face4"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-dd3442b2"
+                "US1604HVM": "ami-6c681b03"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-87b917e4"
+                "US1604HVM": "ami-dd07bbbe"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-e6b58e85"
+                "US1604HVM": "ami-c3dfd0a0"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-fe408091"
+                "US1604HVM": "ami-e9c01086"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-ca80a0b9"
+                "US1604HVM": "ami-c0cff0a6"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-ede2e889"
+                "US1604HVM": "ami-036b7f67"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-e075ed8c"
+                "US1604HVM": "ami-c21370ae"
             },
             "us-east-1": {
-                "US1604HVM": "ami-9dcfdb8a"
+                "US1604HVM": "ami-4dd2575b"
             },
             "us-east-2": {
-                "US1604HVM": "ami-fcc19b99"
+                "US1604HVM": "ami-38f5d15d"
             },
             "us-west-1": {
-                "US1604HVM": "ami-b05203d0"
+                "US1604HVM": "ami-e6095386"
             },
             "us-west-2": {
-                "US1604HVM": "ami-b2d463d2"
+                "US1604HVM": "ami-fa27b39a"
             }
         }
     },
@@ -379,11 +379,11 @@
                                     ]
                                 },
                                 {
-                                  "Effect": "Allow",
-                                  "Action": [
-                                    "ec2:DescribeInstances"
-                                  ],
-                                  "Resource": "*"
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "ec2:DescribeInstances"
+                                    ],
+                                    "Resource": "*"
                                 }
                             ]
                         }
@@ -593,41 +593,45 @@
                                 "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 {
                                     "Fn::Sub": [
-                                      "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh\n",
-                                      {
-                                          "QSS3BucketName": {
-                                              "Ref": "QSS3BucketName"
-                                          },
-                                          "QSS3KeyPrefix": {
-                                              "Ref": "QSS3KeyPrefix"
-                                          }
-                                      }
-                                  ]
+                                        "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh\n",
+                                        {
+                                            "QSS3BucketName": {
+                                                "Ref": "QSS3BucketName"
+                                            },
+                                            "QSS3KeyPrefix": {
+                                                "Ref": "QSS3KeyPrefix"
+                                            }
+                                        }
+                                    ]
                                 },
                                 "",
                                 "chmod 755 ./consul_client_bootstrap.sh\n",
                                 {
                                     "Fn::Sub": [
-                                      "./consul_client_bootstrap.sh --consul_tag_key ${ConsulEc2RetryTagKey} --consul_tag_value ${ConsulEc2RetryTagValue} --s3url https://s3.amazonaws.com --s3bucket ${QSS3BucketName} --s3prefix ${QSS3KeyPrefix}",
-                                      {
-                                          "ConsulEc2RetryTagKey": {
-                                              "Ref": "ConsulEc2RetryTagKey"
-                                          },
-                                          "ConsulEc2RetryTagValue": {
-                                              "Ref": "ConsulEc2RetryTagValue"
-                                          },
-                                          "QSS3BucketName": {
-                                              "Ref": "QSS3BucketName"
-                                          },
-                                          "QSS3KeyPrefix": {
-                                            "Fn::Join": [
-                                              "/",
-                                              [{ "Ref": "QSS3KeyPrefix" },
-                                              "submodules/quickstart-hashicorp-consul"]
-                                            ]
-                                          }
-                                      }
-                                  ]
+                                        "./consul_client_bootstrap.sh --consul_tag_key ${ConsulEc2RetryTagKey} --consul_tag_value ${ConsulEc2RetryTagValue} --s3url https://s3.amazonaws.com --s3bucket ${QSS3BucketName} --s3prefix ${QSS3KeyPrefix}",
+                                        {
+                                            "ConsulEc2RetryTagKey": {
+                                                "Ref": "ConsulEc2RetryTagKey"
+                                            },
+                                            "ConsulEc2RetryTagValue": {
+                                                "Ref": "ConsulEc2RetryTagValue"
+                                            },
+                                            "QSS3BucketName": {
+                                                "Ref": "QSS3BucketName"
+                                            },
+                                            "QSS3KeyPrefix": {
+                                                "Fn::Join": [
+                                                    "/",
+                                                    [
+                                                        {
+                                                            "Ref": "QSS3KeyPrefix"
+                                                        },
+                                                        "submodules/quickstart-hashicorp-consul"
+                                                    ]
+                                                ]
+                                            }
+                                        }
+                                    ]
                                 },
                                 "\n",
                                 "/usr/local/bin/cfn-init",
@@ -908,41 +912,45 @@
                                 "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 {
                                     "Fn::Sub": [
-                                      "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh\n",
-                                      {
-                                          "QSS3BucketName": {
-                                              "Ref": "QSS3BucketName"
-                                          },
-                                          "QSS3KeyPrefix": {
-                                              "Ref": "QSS3KeyPrefix"
-                                          }
-                                      }
-                                  ]
+                                        "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh\n",
+                                        {
+                                            "QSS3BucketName": {
+                                                "Ref": "QSS3BucketName"
+                                            },
+                                            "QSS3KeyPrefix": {
+                                                "Ref": "QSS3KeyPrefix"
+                                            }
+                                        }
+                                    ]
                                 },
                                 "",
                                 "chmod 755 ./consul_client_bootstrap.sh\n",
                                 {
                                     "Fn::Sub": [
-                                      "./consul_client_bootstrap.sh --consul_tag_key ${ConsulEc2RetryTagKey} --consul_tag_value ${ConsulEc2RetryTagValue} --s3url https://s3.amazonaws.com --s3bucket ${QSS3BucketName} --s3prefix ${QSS3KeyPrefix}",
-                                      {
-                                          "ConsulEc2RetryTagKey": {
-                                              "Ref": "ConsulEc2RetryTagKey"
-                                          },
-                                          "ConsulEc2RetryTagValue": {
-                                              "Ref": "ConsulEc2RetryTagValue"
-                                          },
-                                          "QSS3BucketName": {
-                                              "Ref": "QSS3BucketName"
-                                          },
-                                          "QSS3KeyPrefix": {
-                                            "Fn::Join": [
-                                              "/",
-                                              [{ "Ref": "QSS3KeyPrefix" },
-                                              "submodules/quickstart-hashicorp-consul"]
-                                            ]
-                                          }
-                                      }
-                                  ]
+                                        "./consul_client_bootstrap.sh --consul_tag_key ${ConsulEc2RetryTagKey} --consul_tag_value ${ConsulEc2RetryTagValue} --s3url https://s3.amazonaws.com --s3bucket ${QSS3BucketName} --s3prefix ${QSS3KeyPrefix}",
+                                        {
+                                            "ConsulEc2RetryTagKey": {
+                                                "Ref": "ConsulEc2RetryTagKey"
+                                            },
+                                            "ConsulEc2RetryTagValue": {
+                                                "Ref": "ConsulEc2RetryTagValue"
+                                            },
+                                            "QSS3BucketName": {
+                                                "Ref": "QSS3BucketName"
+                                            },
+                                            "QSS3KeyPrefix": {
+                                                "Fn::Join": [
+                                                    "/",
+                                                    [
+                                                        {
+                                                            "Ref": "QSS3KeyPrefix"
+                                                        },
+                                                        "submodules/quickstart-hashicorp-consul"
+                                                    ]
+                                                ]
+                                            }
+                                        }
+                                    ]
                                 },
                                 "\n",
                                 "/usr/local/bin/cfn-init",
