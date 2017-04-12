@@ -9,6 +9,9 @@
         },
         "Parameters": [
           "AvailabilityZones",
+          "BastionAMIOS",
+          "ConsulEc2RetryTagKey",
+          "ConsulEc2RetryTagValue",
           "VPCCIDR",
           "PrivateSubnet1CIDR",
           "PrivateSubnet2CIDR",
@@ -19,16 +22,23 @@
           "AccessCIDR",
           "NATInstanceType"
         ]
-      }, {
-        "Label": {
-          "default": "Vault Setup"
-        },
-        "Parameters": [
-          "EmailAddress",      
-          "KeyPairName",
-          "VaultInstanceType"
-        ]
-      }, {
+        }, {
+          "Label": {
+            "default": "Bastion Setup"
+          },
+          "Parameters": [
+            "BastionAMIOS"
+          ]
+        }, {
+          "Label": {
+            "default": "Vault Setup"
+          },
+          "Parameters": [
+            "EmailAddress",
+            "KeyPairName",
+            "VaultInstanceType"
+          ]
+        }, {
         "Label": {
           "default": "AWS Quick Start Configuration"
         },
@@ -40,6 +50,15 @@
       "ParameterLabels": {
         "AvailabilityZones": {
           "default": "Availability Zones"
+        },
+        "BastionAMIOS": {
+          "default": "The Linux distribution for the AMI to be used for the bastion instances"
+        },
+        "ConsulEc2RetryTagKey": {
+          "default": "The Amazon EC2 instance tag key to filter on when joining to other Consul nodes."
+        },
+        "ConsulEc2RetryTagValue": {
+          "default": "The Amazon EC2 instance tag value to filter on when joining to other Consul nodes."
         },
         "KeyPairName": {
           "default": "Key Name"
@@ -88,14 +107,25 @@
       "Description": "List of Availability Zones to use for the subnets in the VPC. Note: The logical order is preserved (3 AZs are used for this deployment)",
       "Type": "List<AWS::EC2::AvailabilityZone::Name>"
     },
+    "BastionAMIOS": {
+      "Description": "The Linux distribution for the AMI to be used for the bastion instances. See https://github.com/aws-quickstart/quickstart-linux-bastion for available options.",
+      "Type": "String",
+      "Default": "Ubuntu-Server-16.04-LTS-HVM"
+    },
+    "ConsulEc2RetryTagKey": {
+      "Description": "The Amazon EC2 instance tag key to filter on when joining to other Consul nodes.",
+      "Type": "String",
+      "Default": "aws:cloudformation:stack-name",
+      "ConstraintDescription": "Must match EC2 Tag Name requirements."
+    },
     "KeyPairName": {
       "Description": "Public/private key pairs allow you to securely connect to your instance after it launches",
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
     "EmailAddress": {
-            "Type": "String",
-            "Description": "Email Address for SNS Topic. Alarms for Vault instance memory utilization"
-        },
+      "Type": "String",
+      "Description": "Email Address for SNS Topic. Alarms for Vault instance memory utilization"
+    },
     "NATInstanceType": {
       "AllowedValues": [
         "t2.nano",
@@ -338,7 +368,8 @@
                 }, {
                   "Ref": "QSS3KeyPrefix"
                 },
-                "submodules/quickstart-aws-vpc/templates/aws-vpc.template"
+                "submodules/quickstart-aws-vpc",
+                "templates/aws-vpc.template"
               ]
             ]
           },
@@ -381,8 +412,81 @@
           }
         }
       },
-      "HashiCorpConsulStack": {
+      "BastionStack": {
         "DependsOn": "VPCStack",
+        "Type": "AWS::CloudFormation::Stack",
+        "Properties": {
+          "TemplateURL": {
+            "Fn::Join": [
+              "/",
+              [
+                {
+                  "Fn::FindInMap": [
+                    "AWSInfoRegionMap",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "QuickStartS3URL"
+                  ]
+                },
+                {
+                  "Ref": "QSS3BucketName"
+                },
+                {
+                  "Ref": "QSS3KeyPrefix"
+                },
+                "submodules/quickstart-linux-bastion",
+                "templates/linux-bastion.template"
+              ]
+            ]
+          },
+          "Parameters": {
+            "BastionAMIOS": {
+              "Ref": "BastionAMIOS"
+            },
+            "KeyPairName": {
+              "Ref": "KeyPairName"
+            },
+            "PublicSubnet1ID": {
+              "Fn::GetAtt": [
+                "VPCStack",
+                "Outputs.PublicSubnet1ID"
+              ]
+            },
+            "PublicSubnet2ID": {
+              "Fn::GetAtt": [
+                "VPCStack",
+                "Outputs.PublicSubnet2ID"
+              ]
+            },
+            "QSS3BucketName": {
+              "Ref": "QSS3BucketName"
+            },
+            "QSS3KeyPrefix": {
+              "Fn::Join": [
+                "/",
+                [
+                  {
+                    "Ref": "QSS3KeyPrefix"
+                  },
+                  "submodules/quickstart-linux-bastion/"
+                ]
+              ]
+            },
+            "RemoteAccessCIDR": {
+              "Ref": "AccessCIDR"
+            },
+            "VPCID": {
+              "Fn::GetAtt": [
+                "VPCStack",
+                "Outputs.VPCID"
+              ]
+            }
+          }
+        }
+      },
+      "HashiCorpConsulStack": {
+        "DependsOn": "BastionStack",
         "Type": "AWS::CloudFormation::Stack",
         "Properties": {
           "TemplateURL": {
@@ -396,8 +500,12 @@
                   ]
                 }, {
                   "Ref": "QSS3BucketName"
-                }, 
-                "hashicorp/consul/latest/templates/quickstart-hashicorp-consul.template"
+                },
+                {
+                  "Ref": "QSS3KeyPrefix"
+                },
+                "submodules/quickstart-hashicorp-consul",
+                "templates/quickstart-hashicorp-consul.template"
               ]
             ]
           },
@@ -407,6 +515,12 @@
                 ",", {
                   "Ref": "AvailabilityZones"
                 }
+              ]
+            },
+            "BastionSecurityGroupID": {
+              "Fn::GetAtt": [
+                  "BastionStack",
+                  "Outputs.BastionSecurityGroupID"
               ]
             },
             "PrivateSubnet1ID": {
@@ -439,11 +553,21 @@
                     "Outputs.PublicSubnet2ID"
                 ]
             },
-              "PublicSubnet3ID": {
-                "Fn::GetAtt": [
-                    "VPCStack",
-                    "Outputs.PublicSubnet3ID"
-                ]
+            "PublicSubnet3ID": {
+              "Fn::GetAtt": [
+                  "VPCStack",
+                  "Outputs.PublicSubnet3ID"
+              ]
+            },
+            "QSS3BucketName": {
+              "Ref": "QSS3BucketName"
+            },
+            "QSS3KeyPrefix": {
+              "Fn::Join": [
+                "/",
+                [{ "Ref": "QSS3KeyPrefix" },
+                "submodules/quickstart-hashicorp-consul"]
+              ]
             },
             "VPCID": {
                 "Fn::GetAtt": [
@@ -488,19 +612,20 @@
               "Ref": "AccessCIDR"
             },
             "QuickStartS3URL": {
-            "Fn::Join": [
-                "/", [{
+              "Fn::Join": [
+                "/",
+                [
+                  {
                     "Fn::FindInMap": [
                       "AWSInfoRegionMap", {
-                          "Ref": "AWS::Region"
-                          },
-                        "QuickStartS3URL"
-                      ]
-                    }
-                  ]
+                        "Ref": "AWS::Region"
+                      },
+                      "QuickStartS3URL"
+                    ]
+                  }
                 ]
-              },
-            "QSS3KeyPrefix": "hashicorp/consul/latest"
+              ]
+            }
           }
         }
       },
@@ -519,7 +644,8 @@
                   ]
                 }, {
                   "Ref": "QSS3BucketName"
-                }, {
+                },
+                {
                   "Ref": "QSS3KeyPrefix"
                 },
                 "templates/quickstart-hashicorp-vault.template"
@@ -527,6 +653,24 @@
             ]
           },
           "Parameters": {
+            "BastionSecurityGroupID": {
+              "Fn::GetAtt": [
+                  "BastionStack",
+                  "Outputs.BastionSecurityGroupID"
+              ]
+            },
+            "ConsulEc2RetryTagKey": {
+              "Fn::GetAtt": [
+                  "HashiCorpConsulStack",
+                  "Outputs.ConsulEc2RetryTagKey"
+              ]
+            },
+            "ConsulEc2RetryTagValue": {
+              "Fn::GetAtt": [
+                  "HashiCorpConsulStack",
+                  "Outputs.ConsulEc2RetryTagValue"
+              ]
+            },
             "PrivateSubnet1ID": {
               "Fn::GetAtt": [
                   "VPCStack",
@@ -539,16 +683,16 @@
                     "Outputs.PrivateSubnet2AID"
                 ]
             },
+            "QSS3BucketName": {
+              "Ref": "QSS3BucketName"
+            },
+            "QSS3KeyPrefix": {
+              "Ref": "QSS3KeyPrefix"
+            },
             "VPCID": {
                 "Fn::GetAtt": [
                     "VPCStack",
                     "Outputs.VPCID"
-                ]
-            },
-            "ConsulSeedPrivateIP": {
-                "Fn::GetAtt": [
-                    "HashiCorpConsulStack",
-                    "Outputs.ConsulSeedPrivateIP"
                 ]
             },
             "VPCCIDR": {
