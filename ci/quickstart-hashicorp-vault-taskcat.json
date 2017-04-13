@@ -8,10 +8,6 @@
         "ParameterValue": "$[alfred_genaz_3]"
     },
     {
-        "ParameterKey": "ConsulInstanceType",
-        "ParameterValue": "m3.medium"
-    },
-    {
         "ParameterKey": "ConsulClientNodes",
         "ParameterValue": "3"
     },
@@ -29,7 +25,7 @@
     },
     {
         "ParameterKey": "VaultInstanceType",
-        "ParameterValue": "m3.medium"
+        "ParameterValue": "m4.large"
     },
     {
         "ParameterKey": "NATInstanceType",

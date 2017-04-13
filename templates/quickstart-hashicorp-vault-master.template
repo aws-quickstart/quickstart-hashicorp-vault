@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Hashicorp Consul+Vault, License: Apache 2.0 (Please do not remove) Nov,14,2016",
+  "Description": "Hashicorp Consul+Vault, License: Apache 2.0 (Please do not remove) April,12,2016",
   "Metadata": {
     "AWS::CloudFormation::Interface": {
       "ParameterGroups": [{
@@ -9,7 +9,6 @@
         },
         "Parameters": [
           "AvailabilityZones",
-          "BastionAMIOS",
           "ConsulEc2RetryTagKey",
           "ConsulEc2RetryTagValue",
           "VPCCIDR",
@@ -22,13 +21,6 @@
           "AccessCIDR",
           "NATInstanceType"
         ]
-        }, {
-          "Label": {
-            "default": "Bastion Setup"
-          },
-          "Parameters": [
-            "BastionAMIOS"
-          ]
         }, {
           "Label": {
             "default": "Vault Setup"
@@ -50,9 +42,6 @@
       "ParameterLabels": {
         "AvailabilityZones": {
           "default": "Availability Zones"
-        },
-        "BastionAMIOS": {
-          "default": "The Linux distribution for the AMI to be used for the bastion instances"
         },
         "ConsulEc2RetryTagKey": {
           "default": "The Amazon EC2 instance tag key to filter on when joining to other Consul nodes."
@@ -106,11 +95,6 @@
     "AvailabilityZones": {
       "Description": "List of Availability Zones to use for the subnets in the VPC. Note: The logical order is preserved (3 AZs are used for this deployment)",
       "Type": "List<AWS::EC2::AvailabilityZone::Name>"
-    },
-    "BastionAMIOS": {
-      "Description": "The Linux distribution for the AMI to be used for the bastion instances. See https://github.com/aws-quickstart/quickstart-linux-bastion for available options.",
-      "Type": "String",
-      "Default": "Ubuntu-Server-16.04-LTS-HVM"
     },
     "ConsulEc2RetryTagKey": {
       "Description": "The Amazon EC2 instance tag key to filter on when joining to other Consul nodes.",
@@ -250,8 +234,8 @@
                 "i2.4xlarge",
                 "i2.8xlarge"
             ],
-            "ConstraintDescription": "Choose an instance type. m3.medium or larger recommended.",
-            "Default": "m3.medium"
+            "ConstraintDescription": "Choose an instance type. m4.large or larger recommended.",
+            "Default": "m4.large"
         },
     "ConsulInstanceType": {
       "Type": "String",
@@ -291,7 +275,7 @@
         "i2.4xlarge",
         "i2.8xlarge"
       ],
-      "ConstraintDescription": "Choose an instance type. m3.medium or larger recommended."
+      "ConstraintDescription": "Choose an instance type. m4.large or larger recommended."
       }
     },
     "Mappings": {
@@ -441,9 +425,7 @@
             ]
           },
           "Parameters": {
-            "BastionAMIOS": {
-              "Ref": "BastionAMIOS"
-            },
+            "BastionAMIOS": "Ubuntu-Server-16.04-LTS-HVM",
             "KeyPairName": {
               "Ref": "KeyPairName"
             },

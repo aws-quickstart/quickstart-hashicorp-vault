@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "QS(0039) HashiCorp Vault License: Apache 2.0 (Please do not remove) Nov,22,2016",
+    "Description": "QS(0039) HashiCorp Vault License: Apache 2.0 (Please do not remove) April,12,2016",
     "Parameters": {
         "KeyPair": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
@@ -57,8 +57,8 @@
                 "i2.4xlarge",
                 "i2.8xlarge"
             ],
-            "ConstraintDescription": "Choose an instance type. m3.medium or larger recommended.",
-            "Default": "m3.medium"
+            "ConstraintDescription": "Choose an instance type. m4.large or larger recommended.",
+            "Default": "m4.large"
         },
         "QuickStartS3URL": {
             "ConstraintDescription": "S3Url",

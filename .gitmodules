@@ -5,6 +5,8 @@
 [submodule "submodules/quickstart-linux-bastion"]
 	path = submodules/quickstart-linux-bastion
 	url = git@github.com:aws-quickstart/quickstart-linux-bastion.git
+	branch = master
 [submodule "submodules/quickstart-hashicorp-consul"]
 	path = submodules/quickstart-hashicorp-consul
 	url = git@github.com:aws-quickstart/quickstart-hashicorp-consul.git
+	branch = master
