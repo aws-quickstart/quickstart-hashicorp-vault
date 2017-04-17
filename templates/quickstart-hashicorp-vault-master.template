@@ -83,8 +83,11 @@
         "VPCCIDR": {
           "default": "VPC CIDR"
         },
-        "ConsulNodes": {
-          "default": "Consul nodes"
+        "ConsulClientNodes": {
+          "default": "Consul client nodes"
+        },
+        "ConsulServerNodes": {
+          "default": "Consul server nodes"
         },
         "ConsulInstanceType": {
           "default": "Consul cluster node instance type"
