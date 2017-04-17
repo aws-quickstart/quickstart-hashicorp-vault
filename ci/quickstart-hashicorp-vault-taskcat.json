@@ -28,10 +28,6 @@
         "ParameterValue": "m4.large"
     },
     {
-        "ParameterKey": "NATInstanceType",
-        "ParameterValue": "t2.small"
-    },
-    {
         "ParameterKey": "QSS3BucketName",
         "ParameterValue": "cfn-tonynv"
     },

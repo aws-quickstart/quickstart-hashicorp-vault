@@ -30,9 +30,5 @@
     {
         "ParameterKey": "VaultInstanceType",
         "ParameterValue": "m3.medium"
-    },
-    {
-        "ParameterKey": "NATInstanceType",
-        "ParameterValue": "t2.small"
     }
 ]
