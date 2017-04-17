@@ -1,5 +1,6 @@
 ## HashiCorp Vault on the AWS Cloud
 > Vault version 0.7.0
+
 > Consul version 0.8.0
 
 ### Deployment options:
@@ -10,7 +11,7 @@
 ![quickstart-hashicorp-consul](/images/vault.png)
 
 ### Change Log:
-* Added Linux Bastion (Entry point for Consul and Vault
+* Added Linux Bastion (Entry point for Consul and Vault)
 * Added Support for Consul version to '0.8.0'
 
 ### Template Changes
