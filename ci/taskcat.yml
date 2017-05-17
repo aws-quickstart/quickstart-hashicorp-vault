@@ -21,7 +21,7 @@ tests:
     parameter_input: quickstart-hashicorp-vault-taskcat.json
     template_file:  quickstart-hashicorp-vault-master.template
     regions:
-    - us-east-1
+    - us-east-2
 #    - ap-southeast-2
 #    - eu-west-1
 #    - us-west-2

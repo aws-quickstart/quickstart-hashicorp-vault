@@ -528,8 +528,7 @@
                                 "chmod 755 ./consul_client_bootstrap.sh\n",
                                 {
                                     "Fn::Sub": [
-                                        "./consul_client_bootstrap.sh --consul_tag_key ${ConsulEc2RetryTagKey} --consul_tag_value ${ConsulEc2RetryTagValue} --s3url https://s3.amazonaws.com --s3bucket ${QSS3BucketName} --s3prefix ${QSS3KeyPrefix}",
-                                        {
+                                        "./consul_client_bootstrap.sh --consul_tag_key ${ConsulEc2RetryTagKey} --consul_tag_value ${ConsulEc2RetryTagValue} --s3bucket ${QSS3BucketName} --s3prefix ${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul", {
                                             "ConsulEc2RetryTagKey": {
                                                 "Ref": "ConsulEc2RetryTagKey"
                                             },
@@ -540,13 +539,7 @@
                                                 "Ref": "QSS3BucketName"
                                             },
                                             "QSS3KeyPrefix": {
-                                                "Fn::Join": [
-                                                    "/", [{
-                                                            "Ref": "QSS3KeyPrefix"
-                                                        },
-                                                        "submodules/quickstart-hashicorp-consul"
-                                                    ]
-                                                ]
+                                                "Ref": "QSS3KeyPrefix"
                                             }
                                         }
                                     ]
@@ -830,8 +823,7 @@
                                 "chmod 755 ./consul_client_bootstrap.sh\n",
                                 {
                                     "Fn::Sub": [
-                                        "./consul_client_bootstrap.sh --consul_tag_key ${ConsulEc2RetryTagKey} --consul_tag_value ${ConsulEc2RetryTagValue} --s3url https://s3.amazonaws.com --s3bucket ${QSS3BucketName} --s3prefix ${QSS3KeyPrefix}",
-                                        {
+                                        "./consul_client_bootstrap.sh --consul_tag_key ${ConsulEc2RetryTagKey} --consul_tag_value ${ConsulEc2RetryTagValue} --s3bucket ${QSS3BucketName} --s3prefix ${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul", {
                                             "ConsulEc2RetryTagKey": {
                                                 "Ref": "ConsulEc2RetryTagKey"
                                             },
@@ -842,13 +834,7 @@
                                                 "Ref": "QSS3BucketName"
                                             },
                                             "QSS3KeyPrefix": {
-                                                "Fn::Join": [
-                                                    "/", [{
-                                                            "Ref": "QSS3KeyPrefix"
-                                                        },
-                                                        "submodules/quickstart-hashicorp-consul"
-                                                    ]
-                                                ]
+                                                "Ref": "QSS3KeyPrefix"
                                             }
                                         }
                                     ]

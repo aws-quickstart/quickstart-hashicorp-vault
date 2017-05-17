@@ -8,24 +8,8 @@
         "ParameterValue": "$[alfred_genaz_3]"
     },
     {
-        "ParameterKey": "ConsulClientNodes",
-        "ParameterValue": "3"
-    },
-    {
-        "ParameterKey": "ConsulServerNodes",
-        "ParameterValue": "3"
-    },
-    {
         "ParameterKey": "KeyPairName",
         "ParameterValue": "tonynv"
-    },
-    {
-        "ParameterKey": "EmailAddress",
-        "ParameterValue": "none@none.com"
-    },
-    {
-        "ParameterKey": "VaultInstanceType",
-        "ParameterValue": "m4.large"
     },
     {
         "ParameterKey": "QSS3BucketName",
@@ -33,6 +17,6 @@
     },
     {
         "ParameterKey": "QSS3KeyPrefix",
-        "ParameterValue": "quickstart-hashicorp-vault"
+        "ParameterValue": "quickstart-hashicorp-vault/"
     }
 ]
