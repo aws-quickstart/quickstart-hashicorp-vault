@@ -1,17 +1,16 @@
-[
-    {
-        "ParameterKey": "AccessCIDR",
-        "ParameterValue": "1.2.3.4/0"
-    },
-    {
-        "ParameterKey": "AvailabilityZones",
-        "ParameterValue": "$[alfred_genaz_3]"
-    },
-        "ParameterKey": "KeyPairName",
-        "ParameterValue": "tonynv"
-    },
-    {
-        "ParameterKey": "EmailAddress",
-        "ParameterValue": "none@none.com"
-    }
+[{
+		"ParameterKey": "AccessCIDR",
+		"ParameterValue": "1.2.3.4/0"
+	},
+	{
+		"ParameterKey": "AvailabilityZones",
+		"ParameterValue": "$[alfred_genaz_3]"
+	},
+	{
+		"ParameterKey": "KeyPairName",
+		"ParameterValue": "tonynv"
+	}, {
+		"ParameterKey": "EmailAddress",
+		"ParameterValue": "none@none.com"
+	}
 ]
