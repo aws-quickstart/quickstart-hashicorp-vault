@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "QS(0039) HashiCorp Vault License: Apache 2.0 (Please do not remove) April,17,2016",
+    "Description": "QS(0039) HashiCorp Vault License: Apache 2.0 (Please do not remove) ,17,2016",
     "Parameters": {
         "KeyPair": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
@@ -60,12 +60,6 @@
             "ConstraintDescription": "Choose an instance type. m4.large or larger recommended.",
             "Default": "m4.large"
         },
-        "QuickStartS3URL": {
-            "ConstraintDescription": "S3Url",
-            "Default": "https://s3.amazonaws.com",
-            "Description": "AWS S3 Root Url",
-            "Type": "String"
-        },
         "QSS3BucketName": {
             "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
             "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
@@ -74,10 +68,10 @@
             "Type": "String"
         },
         "QSS3KeyPrefix": {
-            "AllowedPattern": "^[0-9a-zA-Z-]+(/[0-9a-zA-Z-]+)*$",
-            "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
-            "Default": "hashicorp/vault/latest",
-            "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/). It cannot start or end with forward slash (/) because they are automatically appended.",
+            "AllowedPattern": "^[0-9a-zA-Z-/]*$",
+            "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
+            "Default": "hashicorp/vault/latest/",
+            "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
             "Type": "String"
         },
         "EmailAddress": {
@@ -113,61 +107,16 @@
             "Default": "https://releases.hashicorp.com/vault/0.7.0/vault_0.7.0_linux_amd64.zip"
         }
     },
+    "Conditions": {
+        "GovCloudCondition": {
+            "Fn::Equals": [{
+                    "Ref": "AWS::Region"
+                },
+                "us-gov-west-1"
+            ]
+        }
+    },
     "Mappings": {
-        "AWSInfoRegionMap": {
-            "ap-northeast-1": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            },
-            "ap-northeast-2": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            },
-            "ap-south-1": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            },
-            "ap-southeast-1": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            },
-            "ap-southeast-2": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            },
-            "eu-central-1": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            },
-            "eu-west-1": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            },
-            "sa-east-1": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            },
-            "us-east-1": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            },
-            "us-east-2": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            },
-            "us-gov-west-1": {
-                "Partition": "aws-us-gov",
-                "QuickStartS3URL": "https://s3-us-gov-west-1.amazonaws.com"
-            },
-            "us-west-1": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            },
-            "us-west-2": {
-                "Partition": "aws",
-                "QuickStartS3URL": "https://s3.amazonaws.com"
-            }
-        },
         "AWSAMIRegionMap": {
             "AMI": {
                 "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20170414"
@@ -217,14 +166,12 @@
         "VaultSNSTopic": {
             "Type": "AWS::SNS::Topic",
             "Properties": {
-                "Subscription": [
-                    {
-                        "Endpoint": {
-                            "Ref": "EmailAddress"
-                        },
-                        "Protocol": "email"
-                    }
-                ]
+                "Subscription": [{
+                    "Endpoint": {
+                        "Ref": "EmailAddress"
+                    },
+                    "Protocol": "email"
+                }]
             }
         },
         "VaultSecGroup": {
@@ -234,8 +181,7 @@
                 "VpcId": {
                     "Ref": "VPCID"
                 },
-                "SecurityGroupIngress": [
-                    {
+                "SecurityGroupIngress": [{
                         "IpProtocol": "tcp",
                         "FromPort": "22",
                         "ToPort": "22",
@@ -252,33 +198,27 @@
                         }
                     }
                 ],
-                "Tags": [
-                    {
-                        "Key": "Name",
-                        "Value": {
-                            "Fn::Join": [
-                                "-",
-                                [
-                                    {
-                                        "Ref": "AWS::StackName"
-                                    },
-                                    "VaultSecGroup"
-                                ]
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": {
+                        "Fn::Join": [
+                            "-", [{
+                                    "Ref": "AWS::StackName"
+                                },
+                                "VaultSecGroup"
                             ]
-                        }
+                        ]
                     }
-                ]
+                }]
             }
         },
         "Vault1MemoryAlarm": {
             "Type": "AWS::CloudWatch::Alarm",
             "Properties": {
                 "AlarmDescription": "Memory alarm for my instance",
-                "AlarmActions": [
-                    {
-                        "Ref": "VaultSNSTopic"
-                    }
-                ],
+                "AlarmActions": [{
+                    "Ref": "VaultSNSTopic"
+                }],
                 "MetricName": "MemoryUtilization",
                 "Namespace": "System/Linux",
                 "Statistic": "Average",
@@ -286,25 +226,21 @@
                 "EvaluationPeriods": "3",
                 "Threshold": "75",
                 "ComparisonOperator": "GreaterThanThreshold",
-                "Dimensions": [
-                    {
-                        "Name": "InstanceId",
-                        "Value": {
-                            "Ref": "Vault1"
-                        }
+                "Dimensions": [{
+                    "Name": "InstanceId",
+                    "Value": {
+                        "Ref": "Vault1"
                     }
-                ]
+                }]
             }
         },
         "Vault2MemoryAlarm": {
             "Type": "AWS::CloudWatch::Alarm",
             "Properties": {
                 "AlarmDescription": "Memory alarm for my instance",
-                "AlarmActions": [
-                    {
-                        "Ref": "VaultSNSTopic"
-                    }
-                ],
+                "AlarmActions": [{
+                    "Ref": "VaultSNSTopic"
+                }],
                 "MetricName": "MemoryUtilization",
                 "Namespace": "System/Linux",
                 "Statistic": "Average",
@@ -312,14 +248,12 @@
                 "EvaluationPeriods": "3",
                 "Threshold": "75",
                 "ComparisonOperator": "GreaterThanThreshold",
-                "Dimensions": [
-                    {
-                        "Name": "InstanceId",
-                        "Value": {
-                            "Ref": "Vault2"
-                        }
+                "Dimensions": [{
+                    "Name": "InstanceId",
+                    "Value": {
+                        "Ref": "Vault2"
                     }
-                ]
+                }]
             }
         },
         "VaultLogGroup": {
@@ -334,72 +268,65 @@
             "Properties": {
                 "AssumeRolePolicyDocument": {
                     "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Principal": {
-                                "Service": [
-                                    "ec2.amazonaws.com"
-                                ]
-                            },
-                            "Action": [
-                                "sts:AssumeRole"
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": {
+                            "Service": [
+                                "ec2.amazonaws.com"
                             ]
-                        }
-                    ]
+                        },
+                        "Action": [
+                            "sts:AssumeRole"
+                        ]
+                    }]
                 },
                 "Path": "/",
-                "Policies": [
-                    {
-                        "PolicyName": "root",
-                        "PolicyDocument": {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "logs:CreateLogGroup",
-                                        "logs:CreateLogStream",
-                                        "logs:PutLogEvents",
-                                        "logs:DescribeLogStreams"
-                                    ],
-                                    "Resource": [
-                                        "arn:aws:logs:*:*:*"
-                                    ]
-                                },
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "cloudwatch:PutMetricData",
-                                        "cloudwatch:GetMetricStatistics",
-                                        "cloudwatch:ListMetrics"
-                                    ],
-                                    "Resource": [
-                                        "*"
-                                    ]
-                                },
-                                {
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "ec2:DescribeInstances"
-                                    ],
-                                    "Resource": "*"
-                                }
-                            ]
-                        }
+                "Policies": [{
+                    "PolicyName": "root",
+                    "PolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                                "Effect": "Allow",
+                                "Action": [
+                                    "logs:CreateLogGroup",
+                                    "logs:CreateLogStream",
+                                    "logs:PutLogEvents",
+                                    "logs:DescribeLogStreams"
+                                ],
+                                "Resource": [
+                                    "arn:aws:logs:*:*:*"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "cloudwatch:PutMetricData",
+                                    "cloudwatch:GetMetricStatistics",
+                                    "cloudwatch:ListMetrics"
+                                ],
+                                "Resource": [
+                                    "*"
+                                ]
+                            },
+                            {
+                                "Effect": "Allow",
+                                "Action": [
+                                    "ec2:DescribeInstances"
+                                ],
+                                "Resource": "*"
+                            }
+                        ]
                     }
-                ]
+                }]
             }
         },
         "vaultinstanceprofile": {
             "Type": "AWS::IAM::InstanceProfile",
             "Properties": {
                 "Path": "/",
-                "Roles": [
-                    {
-                        "Ref": "vaultinstancerole"
-                    }
-                ]
+                "Roles": [{
+                    "Ref": "vaultinstancerole"
+                }]
             }
         },
         "Vault1": {
@@ -428,7 +355,7 @@
                             "/etc/cron.hourly/cloudwatch-monitoring.sh": {
                                 "source": {
                                     "Fn::Sub": [
-                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/cloudwatch-monitoring.sh",
+                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/cloudwatch-monitoring.sh",
                                         {
                                             "QSS3BucketName": {
                                                 "Ref": "QSS3BucketName"
@@ -454,7 +381,7 @@
                             "01_run_awslogs_agent_setup.py": {
                                 "command": {
                                     "Fn::Sub": [
-                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/awslogs-config-file",
+                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/awslogs-config-file",
                                         {
                                             "Region": {
                                                 "Ref": "AWS::Region"
@@ -493,7 +420,7 @@
                             "/etc/vault.d/vault.hcl": {
                                 "source": {
                                     "Fn::Sub": [
-                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/vault.hcl",
+                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/vault.hcl",
                                         {
                                             "QSS3BucketName": {
                                                 "Ref": "QSS3BucketName"
@@ -511,7 +438,7 @@
                             "/etc/systemd/system/vault.service": {
                                 "source": {
                                     "Fn::Sub": [
-                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/vault.service",
+                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/vault.service",
                                         {
                                             "QSS3BucketName": {
                                                 "Ref": "QSS3BucketName"
@@ -549,20 +476,16 @@
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "NetworkInterfaces": [
-                    {
-                        "DeleteOnTermination": "true",
-                        "DeviceIndex": 0,
-                        "SubnetId": {
-                            "Ref": "PrivateSubnet1ID"
-                        },
-                        "GroupSet": [
-                            {
-                                "Ref": "VaultSecGroup"
-                            }
-                        ]
-                    }
-                ],
+                "NetworkInterfaces": [{
+                    "DeleteOnTermination": "true",
+                    "DeviceIndex": 0,
+                    "SubnetId": {
+                        "Ref": "PrivateSubnet1ID"
+                    },
+                    "GroupSet": [{
+                        "Ref": "VaultSecGroup"
+                    }]
+                }],
                 "ImageId": {
                     "Fn::FindInMap": [
                         "AWSAMIRegionMap",
@@ -572,20 +495,17 @@
                         "US1604HVM"
                     ]
                 },
-                "BlockDeviceMappings": [
-                    {
-                        "DeviceName": "/dev/sda1",
-                        "Ebs": {
-                            "VolumeSize": "20",
-                            "VolumeType": "gp2"
-                        }
+                "BlockDeviceMappings": [{
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                        "VolumeSize": "20",
+                        "VolumeType": "gp2"
                     }
-                ],
+                }],
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [
-                            "",
-                            [
+                            "", [
                                 "#!/bin/bash -x\n",
                                 "apt-get -y update\n",
                                 "apt-get -y install  python-setuptools\n",
@@ -593,7 +513,7 @@
                                 "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 {
                                     "Fn::Sub": [
-                                        "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh\n",
+                                        "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh\n",
                                         {
                                             "QSS3BucketName": {
                                                 "Ref": "QSS3BucketName"
@@ -621,9 +541,7 @@
                                             },
                                             "QSS3KeyPrefix": {
                                                 "Fn::Join": [
-                                                    "/",
-                                                    [
-                                                        {
+                                                    "/", [{
                                                             "Ref": "QSS3KeyPrefix"
                                                         },
                                                         "submodules/quickstart-hashicorp-consul"
@@ -665,22 +583,18 @@
                 "IamInstanceProfile": {
                     "Ref": "vaultinstanceprofile"
                 },
-                "Tags": [
-                    {
-                        "Key": "Name",
-                        "Value": {
-                            "Fn::Join": [
-                                "-",
-                                [
-                                    {
-                                        "Ref": "AWS::StackName"
-                                    },
-                                    "Vault1"
-                                ]
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": {
+                        "Fn::Join": [
+                            "-", [{
+                                    "Ref": "AWS::StackName"
+                                },
+                                "Vault1"
                             ]
-                        }
+                        ]
                     }
-                ]
+                }]
             }
         },
         "Vault1RecoveryAlarm": {
@@ -694,14 +608,12 @@
                 "EvaluationPeriods": "5",
                 "ComparisonOperator": "GreaterThanThreshold",
                 "Threshold": "0",
-                "AlarmActions": [
-                    {
+                "AlarmActions": [{
                         "Ref": "VaultSNSTopic"
                     },
                     {
                         "Fn::Join": [
-                            "",
-                            [
+                            "", [
                                 "arn:aws:automate:",
                                 {
                                     "Ref": "AWS::Region"
@@ -711,14 +623,12 @@
                         ]
                     }
                 ],
-                "Dimensions": [
-                    {
-                        "Name": "InstanceId",
-                        "Value": {
-                            "Ref": "Vault1"
-                        }
+                "Dimensions": [{
+                    "Name": "InstanceId",
+                    "Value": {
+                        "Ref": "Vault1"
                     }
-                ]
+                }]
             }
         },
         "Vault2": {
@@ -747,7 +657,7 @@
                             "/etc/cron.hourly/cloudwatch-monitoring.sh": {
                                 "source": {
                                     "Fn::Sub": [
-                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/cloudwatch-monitoring.sh",
+                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/cloudwatch-monitoring.sh",
                                         {
                                             "QSS3BucketName": {
                                                 "Ref": "QSS3BucketName"
@@ -773,7 +683,7 @@
                             "01_run_awslogs_agent_setup.py": {
                                 "command": {
                                     "Fn::Sub": [
-                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/awslogs-config-file",
+                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/awslogs-config-file",
                                         {
                                             "Region": {
                                                 "Ref": "AWS::Region"
@@ -812,7 +722,7 @@
                             "/etc/vault.d/vault.hcl": {
                                 "source": {
                                     "Fn::Sub": [
-                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/vault.hcl",
+                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/vault.hcl",
                                         {
                                             "QSS3BucketName": {
                                                 "Ref": "QSS3BucketName"
@@ -830,7 +740,7 @@
                             "/etc/systemd/system/vault.service": {
                                 "source": {
                                     "Fn::Sub": [
-                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/scripts/vault.service",
+                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/vault.service",
                                         {
                                             "QSS3BucketName": {
                                                 "Ref": "QSS3BucketName"
@@ -868,20 +778,16 @@
                 "KeyName": {
                     "Ref": "KeyPair"
                 },
-                "NetworkInterfaces": [
-                    {
-                        "DeleteOnTermination": "true",
-                        "DeviceIndex": 0,
-                        "SubnetId": {
-                            "Ref": "PrivateSubnet2ID"
-                        },
-                        "GroupSet": [
-                            {
-                                "Ref": "VaultSecGroup"
-                            }
-                        ]
-                    }
-                ],
+                "NetworkInterfaces": [{
+                    "DeleteOnTermination": "true",
+                    "DeviceIndex": 0,
+                    "SubnetId": {
+                        "Ref": "PrivateSubnet2ID"
+                    },
+                    "GroupSet": [{
+                        "Ref": "VaultSecGroup"
+                    }]
+                }],
                 "ImageId": {
                     "Fn::FindInMap": [
                         "AWSAMIRegionMap",
@@ -891,20 +797,17 @@
                         "US1604HVM"
                     ]
                 },
-                "BlockDeviceMappings": [
-                    {
-                        "DeviceName": "/dev/sda1",
-                        "Ebs": {
-                            "VolumeSize": "20",
-                            "VolumeType": "gp2"
-                        }
+                "BlockDeviceMappings": [{
+                    "DeviceName": "/dev/sda1",
+                    "Ebs": {
+                        "VolumeSize": "20",
+                        "VolumeType": "gp2"
                     }
-                ],
+                }],
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [
-                            "",
-                            [
+                            "", [
                                 "#!/bin/bash -x\n",
                                 "apt-get -y update\n",
                                 "apt-get -y install  python-setuptools\n",
@@ -912,7 +815,7 @@
                                 "mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/\n",
                                 {
                                     "Fn::Sub": [
-                                        "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}/submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh\n",
+                                        "wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh\n",
                                         {
                                             "QSS3BucketName": {
                                                 "Ref": "QSS3BucketName"
@@ -940,9 +843,7 @@
                                             },
                                             "QSS3KeyPrefix": {
                                                 "Fn::Join": [
-                                                    "/",
-                                                    [
-                                                        {
+                                                    "/", [{
                                                             "Ref": "QSS3KeyPrefix"
                                                         },
                                                         "submodules/quickstart-hashicorp-consul"
@@ -984,22 +885,18 @@
                 "IamInstanceProfile": {
                     "Ref": "vaultinstanceprofile"
                 },
-                "Tags": [
-                    {
-                        "Key": "Name",
-                        "Value": {
-                            "Fn::Join": [
-                                "-",
-                                [
-                                    {
-                                        "Ref": "AWS::StackName"
-                                    },
-                                    "Vault2"
-                                ]
+                "Tags": [{
+                    "Key": "Name",
+                    "Value": {
+                        "Fn::Join": [
+                            "-", [{
+                                    "Ref": "AWS::StackName"
+                                },
+                                "Vault2"
                             ]
-                        }
+                        ]
                     }
-                ]
+                }]
             }
         },
         "Vault2RecoveryAlarm": {
@@ -1013,14 +910,12 @@
                 "EvaluationPeriods": "5",
                 "ComparisonOperator": "GreaterThanThreshold",
                 "Threshold": "0",
-                "AlarmActions": [
-                    {
+                "AlarmActions": [{
                         "Ref": "VaultSNSTopic"
                     },
                     {
                         "Fn::Join": [
-                            "",
-                            [
+                            "", [
                                 "arn:aws:automate:",
                                 {
                                     "Ref": "AWS::Region"
@@ -1030,14 +925,12 @@
                         ]
                     }
                 ],
-                "Dimensions": [
-                    {
-                        "Name": "InstanceId",
-                        "Value": {
-                            "Ref": "Vault2"
-                        }
+                "Dimensions": [{
+                    "Name": "InstanceId",
+                    "Value": {
+                        "Ref": "Vault2"
                     }
-                ]
+                }]
             }
         }
     },
