@@ -333,6 +333,7 @@
       "Properties": {
         "Parameters": {
           "BastionAMIOS": "Ubuntu-Server-16.04-LTS-HVM",
+          "EnableTCPForwarding": "true",
           "KeyPairName": {
             "Ref": "KeyPairName"
           },
