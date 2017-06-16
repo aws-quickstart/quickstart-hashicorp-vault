@@ -120,46 +120,46 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20170516"
+                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20170613"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-1de1df7a"
+                "US1604HVM": "ami-169e9771"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-6722ff09"
+                "US1604HVM": "ami-d58a55bb"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-4fa4d920"
+                "US1604HVM": "ami-6bbdc204"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-93ef68f0"
+                "US1604HVM": "ami-919e1cf2"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-1e01147d"
+                "US1604HVM": "ami-3c30215f"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-a74c95c8"
+                "US1604HVM": "ami-fc5bff93"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-6c101b0a"
+                "US1604HVM": "ami-799b841f"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-056d7a61"
+                "US1604HVM": "ami-9e5640fa"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-4bd8b727"
+                "US1604HVM": "ami-09284365"
             },
             "us-east-1": {
-                "US1604HVM": "ami-20631a36"
+                "US1604HVM": "ami-7b2e086d"
             },
             "us-east-2": {
-                "US1604HVM": "ami-a5b196c0"
+                "US1604HVM": "ami-bfa98fda"
             },
             "us-west-1": {
-                "US1604HVM": "ami-9fe6c7ff"
+                "US1604HVM": "ami-1498ba74"
             },
             "us-west-2": {
-                "US1604HVM": "ami-45224425"
+                "US1604HVM": "ami-39595240"
             }
         }
     },
