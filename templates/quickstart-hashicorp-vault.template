@@ -120,46 +120,46 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20170619.1"
+                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20170721"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-785c491f"
+                "US1604HVM": "ami-ea4eae8c"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-94d20dfa"
+                "US1604HVM": "ami-d28a53bc"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-49e59a26"
+                "US1604HVM": "ami-099fe766"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-2378f540"
+                "US1604HVM": "ami-6f198a0c"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-e94e5e8a"
+                "US1604HVM": "ami-e2021d81"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-1c45e273"
+                "US1604HVM": "ami-1e339e71"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-6d48500b"
+                "US1604HVM": "ami-785db401"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-cc7066a8"
+                "US1604HVM": "ami-996372fd"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-34afc458"
+                "US1604HVM": "ami-10186f7c"
             },
             "us-east-1": {
-                "US1604HVM": "ami-d15a75c7"
+                "US1604HVM": "ami-cd0f5cb6"
             },
             "us-east-2": {
-                "US1604HVM": "ami-8b92b4ee"
+                "US1604HVM": "ami-10547475"
             },
             "us-west-1": {
-                "US1604HVM": "ami-73f7da13"
+                "US1604HVM": "ami-09d2fb69"
             },
             "us-west-2": {
-                "US1604HVM": "ami-835b4efa"
+                "US1604HVM": "ami-6e1a0117"
             }
         }
     },
