@@ -120,46 +120,46 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20170811"
+                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20170919"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-0417e362"
+                "US1604HVM": "ami-8422ebe2"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-536ab33d"
+                "US1604HVM": "ami-0f6fb461"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-df413bb0"
+                "US1604HVM": "ami-08a5e367"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-9f28b3fc"
+                "US1604HVM": "ami-e6d3a585"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-bb1901d8"
+                "US1604HVM": "ami-391ff95b"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-958128fa"
+                "US1604HVM": "ami-5a922335"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-674cbc1e"
+                "US1604HVM": "ami-17d11e6e"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-03998867"
+                "US1604HVM": "ami-e1f2e185"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-a41869c8"
+                "US1604HVM": "ami-a3e39ecf"
             },
             "us-east-1": {
-                "US1604HVM": "ami-1d4e7a66"
+                "US1604HVM": "ami-d651b8ac"
             },
             "us-east-2": {
-                "US1604HVM": "ami-dbbd9dbe"
+                "US1604HVM": "ami-9686a4f3"
             },
             "us-west-1": {
-                "US1604HVM": "ami-969ab1f6"
+                "US1604HVM": "ami-2d5c6d4d"
             },
             "us-west-2": {
-                "US1604HVM": "ami-8803e0f0"
+                "US1604HVM": "ami-ecc63a94"
             }
         }
     },
