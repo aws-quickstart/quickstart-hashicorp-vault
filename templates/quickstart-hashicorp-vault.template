@@ -120,46 +120,46 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20171011"
+                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20171026.1"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-6959870f"
+                "US1604HVM": "ami-15872773"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-08d77266"
+                "US1604HVM": "ami-7b1cb915"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-50591a3f"
+                "US1604HVM": "ami-bc0d40d3"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-d9dca7ba"
+                "US1604HVM": "ami-67a6e604"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-02ad4060"
+                "US1604HVM": "ami-41c12e23"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-e613ac89"
+                "US1604HVM": "ami-97e953f8"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-eed00d97"
+                "US1604HVM": "ami-add175d4"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-ba5f42de"
+                "US1604HVM": "ami-ecbea388"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-1ca7d970"
+                "US1604HVM": "ami-466b132a"
             },
             "us-east-1": {
-                "US1604HVM": "ami-bcdc16c6"
+                "US1604HVM": "ami-da05a4a0"
             },
             "us-east-2": {
-                "US1604HVM": "ami-49426e2c"
+                "US1604HVM": "ami-336b4456"
             },
             "us-west-1": {
-                "US1604HVM": "ami-1b17257b"
+                "US1604HVM": "ami-1c1d217c"
             },
             "us-west-2": {
-                "US1604HVM": "ami-19e92861"
+                "US1604HVM": "ami-0a00ce72"
             }
         }
     },
