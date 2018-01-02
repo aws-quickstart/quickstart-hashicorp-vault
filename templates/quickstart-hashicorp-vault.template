@@ -120,46 +120,46 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20171026.1"
+                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20171208"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-15872773"
+                "US1604HVM": "ami-42ca4724"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-7b1cb915"
+                "US1604HVM": "ami-5027813e"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-bc0d40d3"
+                "US1604HVM": "ami-84dc94eb"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-67a6e604"
+                "US1604HVM": "ami-29aece55"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-41c12e23"
+                "US1604HVM": "ami-9b8076f9"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-97e953f8"
+                "US1604HVM": "ami-13b8337c"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-add175d4"
+                "US1604HVM": "ami-63b0341a"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-ecbea388"
+                "US1604HVM": "ami-22415846"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-466b132a"
+                "US1604HVM": "ami-8181c7ed"
             },
             "us-east-1": {
-                "US1604HVM": "ami-da05a4a0"
+                "US1604HVM": "ami-3dec9947"
             },
             "us-east-2": {
-                "US1604HVM": "ami-336b4456"
+                "US1604HVM": "ami-597d553c"
             },
             "us-west-1": {
-                "US1604HVM": "ami-1c1d217c"
+                "US1604HVM": "ami-1a17137a"
             },
             "us-west-2": {
-                "US1604HVM": "ami-0a00ce72"
+                "US1604HVM": "ami-a2e544da"
             }
         }
     },
