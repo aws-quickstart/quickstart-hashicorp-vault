@@ -120,46 +120,46 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180205"
+                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180228.1"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-adceb9cb"
+                "US1604HVM": "ami-bcb7f6da"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-35a3015b"
+                "US1604HVM": "ami-5073de3e"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-88d98ae7"
+                "US1604HVM": "ami-1083dc7f"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-a55c1dd9"
+                "US1604HVM": "ami-41e4af3d"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-e1c43f83"
+                "US1604HVM": "ami-c1498fa3"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-714f2b1e"
+                "US1604HVM": "ami-bc4925d3"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-c1167eb8"
+                "US1604HVM": "ami-0b541372"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-e0bc5987"
+                "US1604HVM": "ami-ff46a298"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-9a2d63f6"
+                "US1604HVM": "ami-b5501bd9"
             },
             "us-east-1": {
-                "US1604HVM": "ami-0b383171"
+                "US1604HVM": "ami-927185ef"
             },
             "us-east-2": {
-                "US1604HVM": "ami-4f80b52a"
+                "US1604HVM": "ami-b9daeddc"
             },
             "us-west-1": {
-                "US1604HVM": "ami-9cb2bdfc"
+                "US1604HVM": "ami-264c4646"
             },
             "us-west-2": {
-                "US1604HVM": "ami-c62eaabe"
+                "US1604HVM": "ami-78a22900"
             }
         }
     },
