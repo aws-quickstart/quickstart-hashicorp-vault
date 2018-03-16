@@ -120,46 +120,46 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180228.1"
+                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180306"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-bcb7f6da"
+                "US1604HVM": "ami-0d74386b"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-5073de3e"
+                "US1604HVM": "ami-a414b9ca"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-1083dc7f"
+                "US1604HVM": "ami-0189d76e"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-41e4af3d"
+                "US1604HVM": "ami-52d4802e"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-c1498fa3"
+                "US1604HVM": "ami-d38a4ab1"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-bc4925d3"
+                "US1604HVM": "ami-7c412f13"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-0b541372"
+                "US1604HVM": "ami-f90a4880"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-ff46a298"
+                "US1604HVM": "ami-f4f21593"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-b5501bd9"
+                "US1604HVM": "ami-423d772e"
             },
             "us-east-1": {
-                "US1604HVM": "ami-927185ef"
+                "US1604HVM": "ami-43a15f3e"
             },
             "us-east-2": {
-                "US1604HVM": "ami-b9daeddc"
+                "US1604HVM": "ami-916f59f4"
             },
             "us-west-1": {
-                "US1604HVM": "ami-264c4646"
+                "US1604HVM": "ami-925144f2"
             },
             "us-west-2": {
-                "US1604HVM": "ami-78a22900"
+                "US1604HVM": "ami-4e79ed36"
             }
         }
     },
