@@ -15,9 +15,9 @@
 * Added Support for Consul version to '0.8.0'
 
 ### Template Changes
-* Added Master template (Create VPC and Consul Enviornment)
-  * Creates VPC using QuickStart Scaleable VPC template https://github.com/aws-quickstart/quickstart-aws-vpc
-  * Creates Consul enviornment using QuickStart Consul template as depedency https://github.com/aws-quickstart/quickstart-hashicorp-consul
+* Added Master template (Create VPC and Consul environment)
+  * Creates VPC using QuickStart Scalable VPC template https://fwd.aws/rdXz7
+  * Creates Consul environment using QuickStart Consul template as dependency https://fwd.aws/Xymjw
 
 * Workload Template
  * Added CloudWatch logs for vault audit-logs
