@@ -120,46 +120,46 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180427"
+                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180509"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-5aaf4225"
+                "US1604HVM": "ami-cbb259b4"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-099f3667"
+                "US1604HVM": "ami-191cb577"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-222d0d4d"
+                "US1604HVM": "ami-ff80a390"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-831a32ff"
+                "US1604HVM": "ami-d62014aa"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-21b86c43"
+                "US1604HVM": "ami-9176a1f3"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-415b7baa"
+                "US1604HVM": "ami-e3381508"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-b29cb5cb"
+                "US1604HVM": "ami-895e69f0"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-3995775e"
+                "US1604HVM": "ami-3d43a15a"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-fd6c3e91"
+                "US1604HVM": "ami-05dd8069"
             },
             "us-east-1": {
-                "US1604HVM": "ami-9c56efe3"
+                "US1604HVM": "ami-5c66ea23"
             },
             "us-east-2": {
-                "US1604HVM": "ami-66c8fa03"
+                "US1604HVM": "ami-cf172aaa"
             },
             "us-west-1": {
-                "US1604HVM": "ami-8aa8b4ea"
+                "US1604HVM": "ami-44273924"
             },
             "us-west-2": {
-                "US1604HVM": "ami-51e99c29"
+                "US1604HVM": "ami-b5ed9ccd"
             }
         }
     },
