@@ -13,7 +13,7 @@
     },
     {
         "ParameterKey": "QSS3BucketName",
-        "ParameterValue": "cfn-tonynv"
+        "ParameterValue": "$[taskcat_autobucket]"
     },
     {
         "ParameterKey": "QSS3KeyPrefix",
