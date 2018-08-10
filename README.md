@@ -1,7 +1,9 @@
 ## HashiCorp Vault on the AWS Cloud
-> Vault version 0.7.0
+VAULT_VERSION 0.10.4
 
-> Consul version 0.8.0
+CONSUL_VERSION '1.2.2'
+
+CONSUL_TEMPLATE_VERSION='0.19.5'
 
 ### Deployment options:
 * Deployment of HashiCorp Vault into a new VPC (end-to-end deployment) builds a new VPC with public and private subnets, and then deploys HashiCorp Vault into that infrastructure.
@@ -11,8 +13,7 @@
 ![quickstart-hashicorp-consul](/images/vault.png)
 
 ### Change Log:
-* Added Linux Bastion (Entry point for Consul and Vault)
-* Added Support for Consul version to '0.8.0'
+* Added Support for Consul version to '1.2.2'
 
 ### Template Changes
 * Added Master template (Create VPC and Consul environment)
