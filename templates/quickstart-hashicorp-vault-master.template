@@ -412,17 +412,11 @@
           "KeyPair": {
             "Ref": "KeyPairName"
           },
-          "PrivateSubnet1CIDR": {
-            "Ref": "PublicSubnet1CIDR"
-          },
           "PrivateSubnet1ID": {
             "Fn::GetAtt": [
               "VPCStack",
               "Outputs.PrivateSubnet1AID"
             ]
-          },
-          "PrivateSubnet2CIDR": {
-            "Ref": "PublicSubnet2CIDR"
           },
           "PrivateSubnet2ID": {
             "Fn::GetAtt": [
@@ -430,40 +424,10 @@
               "Outputs.PrivateSubnet2AID"
             ]
           },
-          "PrivateSubnet3CIDR": {
-            "Ref": "PublicSubnet3CIDR"
-          },
           "PrivateSubnet3ID": {
             "Fn::GetAtt": [
               "VPCStack",
               "Outputs.PrivateSubnet3AID"
-            ]
-          },
-          "PublicSubnet1CIDR": {
-            "Ref": "PublicSubnet1CIDR"
-          },
-          "PublicSubnet1ID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.PublicSubnet1ID"
-            ]
-          },
-          "PublicSubnet2CIDR": {
-            "Ref": "PublicSubnet2CIDR"
-          },
-          "PublicSubnet2ID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.PublicSubnet2ID"
-            ]
-          },
-          "PublicSubnet3CIDR": {
-            "Ref": "PublicSubnet3CIDR"
-          },
-          "PublicSubnet3ID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.PublicSubnet3ID"
             ]
           },
           "VPCCIDR": {
