@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "QS(0039) HashiCorp Vault License: Apache 2.0 (Please do not remove) ,17,2016",
+    "Description": "QS(0039) HashiCorp Vault License: Apache 2.0 (Please do not remove) Aug,09,2018",
     "Parameters": {
         "KeyPair": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
@@ -104,7 +104,7 @@
         "VaultDownloadURL": {
             "Type": "String",
             "Description": "The URL to download the Vault zip file ",
-            "Default": "https://releases.hashicorp.com/vault/0.7.0/vault_0.7.0_linux_amd64.zip"
+            "Default": "https://releases.hashicorp.com/vault/0.10.4/vault_0.10.4_linux_amd64.zip"
         }
     },
     "Conditions": {
