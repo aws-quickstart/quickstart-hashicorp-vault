@@ -391,9 +391,6 @@
       "DependsOn": "LinuxBastionHostStack",
       "Properties": {
         "Parameters": {
-          "AccessCIDR": {
-            "Ref": "AccessCIDR"
-          },
           "BastionSecurityGroupID": {
             "Fn::GetAtt": [
               "LinuxBastionHostStack",
