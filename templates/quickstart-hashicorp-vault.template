@@ -400,11 +400,40 @@
                                 "group": "root"
                             }
                         },
+                        "files": {
+                            "/etc/awslogs-config-file": {
+                                "source": {
+                                    "Fn::Sub": [
+                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/awslogs-config-file",
+                                        {
+                                            "QSS3BucketName": {
+                                                "Ref": "QSS3BucketName"
+                                            },
+                                            "QSS3KeyPrefix": {
+                                                "Ref": "QSS3KeyPrefix"
+                                            }
+                                        }
+                                    ]
+                                },
+                                "mode": "000700",
+                                "owner": "root",
+                                "group": "root"
+                            },
+                            "/usr/local/awslogs-agent-setup.py": {
+                                "source": "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py",
+                                "mode": "000700",
+                                "owner": "root",
+                                "group": "root"
+                            }
+                        },
                         "commands": {
-                            "01_run_awslogs_agent_setup.py": {
+                            "01_create_awslogs_config_file": {
+                                "command": "sed -i \"s/__VAULT_LOG_GROUP__/${ColdCordaLogGroup}/g\" /etc/awslogs-config-file"
+                            },
+                            "02_run_awslogs_agent_setup.py": {
                                 "command": {
                                     "Fn::Sub": [
-                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/awslogs-config-file",
+                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c /etc/awslogs-config-file",
                                         {
                                             "Region": {
                                                 "Ref": "AWS::Region"
@@ -419,16 +448,16 @@
                                     ]
                                 }
                             },
-                            "02_enable_awslogs_service": {
+                            "03_enable_awslogs_service": {
                                 "command": "systemctl enable awslogs"
                             },
-                            "03_start_awslogs_service": {
+                            "04_start_awslogs_service": {
                                 "command": "systemctl start awslogs"
                             },
                             "04_make_mon_put_instance_data_exececutable": {
                                 "command": "chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl"
                             },
-                            "05_install_crontab": {
+                            "06_install_crontab": {
                                 "command": "crontab  /etc/cron.hourly/cloudwatch-monitoring.sh"
                             }
                         }
