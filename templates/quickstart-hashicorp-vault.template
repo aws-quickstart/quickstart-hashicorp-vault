@@ -120,46 +120,46 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180814"
+                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20180912"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-02115cef40fbb46a4"
+                "US1604HVM": "ami-06c43a7df16e8213c"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-00ca7ffe117e2fe91"
+                "US1604HVM": "ami-0e0f4ff1154834540"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-00b7e666605d33085"
+                "US1604HVM": "ami-04ea996e7a3e7ad6b"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-03221428e6676db69"
+                "US1604HVM": "ami-0eb1f21bbd66347fe"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-059b78064586da1b7"
+                "US1604HVM": "ami-0789a5fb42dcccc10"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-027583e616ca104df"
+                "US1604HVM": "ami-086a09d5b9fa35dc7"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-0181f8d9b6f098ec4"
+                "US1604HVM": "ami-0773391ae604c49a4"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-c7ab5fa0"
+                "US1604HVM": "ami-061a2d878e5754b62"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-08b78b890b5a86161"
+                "US1604HVM": "ami-0318cb6e2f90d688b"
             },
             "us-east-1": {
-                "US1604HVM": "ami-04169656fea786776"
+                "US1604HVM": "ami-059eeca93cf09eebd"
             },
             "us-east-2": {
-                "US1604HVM": "ami-0552e3455b9bc8d50"
+                "US1604HVM": "ami-0782e9ee97725263d"
             },
             "us-west-1": {
-                "US1604HVM": "ami-059e7901352ebaef8"
+                "US1604HVM": "ami-0ad16744583f21877"
             },
             "us-west-2": {
-                "US1604HVM": "ami-51537029"
+                "US1604HVM": "ami-0e32ec5bc225539f5"
             }
         }
     },
@@ -373,32 +373,6 @@
                         },
                         "sources": {
                             "/usr/local": "http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip"
-                        },
-                        "files": {
-                            "/etc/cron.hourly/cloudwatch-monitoring.sh": {
-                                "source": {
-                                    "Fn::Sub": [
-                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/cloudwatch-monitoring.sh",
-                                        {
-                                            "QSS3BucketName": {
-                                                "Ref": "QSS3BucketName"
-                                            },
-                                            "QSS3KeyPrefix": {
-                                                "Ref": "QSS3KeyPrefix"
-                                            }
-                                        }
-                                    ]
-                                },
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            },
-                            "/usr/local/awslogs-agent-setup.py": {
-                                "source": "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py",
-                                "mode": "000700",
-                                "owner": "root",
-                                "group": "root"
-                            }
                         },
                         "files": {
                             "/etc/awslogs-config-file": {
