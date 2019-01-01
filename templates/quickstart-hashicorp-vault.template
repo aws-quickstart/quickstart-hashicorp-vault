@@ -120,46 +120,46 @@
     "Mappings": {
         "AWSAMIRegionMap": {
             "AMI": {
-                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20181106"
+                "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20181223"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-032b53ea1222f69eb"
+                "US1604HVM": "ami-0d5e82481c5fd4ad5"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-013dda6d4ad165475"
+                "US1604HVM": "ami-0507b772e2c9b8c15"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-0a01bf036d8cf964c"
+                "US1604HVM": "ami-0c8810f694cbe10ba"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-0b4d63df52bb04cb3"
+                "US1604HVM": "ami-09f2be3a5a5867258"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-0df84623c5651856b"
+                "US1604HVM": "ami-04978aa3dd8b62cc8"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-00259791f61937520"
+                "US1604HVM": "ami-00f3256a9deda4e1b"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-00cc9e3eecbef4b46"
+                "US1604HVM": "ami-0233bae36f499afe8"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-04a46267269408754"
+                "US1604HVM": "ami-03c015fc0026bf4fc"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-065d2aa938a7eb3eb"
+                "US1604HVM": "ami-08a4ba9038d7e8565"
             },
             "us-east-1": {
-                "US1604HVM": "ami-0f9351b59be17920e"
+                "US1604HVM": "ami-03a935aafa6b52b97"
             },
             "us-east-2": {
-                "US1604HVM": "ami-0b19eeac8c68a0d2d"
+                "US1604HVM": "ami-00c5e3f4a8dd369e8"
             },
             "us-west-1": {
-                "US1604HVM": "ami-0e066bd33054ef120"
+                "US1604HVM": "ami-0689ca7fe00282a37"
             },
             "us-west-2": {
-                "US1604HVM": "ami-0afae182eed9d2b46"
+                "US1604HVM": "ami-0dbd6cabe4749f197"
             }
         }
     },
