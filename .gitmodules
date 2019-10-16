@@ -9,4 +9,4 @@
 [submodule "submodules/quickstart-hashicorp-consul"]
 	path = submodules/quickstart-hashicorp-consul
 	url = ../../aws-quickstart/quickstart-hashicorp-consul.git
-	branch = master
+	branch = submodule-freeze
