@@ -329,7 +329,6 @@
       "Type": "AWS::CloudFormation::Stack"
     },
     "LinuxBastionHostStack": {
-      "DependsOn": "VPCStack",
       "Properties": {
         "Parameters": {
           "BastionAMIOS": "Ubuntu-Server-16.04-LTS-HVM",
@@ -388,7 +387,6 @@
       "Type": "AWS::CloudFormation::Stack"
     },
     "HashiCorpConsulStack": {
-      "DependsOn": "LinuxBastionHostStack",
       "Properties": {
         "Parameters": {
           "BastionSecurityGroupID": {
@@ -467,7 +465,6 @@
       "Type": "AWS::CloudFormation::Stack"
     },
     "HashiCorpVaultStack": {
-      "DependsOn": "HashiCorpConsulStack",
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "TemplateURL": {
