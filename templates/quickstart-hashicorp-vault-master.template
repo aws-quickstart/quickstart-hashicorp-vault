@@ -20,6 +20,13 @@
         ]
       }, {
         "Label": {
+          "default": "Bastion Setup"
+        },
+        "Parameters": [
+          "NumBastionHosts"
+        ]
+      }, {
+        "Label": {
           "default": "Vault Setup"
         },
         "Parameters": [
@@ -51,6 +58,9 @@
         },
         "KeyPairName": {
           "default": "Key Name"
+        },
+        "NumBastionHosts": {
+          "default": "Number of Bastion Hosts"
         },
         "PrivateSubnet1CIDR": {
           "default": "Private Subnet 1 CIDR"
@@ -105,6 +115,12 @@
     "KeyPairName": {
       "Description": "Public/private key pairs allow you to securely connect to your instance after it launches",
       "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "NumBastionHosts": {
+      "Description": "Enter the number of bastion hosts to create",
+      "AllowedValues": ["1", "2"],
+      "Type": "String",
+      "Default": "1"
     },
     "EmailAddress": {
       "Type": "String",
@@ -335,6 +351,9 @@
           "EnableTCPForwarding": "true",
           "KeyPairName": {
             "Ref": "KeyPairName"
+          },
+          "NumBastionHosts": {
+            "Ref": "NumBastionHosts"
           },
           "PublicSubnet1ID": {
             "Fn::GetAtt": [
