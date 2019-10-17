@@ -187,16 +187,16 @@
                 "SecurityGroupIngress": [
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "22",
-                        "ToPort": "22",
+                        "FromPort": 22,
+                        "ToPort": 22,
                         "SourceSecurityGroupId": {
                             "Ref": "BastionSecurityGroupID"
                         }
                     },
                     {
                         "IpProtocol": "tcp",
-                        "FromPort": "0",
-                        "ToPort": "65535",
+                        "FromPort": 0,
+                        "ToPort": 65535,
                         "CidrIp": {
                             "Ref": "VPCCIDR"
                         }
