@@ -694,19 +694,17 @@
                             }
                         },
                         "commands": {
-                            "01_run_awslogs_agent_setup.py": {
+
+                            "01_create_awslogs_config_file": {
+                                "command": "sed -i \"s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g\" /etc/awslogs-config-file"
+                            },
+                            "02_run_awslogs_agent_setup.py": {
                                 "command": {
                                     "Fn::Sub": [
-                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/awslogs-config-file",
+                                        "python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c /etc/awslogs-config-file",
                                         {
                                             "Region": {
                                                 "Ref": "AWS::Region"
-                                            },
-                                            "QSS3BucketName": {
-                                                "Ref": "QSS3BucketName"
-                                            },
-                                            "QSS3KeyPrefix": {
-                                                "Ref": "QSS3KeyPrefix"
                                             }
                                         }
                                     ]
