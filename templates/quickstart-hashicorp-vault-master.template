@@ -548,9 +548,6 @@
           "KeyPair": {
             "Ref": "KeyPairName"
           },
-          "AccessCIDR": {
-            "Ref": "AccessCIDR"
-          },
           "EmailAddress": {
             "Ref": "EmailAddress"
           },
