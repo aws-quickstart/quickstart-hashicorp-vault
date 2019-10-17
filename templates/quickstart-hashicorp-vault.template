@@ -387,7 +387,7 @@
                         },
                         "commands": {
                             "01_create_awslogs_config_file": {
-                                "command": "sed -i \"s/__VAULT_LOG_GROUP__/${ColdCordaLogGroup}/g\" /etc/awslogs-config-file"
+                                "command": "sed -i \"s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g\" /etc/awslogs-config-file"
                             },
                             "02_run_awslogs_agent_setup.py": {
                                 "command": {
