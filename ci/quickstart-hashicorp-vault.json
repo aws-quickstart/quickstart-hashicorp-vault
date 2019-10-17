@@ -8,6 +8,10 @@
         "ParameterValue": "$[alfred_genaz_3]"
     },
     {
+        "ParameterKey": "NumBastionHosts",
+        "ParameterValue": "1"
+    },
+    {
         "ParameterKey": "KeyPairName",
         "ParameterValue": "tonynv"
     },
