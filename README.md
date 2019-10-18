@@ -10,7 +10,7 @@ CONSUL_TEMPLATE_VERSION='0.19.5'
 * Deployment of HashiCorp Vault into an existing VPC provisions HashiCorp Vault into your existing infrastructure. 
 
 ### Architecture
-![quickstart-hashicorp-consul](/images/vault.png)
+![quickstart-hashicorp-consul](https://d1.awsstatic.com/partner-network/QuickStart/datasheets/hashicorp-vault-on-aws-arch.9f69be520f58e8ecc71bd00636eb954800a5c8b2.png)
 
 ### Change Log:
 * Added Support for Consul version to '1.2.2'
