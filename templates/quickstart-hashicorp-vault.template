@@ -374,7 +374,7 @@
                                         }
                                     ]
                                 },
-                                "mode": "000700",
+                                "mode": "000744",
                                 "owner": "root",
                                 "group": "root"
                             },
@@ -703,7 +703,7 @@
                                         }
                                     ]
                                 },
-                                "mode": "000700",
+                                "mode": "000744",
                                 "owner": "root",
                                 "group": "root"
                             },
