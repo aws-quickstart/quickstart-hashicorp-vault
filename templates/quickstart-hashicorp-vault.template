@@ -405,7 +405,10 @@
                         },
                         "commands": {
                             "01_create_awslogs_config_file": {
-                                "command": "sed -i \"s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g\" /etc/awslogs-config-file"
+                                "command": {
+                                    "Fn::Sub": 
+                                        "sed -i s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g /etc/awslogs-config-file"
+                                 }
                             },
                             "02_run_awslogs_agent_setup.py": {
                                 "command": {
@@ -703,6 +706,25 @@
                                 "mode": "000700",
                                 "owner": "root",
                                 "group": "root"
+
+                            },
+                            "/etc/awslogs-config-file": {
+                                "source": {
+                                    "Fn::Sub": [
+                                        "https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/awslogs-config-file",
+                                        {
+                                            "QSS3BucketName": {
+                                                "Ref": "QSS3BucketName"
+                                            },
+                                            "QSS3KeyPrefix": {
+                                                "Ref": "QSS3KeyPrefix"
+                                            }
+                                        }
+                                    ]
+                                },
+                                "mode": "000700",
+                                "owner": "root",
+                                "group": "root"
                             },
                             "/usr/local/awslogs-agent-setup.py": {
                                 "source": "https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py",
@@ -714,8 +736,11 @@
                         "commands": {
 
                             "01_create_awslogs_config_file": {
-                                "command": "sed -i \"s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g\" /etc/awslogs-config-file"
-                            },
+                                "command": {
+                                    "Fn::Sub": 
+                                        "sed -i s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g /etc/awslogs-config-file"
+                                 }
+                             },
                             "02_run_awslogs_agent_setup.py": {
                                 "command": {
                                     "Fn::Sub": [

@@ -20,6 +20,4 @@ tests:
     parameter_input: quickstart-hashicorp-vault.json
     template_file:  quickstart-hashicorp-vault-master.template
     regions:
-    - us-east-2
-    - eu-west-1
     - us-east-1
