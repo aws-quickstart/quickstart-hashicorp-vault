@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "QS(0039) HashiCorp Vault License: Apache 2.0 (Please do not remove) Aug,10,2018",
+    "Description": "QS(0039) HashiCorp Vault License: Apache 2.0 (Please do not remove) Oct,18,2019",
     "Parameters": {
         "KeyPair": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instances",
