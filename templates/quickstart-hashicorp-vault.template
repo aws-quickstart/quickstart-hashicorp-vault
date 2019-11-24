@@ -108,43 +108,43 @@
                 "US1604HVM": "ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20190628"
             },
             "ap-northeast-1": {
-                "US1604HVM": "ami-044155332102199f1"
+                "US1604HVM": "ami-014cc8d7cb6d26dc8"
             },
             "ap-northeast-2": {
-                "US1604HVM": "ami-0d3e6bf56bb16893f"
+                "US1604HVM": "ami-004b3430b806f3b1a"
             },
             "ap-south-1": {
-                "US1604HVM": "ami-0bccf4c677f6e992d"
+                "US1604HVM": "ami-0f59afa4a22fad2f0"
             },
             "ap-southeast-1": {
-                "US1604HVM": "ami-0431fb131a52a2ebd"
+                "US1604HVM": "ami-08b3278ea6e379084"
             },
             "ap-southeast-2": {
-                "US1604HVM": "ami-0f3834d5ada79fb43"
+                "US1604HVM": "ami-00d7116c396e73b04"
             },
             "eu-central-1": {
-                "US1604HVM": "ami-0f686bcf073842e84"
+                "US1604HVM": "ami-0062c497b55437b01"
             },
             "eu-west-1": {
-                "US1604HVM": "ami-0f0f0893a9b9ce5ee"
+                "US1604HVM": "ami-0987ee37af7792903"
             },
             "eu-west-2": {
-                "US1604HVM": "ami-0de8d2d7eed49232d"
+                "US1604HVM": "ami-05945867d79b7d926"
             },
             "sa-east-1": {
-                "US1604HVM": "ami-0075cd5c69cc51285"
+                "US1604HVM": "ami-0fb487b6f6ab53ff4"
             },
             "us-east-1": {
-                "US1604HVM": "ami-02fb1c72d81ced91a"
+                "US1604HVM": "ami-09f9d773751b9d606"
             },
             "us-east-2": {
-                "US1604HVM": "ami-0a0d2a4208059985c"
+                "US1604HVM": "ami-0891395d749676c2e"
             },
             "us-west-1": {
-                "US1604HVM": "ami-07e72dd31cde45187"
+                "US1604HVM": "ami-0c0e5a396959508b0"
             },
             "us-west-2": {
-                "US1604HVM": "ami-0709c7cbbca217084"
+                "US1604HVM": "ami-0bbe9b07c5fe8e86e"
             }
         }
     },
