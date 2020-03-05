@@ -1,561 +1,420 @@
-{
-  "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Hashicorp Consul+Vault, License: Apache 2.0 (Please do not remove) Oct,18,2019",
-  "Metadata": {
-    "AWS::CloudFormation::Interface": {
-      "ParameterGroups": [{
-        "Label": {
-          "default": " VPC Network Configuration"
-        },
-        "Parameters": [
-          "AvailabilityZones",
-          "VPCCIDR",
-          "PrivateSubnet1CIDR",
-          "PrivateSubnet2CIDR",
-          "PrivateSubnet3CIDR",
-          "PublicSubnet1CIDR",
-          "PublicSubnet2CIDR",
-          "PublicSubnet3CIDR",
-          "AccessCIDR"
-        ]
-      }, {
-        "Label": {
-          "default": "Bastion Setup"
-        },
-        "Parameters": [
-          "NumBastionHosts"
-        ]
-      }, {
-        "Label": {
-          "default": "Vault Setup"
-        },
-        "Parameters": [
-          "EmailAddress",
-          "KeyPairName",
-          "VaultInstanceType"
-        ]
-      }, {
-        "Label": {
-          "default": "Consul Setup"
-        },
-        "Parameters": [
-          "ConsulClientNodes",
-          "ConsulServerNodes",
-          "ConsulInstanceType"
-        ]
-      }, {
-        "Label": {
-          "default": "AWS Quick Start Configuration"
-        },
-        "Parameters": [
-          "QSS3BucketName",
-          "QSS3KeyPrefix"
-        ]
-      }],
-      "ParameterLabels": {
-        "AvailabilityZones": {
-          "default": "Availability Zones"
-        },
-        "KeyPairName": {
-          "default": "Key Name"
-        },
-        "NumBastionHosts": {
-          "default": "Number of Bastion Hosts"
-        },
-        "PrivateSubnet1CIDR": {
-          "default": "Private Subnet 1 CIDR"
-        },
-        "PrivateSubnet2CIDR": {
-          "default": "Private Subnet 2 CIDR"
-        },
-        "PublicSubnet1CIDR": {
-          "default": "Public Subnet 1 CIDR"
-        },
-        "PublicSubnet2CIDR": {
-          "default": "Public Subnet 2 CIDR"
-        },
-        "PublicSubnet3CIDR": {
-          "default": "Public Subnet 3 CIDR"
-        },
-        "QSS3BucketName": {
-          "default": "Quick Start S3 Bucket Name"
-        },
-        "QSS3KeyPrefix": {
-          "default": "Quick Start S3 Key Prefix"
-        },
-        "AccessCIDR": {
-          "default": "Permitted IP range"
-        },
-        "EmailAddress": {
-          "default": "Email Address"
-        },
-        "VPCCIDR": {
-          "default": "VPC CIDR"
-        },
-        "ConsulClientNodes": {
-          "default": "Consul client nodes"
-        },
-        "ConsulServerNodes": {
-          "default": "Consul server nodes"
-        },
-        "ConsulInstanceType": {
-          "default": "Consul cluster node instance type"
-        },
-        "VaultInstanceType": {
-          "default": "Vault node instance type"
-        }
-      }
-    }
-  },
-  "Parameters": {
-    "AvailabilityZones": {
-      "Description": "List of Availability Zones to use for the subnets in the VPC. Note: The logical order is preserved (3 AZs are used for this deployment)",
-      "Type": "List<AWS::EC2::AvailabilityZone::Name>"
-    },
-    "KeyPairName": {
-      "Description": "Public/private key pairs allow you to securely connect to your instance after it launches",
-      "Type": "AWS::EC2::KeyPair::KeyName"
-    },
-    "NumBastionHosts": {
-      "Description": "Enter the number of bastion hosts to create",
-      "AllowedValues": ["1", "2"],
-      "Type": "String",
-      "Default": "1"
-    },
-    "EmailAddress": {
-      "Type": "String",
-      "Description": "Email Address for SNS Topic. Alarms for Vault instance memory utilization",
-      "Default": "none@example.com"
-    },
-    "PrivateSubnet1CIDR": {
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
-      "Default": "10.0.0.0/19",
-      "Description": "CIDR block for private subnet 1 located in Availability Zone 1.",
-      "Type": "String"
-    },
-    "PrivateSubnet2CIDR": {
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
-      "Default": "10.0.32.0/19",
-      "Description": "CIDR block for private subnet 2 located in Availability Zone 2.",
-      "Type": "String"
-    },
-    "PrivateSubnet3CIDR": {
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
-      "Default": "10.0.64.0/19",
-      "Description": "CIDR block for private subnet 3 located in Availability Zone 3.",
-      "Type": "String"
-    },
-    "PublicSubnet1CIDR": {
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
-      "Default": "10.0.128.0/20",
-      "Description": "CIDR Block for the public DMZ subnet 1 located in Availability Zone 1",
-      "Type": "String"
-    },
-    "PublicSubnet2CIDR": {
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
-      "Default": "10.0.144.0/20",
-      "Description": "CIDR Block for the public DMZ subnet 2 located in Availability Zone 2",
-      "Type": "String"
-    },
-    "PublicSubnet3CIDR": {
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
-      "Default": "10.0.160.0/20",
-      "Description": "CIDR Block for the public DMZ subnet 3 located in Availability Zone 3",
-      "Type": "String"
-    },
-    "QSS3BucketName": {
-      "AllowedPattern": "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$",
-      "ConstraintDescription": "Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
-      "Default": "aws-quickstart",
-      "Description": "S3 bucket name for the Quick Start assets. Quick Start bucket name can include numbers, lowercase letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen (-).",
-      "Type": "String"
-    },
-    "QSS3KeyPrefix": {
-      "AllowedPattern": "^[0-9a-zA-Z-/]*$",
-      "ConstraintDescription": "Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
-      "Default": "quickstart-hashicorp-vault/",
-      "Description": "S3 key prefix for the Quick Start assets. Quick Start key prefix can include numbers, lowercase letters, uppercase letters, hyphens (-), and forward slash (/).",
-      "Type": "String"
-    },
-    "VPCCIDR": {
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
-      "ConstraintDescription": "CIDR block parameter must be in the form x.x.x.x/16-28",
-      "Default": "10.0.0.0/16",
-      "Description": "CIDR Block for the VPC",
-      "Type": "String"
-    },
-    "AccessCIDR": {
-      "AllowedPattern": "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$",
-      "Description": "The CIDR IP range that is permitted to access Consul Note: a value of 0.0.0.0/0 will allow access from ANY ip address",
-      "Type": "String"
-    },
-    "ConsulServerNodes": {
-      "Type": "String",
-      "Description": "Sets DesiredCapacity and MaxSize ",
-      "AllowedValues": ["3", "5", "7"],
-      "Default": "3"
-    },
-    "ConsulClientNodes": {
-      "Type": "String",
-      "Description": "Sets DesiredCapacity and MaxSize ",
-      "Default": "3"
-    },
-    "VaultInstanceType": {
-      "Type": "String",
-      "Description": "Vault node instance type",
-      "AllowedValues": [
-        "t2.micro",
-        "t2.small",
-        "t2.medium",
-        "t2.large",
-        "m4.large",
-        "m4.xlarge",
-        "m4.2xlarge",
-        "m4.4xlarge",
-        "m4.10xlarge",
-        "m3.medium",
-        "m3.large",
-        "m3.xlarge",
-        "m3.2xlarge",
-        "c4.large",
-        "c4.xlarge",
-        "c4.2xlarge",
-        "c4.4xlarge",
-        "c4.8xlarge",
-        "c3.large",
-        "c3.xlarge",
-        "c3.2xlarge",
-        "c3.4xlarge",
-        "c3.8xlarge",
-        "r3.large",
-        "r3.xlarge",
-        "r3.2xlarge",
-        "r3.4xlarge",
-        "r3.8xlarge",
-        "i2.xlarge",
-        "i2.2xlarge",
-        "i2.4xlarge",
-        "i2.8xlarge"
-      ],
-      "ConstraintDescription": "Choose an instance type. m4.large or larger recommended.",
-      "Default": "m4.large"
-    },
-    "ConsulInstanceType": {
-      "Type": "String",
-      "Default": "t2.medium",
-      "Description": "Consul node instance type",
-      "AllowedValues": [
-        "t2.micro",
-        "t2.small",
-        "t2.medium",
-        "t2.large",
-        "m4.large",
-        "m4.xlarge",
-        "m4.2xlarge",
-        "m4.4xlarge",
-        "m4.10xlarge",
-        "m3.medium",
-        "m3.large",
-        "m3.xlarge",
-        "m3.2xlarge",
-        "c4.large",
-        "c4.xlarge",
-        "c4.2xlarge",
-        "c4.4xlarge",
-        "c4.8xlarge",
-        "c3.large",
-        "c3.xlarge",
-        "c3.2xlarge",
-        "c3.4xlarge",
-        "c3.8xlarge",
-        "r3.large",
-        "r3.xlarge",
-        "r3.2xlarge",
-        "r3.4xlarge",
-        "r3.8xlarge",
-        "i2.xlarge",
-        "i2.2xlarge",
-        "i2.4xlarge",
-        "i2.8xlarge"
-      ],
-      "ConstraintDescription": "Choose an instance type. m4.large or larger recommended."
-    }
-  },
-  "Conditions": {
-    "GovCloudCondition": {
-      "Fn::Equals": [{
-          "Ref": "AWS::Region"
-        },
-        "us-gov-west-1"
-      ]
-    }
-  },
-  "Resources": {
-    "VPCStack": {
-      "Properties": {
-        "Parameters": {
-          "AvailabilityZones": {
-            "Fn::Join": [
-              ",", {
-                "Ref": "AvailabilityZones"
-              }
-            ]
-          },
-          "KeyPairName": {
-            "Ref": "KeyPairName"
-          },
-          "NumberOfAZs": "3",
-          "PrivateSubnet1ACIDR": {
-            "Ref": "PrivateSubnet1CIDR"
-          },
-          "PrivateSubnet2ACIDR": {
-            "Ref": "PrivateSubnet2CIDR"
-          },
-          "PrivateSubnet3ACIDR": {
-            "Ref": "PrivateSubnet3CIDR"
-          },
-          "PublicSubnet1CIDR": {
-            "Ref": "PublicSubnet1CIDR"
-          },
-          "PublicSubnet2CIDR": {
-            "Ref": "PublicSubnet2CIDR"
-          },
-          "PublicSubnet3CIDR": {
-            "Ref": "PublicSubnet3CIDR"
-          },
-          "VPCCIDR": {
-            "Ref": "VPCCIDR"
-          }
-        },
-        "TemplateURL": {
-          "Fn::Sub": [
-            "https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template", {
-              "QSS3Region": {
-                "Fn::If": [
-                  "GovCloudCondition",
-                  "s3-us-gov-west-1",
-                  "s3"
-                ]
-              }
-            }
-          ]
-        }
-
-      },
-      "Type": "AWS::CloudFormation::Stack"
-    },
-    "LinuxBastionHostStack": {
-      "Properties": {
-        "Parameters": {
-          "BastionAMIOS": "Ubuntu-Server-16.04-LTS-HVM",
-          "EnableTCPForwarding": "true",
-          "KeyPairName": {
-            "Ref": "KeyPairName"
-          },
-          "NumBastionHosts": {
-            "Ref": "NumBastionHosts"
-          },
-          "PublicSubnet1ID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.PublicSubnet1ID"
-            ]
-          },
-          "PublicSubnet2ID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.PublicSubnet2ID"
-            ]
-          },
-          "QSS3BucketName": {
-            "Ref": "QSS3BucketName"
-          },
-          "QSS3KeyPrefix": {
-            "Fn::Sub": [
-              "${QSS3KeyPrefix}submodules/quickstart-linux-bastion/", {
-                "QSS3KeyPrefix": {
-                  "Ref": "QSS3KeyPrefix"
-                }
-              }
-            ]
-          },
-          "RemoteAccessCIDR": {
-            "Ref": "AccessCIDR"
-          },
-          "VPCID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.VPCID"
-            ]
-          }
-        },
-        "TemplateURL": {
-          "Fn::Sub": [
-            "https://${QSS3BucketName}.${S3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-linux-bastion/templates/linux-bastion.template", {
-              "S3Region": {
-                "Fn::If": [
-                  "GovCloudCondition",
-                  "s3-us-gov-west-1",
-                  "s3"
-                ]
-              }
-            }
-          ]
-        }
-      },
-      "Type": "AWS::CloudFormation::Stack"
-    },
-    "HashiCorpConsulStack": {
-      "Properties": {
-        "Parameters": {
-          "BastionSecurityGroupID": {
-            "Fn::GetAtt": [
-              "LinuxBastionHostStack",
-              "Outputs.BastionSecurityGroupID"
-            ]
-          },
-          "ConsulClientNodes": {
-            "Ref": "ConsulClientNodes"
-          },
-          "ConsulInstanceType": {
-            "Ref": "ConsulInstanceType"
-          },
-          "ConsulServerNodes": {
-            "Ref": "ConsulServerNodes"
-          },
-          "KeyPair": {
-            "Ref": "KeyPairName"
-          },
-          "PrivateSubnet1ID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.PrivateSubnet1AID"
-            ]
-          },
-          "PrivateSubnet2ID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.PrivateSubnet2AID"
-            ]
-          },
-          "PrivateSubnet3ID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.PrivateSubnet3AID"
-            ]
-          },
-          "VPCCIDR": {
-            "Ref": "VPCCIDR"
-          },
-          "VPCID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.VPCID"
-            ]
-          },
-          "QSS3BucketName": {
-            "Ref": "QSS3BucketName"
-          },
-          "QSS3KeyPrefix": {
-            "Fn::Sub": [
-              "${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul/", {
-                "QSS3KeyPrefix": {
-                  "Ref": "QSS3KeyPrefix"
-                }
-              }
-            ]
-          }
-        },
-        "TemplateURL": {
-          "Fn::Sub": [
-            "https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul/templates/quickstart-hashicorp-consul.template", {
-              "QSS3Region": {
-                "Fn::If": [
-                  "GovCloudCondition",
-                  "s3-us-gov-west-1",
-                  "s3"
-                ]
-              }
-            }
-          ]
-        }
-
-      },
-      "Type": "AWS::CloudFormation::Stack"
-    },
-    "HashiCorpVaultStack": {
-      "Type": "AWS::CloudFormation::Stack",
-      "Properties": {
-        "TemplateURL": {
-          "Fn::Sub": [
-            "https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/quickstart-hashicorp-vault.template", {
-              "QSS3Region": {
-                "Fn::If": [
-                  "GovCloudCondition",
-                  "s3-us-gov-west-1",
-                  "s3"
-                ]
-              }
-            }
-          ]
-        },
-        "Parameters": {
-          "BastionSecurityGroupID": {
-            "Fn::GetAtt": [
-              "LinuxBastionHostStack",
-              "Outputs.BastionSecurityGroupID"
-            ]
-          },
-          "ConsulEc2RetryTagKey": {
-            "Fn::GetAtt": [
-              "HashiCorpConsulStack",
-              "Outputs.ConsulEc2RetryTagKey"
-            ]
-          },
-          "ConsulEc2RetryTagValue": {
-            "Fn::GetAtt": [
-              "HashiCorpConsulStack",
-              "Outputs.ConsulEc2RetryTagValue"
-            ]
-          },
-          "PrivateSubnet1ID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.PrivateSubnet1AID"
-            ]
-          },
-          "PrivateSubnet2ID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.PrivateSubnet2AID"
-            ]
-          },
-          "QSS3BucketName": {
-            "Ref": "QSS3BucketName"
-          },
-          "QSS3KeyPrefix": {
-            "Ref": "QSS3KeyPrefix"
-          },
-          "VPCID": {
-            "Fn::GetAtt": [
-              "VPCStack",
-              "Outputs.VPCID"
-            ]
-          },
-          "VPCCIDR": {
-            "Ref": "VPCCIDR"
-          },
-          "KeyPair": {
-            "Ref": "KeyPairName"
-          },
-          "EmailAddress": {
-            "Ref": "EmailAddress"
-          },
-          "VaultInstanceType": {
-            "Ref": "VaultInstanceType"
-          }
-        }
-      }
-    }
-  }
-}
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Hashicorp Consul+Vault, License: Apache 2.0 (Please do not remove) Oct,18,2019'
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: " VPC Network Configuration"
+      Parameters:
+      - AvailabilityZones
+      - VPCCIDR
+      - PrivateSubnet1CIDR
+      - PrivateSubnet2CIDR
+      - PrivateSubnet3CIDR
+      - PublicSubnet1CIDR
+      - PublicSubnet2CIDR
+      - PublicSubnet3CIDR
+      - AccessCIDR
+    - Label:
+        default: Bastion Setup
+      Parameters:
+      - NumBastionHosts
+    - Label:
+        default: Vault Setup
+      Parameters:
+      - EmailAddress
+      - KeyPairName
+      - VaultInstanceType
+    - Label:
+        default: Consul Setup
+      Parameters:
+      - ConsulClientNodes
+      - ConsulServerNodes
+      - ConsulInstanceType
+    - Label:
+        default: AWS Quick Start Configuration
+      Parameters:
+      - QSS3BucketName
+      - QSS3KeyPrefix
+    ParameterLabels:
+      AvailabilityZones:
+        default: Availability Zones
+      KeyPairName:
+        default: Key Name
+      NumBastionHosts:
+        default: Number of Bastion Hosts
+      PrivateSubnet1CIDR:
+        default: Private Subnet 1 CIDR
+      PrivateSubnet2CIDR:
+        default: Private Subnet 2 CIDR
+      PublicSubnet1CIDR:
+        default: Public Subnet 1 CIDR
+      PublicSubnet2CIDR:
+        default: Public Subnet 2 CIDR
+      PublicSubnet3CIDR:
+        default: Public Subnet 3 CIDR
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
+      AccessCIDR:
+        default: Permitted IP range
+      EmailAddress:
+        default: Email Address
+      VPCCIDR:
+        default: VPC CIDR
+      ConsulClientNodes:
+        default: Consul client nodes
+      ConsulServerNodes:
+        default: Consul server nodes
+      ConsulInstanceType:
+        default: Consul cluster node instance type
+      VaultInstanceType:
+        default: Vault node instance type
+Parameters:
+  AvailabilityZones:
+    Description: 'List of Availability Zones to use for the subnets in the VPC. Note:
+      The logical order is preserved (3 AZs are used for this deployment)'
+    Type: List<AWS::EC2::AvailabilityZone::Name>
+  KeyPairName:
+    Description: Public/private key pairs allow you to securely connect to your instance
+      after it launches
+    Type: AWS::EC2::KeyPair::KeyName
+  NumBastionHosts:
+    Description: Enter the number of bastion hosts to create
+    AllowedValues:
+    - 1
+    - 2
+    Type: String
+    Default: 1
+  EmailAddress:
+    Type: String
+    Description: Email Address for SNS Topic. Alarms for Vault instance memory utilization
+    Default: none@example.com
+  PrivateSubnet1CIDR:
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    Default: 10.0.0.0/19
+    Description: CIDR block for private subnet 1 located in Availability Zone 1.
+    Type: String
+  PrivateSubnet2CIDR:
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    Default: 10.0.32.0/19
+    Description: CIDR block for private subnet 2 located in Availability Zone 2.
+    Type: String
+  PrivateSubnet3CIDR:
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    Default: 10.0.64.0/19
+    Description: CIDR block for private subnet 3 located in Availability Zone 3.
+    Type: String
+  PublicSubnet1CIDR:
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    Default: 10.0.128.0/20
+    Description: CIDR Block for the public DMZ subnet 1 located in Availability Zone
+      1
+    Type: String
+  PublicSubnet2CIDR:
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    Default: 10.0.144.0/20
+    Description: CIDR Block for the public DMZ subnet 2 located in Availability Zone
+      2
+    Type: String
+  PublicSubnet3CIDR:
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    Default: 10.0.160.0/20
+    Description: CIDR Block for the public DMZ subnet 3 located in Availability Zone
+      3
+    Type: String
+  QSS3BucketName:
+    AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
+    ConstraintDescription: Quick Start bucket name can include numbers, lowercase
+      letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
+      (-).
+    Default: aws-quickstart
+    Description: S3 bucket name for the Quick Start assets. Quick Start bucket name
+      can include numbers, lowercase letters, uppercase letters, and hyphens (-).
+      It cannot start or end with a hyphen (-).
+    Type: String
+  QSS3KeyPrefix:
+    AllowedPattern: "^[0-9a-zA-Z-/]*$"
+    ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
+      uppercase letters, hyphens (-), and forward slash (/).
+    Default: quickstart-hashicorp-vault/
+    Description: S3 key prefix for the Quick Start assets. Quick Start key prefix
+      can include numbers, lowercase letters, uppercase letters, hyphens (-), and
+      forward slash (/).
+    Type: String
+  VPCCIDR:
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/16
+    Description: CIDR Block for the VPC
+    Type: String
+  AccessCIDR:
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    Description: 'The CIDR IP range that is permitted to access Consul Note: a value
+      of 0.0.0.0/0 will allow access from ANY ip address'
+    Type: String
+  ConsulServerNodes:
+    Type: String
+    Description: 'Sets DesiredCapacity and MaxSize '
+    AllowedValues:
+    - '3'
+    - '5'
+    - '7'
+    Default: '3'
+  ConsulClientNodes:
+    Type: String
+    Description: 'Sets DesiredCapacity and MaxSize '
+    Default: '3'
+  VaultInstanceType:
+    Type: String
+    Description: Vault node instance type
+    AllowedValues:
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - t2.large
+    - m4.large
+    - m4.xlarge
+    - m4.2xlarge
+    - m4.4xlarge
+    - m4.10xlarge
+    - m3.medium
+    - m3.large
+    - m3.xlarge
+    - m3.2xlarge
+    - c4.large
+    - c4.xlarge
+    - c4.2xlarge
+    - c4.4xlarge
+    - c4.8xlarge
+    - c3.large
+    - c3.xlarge
+    - c3.2xlarge
+    - c3.4xlarge
+    - c3.8xlarge
+    - r3.large
+    - r3.xlarge
+    - r3.2xlarge
+    - r3.4xlarge
+    - r3.8xlarge
+    - i2.xlarge
+    - i2.2xlarge
+    - i2.4xlarge
+    - i2.8xlarge
+    ConstraintDescription: Choose an instance type. m4.large or larger recommended.
+    Default: m4.large
+  ConsulInstanceType:
+    Type: String
+    Default: t2.medium
+    Description: Consul node instance type
+    AllowedValues:
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - t2.large
+    - m4.large
+    - m4.xlarge
+    - m4.2xlarge
+    - m4.4xlarge
+    - m4.10xlarge
+    - m3.medium
+    - m3.large
+    - m3.xlarge
+    - m3.2xlarge
+    - c4.large
+    - c4.xlarge
+    - c4.2xlarge
+    - c4.4xlarge
+    - c4.8xlarge
+    - c3.large
+    - c3.xlarge
+    - c3.2xlarge
+    - c3.4xlarge
+    - c3.8xlarge
+    - r3.large
+    - r3.xlarge
+    - r3.2xlarge
+    - r3.4xlarge
+    - r3.8xlarge
+    - i2.xlarge
+    - i2.2xlarge
+    - i2.4xlarge
+    - i2.8xlarge
+    ConstraintDescription: Choose an instance type. m4.large or larger recommended.
+Conditions:
+  GovCloudCondition:
+    Fn::Equals:
+    - Ref: AWS::Region
+    - us-gov-west-1
+Resources:
+  VPCStack:
+    Properties:
+      Parameters:
+        AvailabilityZones:
+          Fn::Join:
+          - ","
+          - Ref: AvailabilityZones
+        KeyPairName:
+          Ref: KeyPairName
+        NumberOfAZs: '3'
+        PrivateSubnet1ACIDR:
+          Ref: PrivateSubnet1CIDR
+        PrivateSubnet2ACIDR:
+          Ref: PrivateSubnet2CIDR
+        PrivateSubnet3ACIDR:
+          Ref: PrivateSubnet3CIDR
+        PublicSubnet1CIDR:
+          Ref: PublicSubnet1CIDR
+        PublicSubnet2CIDR:
+          Ref: PublicSubnet2CIDR
+        PublicSubnet3CIDR:
+          Ref: PublicSubnet3CIDR
+        VPCCIDR:
+          Ref: VPCCIDR
+      TemplateURL:
+        Fn::Sub:
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template
+        - QSS3Region:
+            Fn::If:
+            - GovCloudCondition
+            - s3-us-gov-west-1
+            - s3
+    Type: AWS::CloudFormation::Stack
+  LinuxBastionHostStack:
+    Properties:
+      Parameters:
+        BastionAMIOS: Ubuntu-Server-16.04-LTS-HVM
+        EnableTCPForwarding: 'true'
+        KeyPairName:
+          Ref: KeyPairName
+        NumBastionHosts:
+          Ref: NumBastionHosts
+        PublicSubnet1ID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.PublicSubnet1ID
+        PublicSubnet2ID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.PublicSubnet2ID
+        QSS3BucketName:
+          Ref: QSS3BucketName
+        QSS3KeyPrefix:
+          Fn::Sub:
+          - "${QSS3KeyPrefix}submodules/quickstart-linux-bastion/"
+          - QSS3KeyPrefix:
+              Ref: QSS3KeyPrefix
+        RemoteAccessCIDR:
+          Ref: AccessCIDR
+        VPCID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.VPCID
+      TemplateURL:
+        Fn::Sub:
+        - https://${QSS3BucketName}.${S3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-linux-bastion/templates/linux-bastion.template
+        - S3Region:
+            Fn::If:
+            - GovCloudCondition
+            - s3-us-gov-west-1
+            - s3
+    Type: AWS::CloudFormation::Stack
+  HashiCorpConsulStack:
+    Properties:
+      Parameters:
+        BastionSecurityGroupID:
+          Fn::GetAtt:
+          - LinuxBastionHostStack
+          - Outputs.BastionSecurityGroupID
+        ConsulClientNodes:
+          Ref: ConsulClientNodes
+        ConsulInstanceType:
+          Ref: ConsulInstanceType
+        ConsulServerNodes:
+          Ref: ConsulServerNodes
+        KeyPair:
+          Ref: KeyPairName
+        PrivateSubnet1ID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.PrivateSubnet1AID
+        PrivateSubnet2ID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.PrivateSubnet2AID
+        PrivateSubnet3ID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.PrivateSubnet3AID
+        VPCCIDR:
+          Ref: VPCCIDR
+        VPCID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.VPCID
+        QSS3BucketName:
+          Ref: QSS3BucketName
+        QSS3KeyPrefix:
+          Fn::Sub:
+          - "${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul/"
+          - QSS3KeyPrefix:
+              Ref: QSS3KeyPrefix
+      TemplateURL:
+        Fn::Sub:
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul/templates/quickstart-hashicorp-consul.template
+        - QSS3Region:
+            Fn::If:
+            - GovCloudCondition
+            - s3-us-gov-west-1
+            - s3
+    Type: AWS::CloudFormation::Stack
+  HashiCorpVaultStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        Fn::Sub:
+        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/quickstart-hashicorp-vault.template
+        - QSS3Region:
+            Fn::If:
+            - GovCloudCondition
+            - s3-us-gov-west-1
+            - s3
+      Parameters:
+        BastionSecurityGroupID:
+          Fn::GetAtt:
+          - LinuxBastionHostStack
+          - Outputs.BastionSecurityGroupID
+        ConsulEc2RetryTagKey:
+          Fn::GetAtt:
+          - HashiCorpConsulStack
+          - Outputs.ConsulEc2RetryTagKey
+        ConsulEc2RetryTagValue:
+          Fn::GetAtt:
+          - HashiCorpConsulStack
+          - Outputs.ConsulEc2RetryTagValue
+        PrivateSubnet1ID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.PrivateSubnet1AID
+        PrivateSubnet2ID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.PrivateSubnet2AID
+        QSS3BucketName:
+          Ref: QSS3BucketName
+        QSS3KeyPrefix:
+          Ref: QSS3KeyPrefix
+        VPCID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.VPCID
+        VPCCIDR:
+          Ref: VPCCIDR
+        KeyPair:
+          Ref: KeyPairName
+        EmailAddress:
+          Ref: EmailAddress
+        VaultInstanceType:
+          Ref: VaultInstanceType
