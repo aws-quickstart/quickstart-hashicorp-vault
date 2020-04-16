@@ -8,5 +8,9 @@
 	branch = master
 [submodule "submodules/quickstart-hashicorp-consul"]
 	path = submodules/quickstart-hashicorp-consul
-	url = https://github.com/aws-quickstart/quickstart-hashicorp-consul.git
+	url = ../../aws-quickstart/quickstart-hashicorp-consul.git
 	branch = freeze-updates
+[submodule "submodules/lambda-copyzips"]
+	path = submodules/lambda-copyzips
+	url = ../../aws-quickstart/lambda-copyzips.git
+	branch = master
