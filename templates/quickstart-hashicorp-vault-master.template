@@ -5,7 +5,7 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
-        default: " VPC Network Configuration"
+        default: VPC Network configuration
       Parameters:
       - AvailabilityZones
       - VPCCIDR
@@ -25,18 +25,19 @@ Metadata:
       Parameters:
       - EmailAddress
       - KeyPairName
+      - VaultServerNodes
       - VaultInstanceType
+      - VaultDownloadURL
+      - VaultNumberOfKeys
+      - VaultNumberOfKeysForUnseal
+      - VaultClientRoleName
+      - VaultClientNodes
     - Label:
-        default: Consul Setup
-      Parameters:
-      - ConsulClientNodes
-      - ConsulServerNodes
-      - ConsulInstanceType
-    - Label:
-        default: AWS Quick Start Configuration
+        default: AWS Quick Start configuration
       Parameters:
       - QSS3BucketName
       - QSS3KeyPrefix
+      - QSS3BucketRegion
     ParameterLabels:
       AvailabilityZones:
         default: Availability Zones
@@ -58,25 +59,44 @@ Metadata:
         default: Quick Start S3 Bucket Name
       QSS3KeyPrefix:
         default: Quick Start S3 Key Prefix
+      QSS3BucketRegion:
+        default: Quick Start S3 Bucket Region
       AccessCIDR:
         default: Permitted IP range
       EmailAddress:
         default: Email Address
       VPCCIDR:
         default: VPC CIDR
-      ConsulClientNodes:
-        default: Consul client nodes
-      ConsulServerNodes:
-        default: Consul server nodes
-      ConsulInstanceType:
-        default: Consul cluster node instance type
+      VaultAMIOS:
+        default: Which OS AMI should the Vault cluster run
+      VaultClientNodes:
+        default: Number of Vault client nodes
+      VaultServerNodes:
+        default: Number of Vault server nodes
       VaultInstanceType:
         default: Vault node instance type
+      VaultDownloadURL:
+        default: Which Vault package to install
+      VaultNumberOfKeys:
+        default: Number of unseal keys created when Hashicorp Vault cluster is initialized
+      VaultNumberOfKeysForUnseal:
+        default: Number of unseal keys required to unseal the Hashicorp Vault cluster
+      VaultClientRoleName:
+        default: Internal name of the AWS IAM role authorized to use Vault
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Parameters:
   AvailabilityZones:
     Description: 'List of Availability Zones to use for the subnets in the VPC. Note:
       The logical order is preserved (3 AZs are used for this deployment)'
     Type: List<AWS::EC2::AvailabilityZone::Name>
+  VaultAMIOS:
+    AllowedValues:
+      - Ubuntu-1604-HVM
+      - CIS-Ubuntu-1604-HVM
+    Default: Ubuntu-1604-HVM
+    Description: The Linux distribution for the AMI to be used for the Vault instances.
+    Type: String
   KeyPairName:
     Description: Public/private key pairs allow you to securely connect to your instance
       after it launches
@@ -135,6 +155,10 @@ Parameters:
       can include numbers, lowercase letters, uppercase letters, and hyphens (-).
       It cannot start or end with a hyphen (-).
     Type: String
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
+    Type: String
   QSS3KeyPrefix:
     AllowedPattern: "^[0-9a-zA-Z-/]*$"
     ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
@@ -155,18 +179,21 @@ Parameters:
     Description: 'The CIDR IP range that is permitted to access Consul Note: a value
       of 0.0.0.0/0 will allow access from ANY ip address'
     Type: String
-  ConsulServerNodes:
+  VaultServerNodes:
     Type: String
-    Description: 'Sets DesiredCapacity and MaxSize '
+    Description: 'Sets DesiredCapacity and MaxSize'
     AllowedValues:
     - '3'
     - '5'
     - '7'
     Default: '3'
-  ConsulClientNodes:
+  VaultClientNodes:
     Type: String
-    Description: 'Sets DesiredCapacity and MaxSize '
-    Default: '3'
+    Description: 'Sets DesiredCapacity and MaxSize'
+    AllowedValues:
+    - '0'
+    - '1'
+    Default: '1'
   VaultInstanceType:
     Type: String
     Description: Vault node instance type
@@ -205,51 +232,31 @@ Parameters:
     - i2.8xlarge
     ConstraintDescription: Choose an instance type. m4.large or larger recommended.
     Default: m4.large
-  ConsulInstanceType:
+  VaultNumberOfKeys:
     Type: String
-    Default: t2.medium
-    Description: Consul node instance type
-    AllowedValues:
-    - t2.micro
-    - t2.small
-    - t2.medium
-    - t2.large
-    - m4.large
-    - m4.xlarge
-    - m4.2xlarge
-    - m4.4xlarge
-    - m4.10xlarge
-    - m3.medium
-    - m3.large
-    - m3.xlarge
-    - m3.2xlarge
-    - c4.large
-    - c4.xlarge
-    - c4.2xlarge
-    - c4.4xlarge
-    - c4.8xlarge
-    - c3.large
-    - c3.xlarge
-    - c3.2xlarge
-    - c3.4xlarge
-    - c3.8xlarge
-    - r3.large
-    - r3.xlarge
-    - r3.2xlarge
-    - r3.4xlarge
-    - r3.8xlarge
-    - i2.xlarge
-    - i2.2xlarge
-    - i2.4xlarge
-    - i2.8xlarge
-    ConstraintDescription: Choose an instance type. m4.large or larger recommended.
-Conditions:
-  GovCloudCondition:
-    Fn::Equals:
-    - Ref: AWS::Region
-    - us-gov-west-1
+    Default: 5
+    Description: The number of unseal keys to generate when initializing the Hashicorp Vault cluster.
+  VaultNumberOfKeysForUnseal:
+    Type: String
+    Default: 3
+    Description: The number of keys required to unseal the Hashicorp Vault cluster.
+  VaultClientRoleName:
+    Type: String
+    Default: client-role-iam
+    MinLength: "3"
+    ConstraintDescription: This identifier should be at least 3 characters in length.
+    Description: The internal Hashicorp Vault identifier for the AWS IAM role.
+  VaultDownloadURL:
+    Type: String
+    Description: 'The URL to download the Vault zip file'
+    Default: https://releases.hashicorp.com/vault/1.4.0/vault_1.4.0_linux_amd64.zip
 Resources:
   VPCStack:
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - W9198
     Properties:
       Parameters:
         AvailabilityZones:
@@ -274,147 +281,77 @@ Resources:
         VPCCIDR:
           Ref: VPCCIDR
       TemplateURL:
-        Fn::Sub:
-        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template
-        - QSS3Region:
-            Fn::If:
-            - GovCloudCondition
-            - s3-us-gov-west-1
-            - s3
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template'
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
     Type: AWS::CloudFormation::Stack
   LinuxBastionHostStack:
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - W9198
     Properties:
       Parameters:
         BastionAMIOS: Ubuntu-Server-16.04-LTS-HVM
         EnableTCPForwarding: 'true'
-        KeyPairName:
-          Ref: KeyPairName
-        NumBastionHosts:
-          Ref: NumBastionHosts
-        PublicSubnet1ID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.PublicSubnet1ID
-        PublicSubnet2ID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.PublicSubnet2ID
-        QSS3BucketName:
-          Ref: QSS3BucketName
-        QSS3KeyPrefix:
-          Fn::Sub:
-          - "${QSS3KeyPrefix}submodules/quickstart-linux-bastion/"
-          - QSS3KeyPrefix:
-              Ref: QSS3KeyPrefix
-        RemoteAccessCIDR:
-          Ref: AccessCIDR
-        VPCID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.VPCID
+        KeyPairName: !Ref KeyPairName
+        NumBastionHosts: !Ref NumBastionHosts
+        PublicSubnet1ID: !GetAtt "VPCStack.Outputs.PublicSubnet1ID"
+        PublicSubnet2ID: !GetAtt "VPCStack.Outputs.PublicSubnet2ID"
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-linux-bastion/
+        RemoteAccessCIDR: !Ref AccessCIDR
+        VPCID: !GetAtt "VPCStack.Outputs.VPCID"
       TemplateURL:
-        Fn::Sub:
-        - https://${QSS3BucketName}.${S3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-linux-bastion/templates/linux-bastion.template
-        - S3Region:
-            Fn::If:
-            - GovCloudCondition
-            - s3-us-gov-west-1
-            - s3
-    Type: AWS::CloudFormation::Stack
-  HashiCorpConsulStack:
-    Properties:
-      Parameters:
-        BastionSecurityGroupID:
-          Fn::GetAtt:
-          - LinuxBastionHostStack
-          - Outputs.BastionSecurityGroupID
-        ConsulClientNodes:
-          Ref: ConsulClientNodes
-        ConsulInstanceType:
-          Ref: ConsulInstanceType
-        ConsulServerNodes:
-          Ref: ConsulServerNodes
-        KeyPair:
-          Ref: KeyPairName
-        PrivateSubnet1ID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.PrivateSubnet1AID
-        PrivateSubnet2ID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.PrivateSubnet2AID
-        PrivateSubnet3ID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.PrivateSubnet3AID
-        VPCCIDR:
-          Ref: VPCCIDR
-        VPCID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.VPCID
-        QSS3BucketName:
-          Ref: QSS3BucketName
-        QSS3KeyPrefix:
-          Fn::Sub:
-          - "${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul/"
-          - QSS3KeyPrefix:
-              Ref: QSS3KeyPrefix
-      TemplateURL:
-        Fn::Sub:
-        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul/templates/quickstart-hashicorp-consul.template
-        - QSS3Region:
-            Fn::If:
-            - GovCloudCondition
-            - s3-us-gov-west-1
-            - s3
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-linux-bastion/templates/linux-bastion.template'
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
     Type: AWS::CloudFormation::Stack
   HashiCorpVaultStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:
-        Fn::Sub:
-        - https://${QSS3BucketName}.${QSS3Region}.amazonaws.com/${QSS3KeyPrefix}templates/quickstart-hashicorp-vault.template
-        - QSS3Region:
-            Fn::If:
-            - GovCloudCondition
-            - s3-us-gov-west-1
-            - s3
+      TemplateURL:  
+        !Sub
+          - "https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/quickstart-hashicorp-vault.template"
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        BastionSecurityGroupID:
-          Fn::GetAtt:
-          - LinuxBastionHostStack
-          - Outputs.BastionSecurityGroupID
-        ConsulEc2RetryTagKey:
-          Fn::GetAtt:
-          - HashiCorpConsulStack
-          - Outputs.ConsulEc2RetryTagKey
-        ConsulEc2RetryTagValue:
-          Fn::GetAtt:
-          - HashiCorpConsulStack
-          - Outputs.ConsulEc2RetryTagValue
-        PrivateSubnet1ID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.PrivateSubnet1AID
-        PrivateSubnet2ID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.PrivateSubnet2AID
-        QSS3BucketName:
-          Ref: QSS3BucketName
-        QSS3KeyPrefix:
-          Ref: QSS3KeyPrefix
-        VPCID:
-          Fn::GetAtt:
-          - VPCStack
-          - Outputs.VPCID
-        VPCCIDR:
-          Ref: VPCCIDR
-        KeyPair:
-          Ref: KeyPairName
-        EmailAddress:
-          Ref: EmailAddress
-        VaultInstanceType:
-          Ref: VaultInstanceType
+        VaultAMIOS: !Ref VaultAMIOS
+        BastionSecurityGroupID: !GetAtt "LinuxBastionHostStack.Outputs.BastionSecurityGroupID"
+        PrivateSubnet1ID: !GetAtt "VPCStack.Outputs.PrivateSubnet1AID"
+        PrivateSubnet2ID: !GetAtt "VPCStack.Outputs.PrivateSubnet2AID"
+        PrivateSubnet3ID: !GetAtt "VPCStack.Outputs.PrivateSubnet3AID"
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        VPCID: !GetAtt "VPCStack.Outputs.VPCID"
+        VPCCIDR: !Ref VPCCIDR
+        KeyPairName: !Ref KeyPairName
+        EmailAddress: !Ref EmailAddress
+        VaultInstanceType: !Ref VaultInstanceType
+        VaultClientNodes: !Ref VaultClientNodes
+        VaultServerNodes: !Ref VaultServerNodes
+        VaultNumberOfKeys: !Ref VaultNumberOfKeys
+        VaultNumberOfKeysForUnseal: !Ref VaultNumberOfKeysForUnseal
+        VaultClientRoleName: !Ref VaultClientRoleName
+        VaultDownloadURL: !Ref VaultDownloadURL
+Outputs:
+  BastionHost:
+    Value: !GetAtt "LinuxBastionHostStack.Outputs.EIP1"
+    Description: The IP Address of the Bastion host.
+  VaultClientRoleId:
+    Value: !Ref VaultClientRoleName
+    Description: The Hashicorp Vault identifier of the AWS client role.
+  VaultClientIAMRoleArn:
+    Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultClientIAMRoleArn"
+    Description: The ARN of the AWS IAM role linked to Hashicorp Vault.
+  VaultClientIAMRoleName:
+    Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultClientIAMRoleName"
+    Description: The name of the AWS IAM role linked to Hashicorp Vault.
+  VaultSecret:
+    Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultSecret"
+    Description: The AWS Secrets Manager Secret containing the ROOT TOKEN and Recovery Secret for Hashicorp Vault.
