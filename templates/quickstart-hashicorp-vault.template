@@ -12,13 +12,15 @@ Metadata:
         default: Network configuration
       Parameters:
       - AccessCIDR
+      - VPCID
+      - VPCCIDR
+      - BastionSecurityGroupID
       - PrivateSubnet1ID
       - PrivateSubnet2ID
       - PrivateSubnet3ID
       - PublicSubnet1ID
       - PublicSubnet2ID
       - PublicSubnet3ID
-      - BastionSecurityGroupID
     - Label:
         default: Vault Setup
       Parameters:
@@ -39,6 +41,8 @@ Metadata:
       - QSS3KeyPrefix
       - QSS3BucketRegion
     ParameterLabels:
+      BastionSecurityGroupID:
+        default: Bastion host security group ID
       PrivateSubnet1ID:
         default: First subnet ID for autoscaling group
       PrivateSubnet2ID:
@@ -63,6 +67,8 @@ Metadata:
         default: Permitted IP range
       EmailAddress:
         default: Email Address
+      VPCID:
+        default: VPC ID
       VPCCIDR:
         default: VPC CIDR
       VaultAMIOS:
@@ -72,7 +78,7 @@ Metadata:
       VaultServerNodes:
         default: Number of Vault server nodes
       VaultInstanceType:
-        default: Vault node instance type
+        default: Instance type for Hashicorp Vault nodes
       VaultDownloadURL:
         default: Which Vault package to install
       VaultNumberOfKeys:
@@ -123,7 +129,7 @@ Parameters:
     Description: Number of keys required for unsealing Hashicorp Vault.
   VaultInstanceType:
     Type: String
-    Description: vault node instance type
+    Description: Hashicorp Vault node instance type.
     AllowedValues:
     - t2.micro
     - t2.small
@@ -659,6 +665,7 @@ Resources:
             chmod +x bootstrap_server.sh
             ./bootstrap_server.sh
             # Signalling done from within bootstrap script
+            # echo ${SomeValue} # for clean looking !Sub
           - SomeValue: "SomeValue"
   VaultServerAutoScalingGroup:
     Type: "AWS::AutoScaling::AutoScalingGroup"
@@ -856,6 +863,7 @@ Resources:
             chmod +x bootstrap_client.sh
             ./bootstrap_client.sh
             # Signalling done from within bootstrap script
+            # echo ${SomeValue} # for clean looking !Sub
           - SomeValue: "SomeValue"
   VaultClientAutoScalingGroup:
     Type: "AWS::AutoScaling::AutoScalingGroup"

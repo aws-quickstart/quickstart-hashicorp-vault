@@ -48,11 +48,22 @@ ExecStartPre=/sbin/setcap 'cap_ipc_lock=+ep' /usr/local/bin/vault
 ExecStart=/usr/local/bin/vault server -config /etc/vault.d
 ExecReload=/bin/kill -HUP \$MAINPID
 KillSignal=SIGTERM
-User=vault
-Group=vault
+User=${USER}
+Group=${GROUP}
 [Install]
 WantedBy=multi-user.target
 EOF
+}
+
+install_vault () {
+  curl --silent --output /tmp/${VAULT_ZIP} ${VAULT_URL}
+  unzip -o /tmp/${VAULT_ZIP} -d /usr/local/bin/
+  chmod 0755 /usr/local/bin/vault
+  chown ${USER}:${GROUP} /usr/local/bin/vault
+  mkdir -pm 0755 /etc/vault.d
+  mkdir -pm 0755 ${VAULT_STORAGE_PATH}
+  chown -R vault:vault ${VAULT_STORAGE_PATH}
+  chmod -R a+rwx ${VAULT_STORAGE_PATH}
 }
 
 USER="vault"

@@ -41,41 +41,22 @@ EOF
 VAULT_ZIP=$(echo $VAULT_URL | rev | cut -d "/" -f 1 | rev)
 
 VAULT_STORAGE_PATH="/vault/$INSTANCE_ID"
-curl --silent --output /tmp/${VAULT_ZIP} ${VAULT_URL}
-unzip -o /tmp/${VAULT_ZIP} -d /usr/local/bin/
-chmod 0755 /usr/local/bin/vault
-chown vault:vault /usr/local/bin/vault
-mkdir -pm 0755 /etc/vault.d
-mkdir -pm 0755 ${VAULT_STORAGE_PATH}
-chown -R vault:vault ${VAULT_STORAGE_PATH}
-chmod -R a+rwx ${VAULT_STORAGE_PATH}
+
+# Install Vault
+install_vault
 
 # Create systemd service file for Vault
 vault_systemctl_file
-# cat << EOF > /lib/systemd/system/vault.service
-# [Unit]
-# Description=Vault Agent
-# Requires=network-online.target
-# After=network-online.target
-# [Service]
-# Restart=on-failure
-# PermissionsStartOnly=true
-# ExecStartPre=/sbin/setcap 'cap_ipc_lock=+ep' /usr/local/bin/vault
-# ExecStart=/usr/local/bin/vault server -config /etc/vault.d
-# ExecReload=/bin/kill -HUP \$MAINPID
-# KillSignal=SIGTERM
-# User=vault
-# Group=vault
-# [Install]
-# WantedBy=multi-user.target
-# EOF
 
+# Find AWS AutoScaling Group ID from this instance
 ASG_NAME=$(aws autoscaling describe-auto-scaling-instances --instance-ids "$INSTANCE_ID" --region "${AWS_REGION}" | jq -r ".AutoScalingInstances[].AutoScalingGroupName")
 echo ASG_NAME $ASG_NAME
 
+# Find all members of our AWS AutoScaling Group
 instance_id_array=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name "${ASG_NAME}" --region "${AWS_REGION}" | jq -r '.AutoScalingGroups[].Instances[] | select(.LifecycleState == "InService").InstanceId')
 echo instance_id_array $instance_id_array
 
+# Find all IP Addresses for instances in our AWS AutoScaling Group
 instance_ip_array=()
 for i in ${instance_id_array[@]}
 do

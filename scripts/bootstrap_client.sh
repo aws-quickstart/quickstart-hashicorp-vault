@@ -31,36 +31,14 @@ VAULT_ZIP=$(echo $VAULT_URL | rev | cut -d "/" -f 1 | rev)
 # Create Vault User
 user_ubuntu
 
-curl --silent --output /tmp/${VAULT_ZIP} ${VAULT_URL}
-unzip -o /tmp/${VAULT_ZIP} -d /usr/local/bin/
-chmod 0755 /usr/local/bin/vault
-chown vault:vault /usr/local/bin/vault
-mkdir -pm 0755 /etc/vault.d
-mkdir -pm 0755 ${VAULT_STORAGE_PATH}
-chown -R vault:vault ${VAULT_STORAGE_PATH}
-chmod -R a+rwx ${VAULT_STORAGE_PATH}
+# Install vault
+install_vault
 
-cat << EOF > /lib/systemd/system/vault.service
-[Unit]
-Description=Vault Agent
-Requires=network-online.target
-After=network-online.target
-[Service]
-Restart=on-failure
-PermissionsStartOnly=true
-ExecStartPre=/sbin/setcap 'cap_ipc_lock=+ep' /usr/local/bin/vault
-ExecStart=/usr/local/bin/vault server -config /etc/vault.d
-ExecReload=/bin/kill -HUP \$MAINPID
-KillSignal=SIGTERM
-User=vault
-Group=vault
-[Install]
-WantedBy=multi-user.target
-EOF
+# Create systemd service file for Vault
+vault_systemctl_file
 
-# TODO: Bootstrap Client
-# TODO: Find a member of the Vault Cluster by describing the AutoScalingGroup
-# Get list of cluster members
+# Bootstrap Client
+# Get list of Hashicorp Vault server cluster members
 instance_id_array=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-name "${ASG_NAME}" --region "${AWS_REGION}" | jq -r '.AutoScalingGroups[].Instances[] | select(.LifecycleState == "InService").InstanceId')
 echo instance_id_array $instance_id_array
 
@@ -74,7 +52,6 @@ do
         instance_ip_array+=( ${ip_addr} )
 done
 echo instance_ip_array $instance_ip_array
-
 
 # Find one that answers on 8200
 VAULT_SERVER_ADDR=""
