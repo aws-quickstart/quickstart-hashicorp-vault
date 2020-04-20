@@ -17,14 +17,15 @@ Metadata:
       - PublicSubnet3CIDR
       - AccessCIDR
     - Label:
-        default: Bastion Setup
+        default: Bastion configuration
       Parameters:
       - NumBastionHosts
     - Label:
-        default: Vault Setup
+        default: Vault configuration
       Parameters:
       - EmailAddress
       - KeyPairName
+      - VaultAMIOS
       - VaultServerNodes
       - VaultInstanceType
       - VaultDownloadURL
@@ -49,6 +50,8 @@ Metadata:
         default: Private Subnet 1 CIDR
       PrivateSubnet2CIDR:
         default: Private Subnet 2 CIDR
+      PrivateSubnet3CIDR:
+        default: Private Subnet 3 CIDR
       PublicSubnet1CIDR:
         default: Public Subnet 1 CIDR
       PublicSubnet2CIDR:
@@ -74,7 +77,7 @@ Metadata:
       VaultServerNodes:
         default: Number of Vault server nodes
       VaultInstanceType:
-        default: Vault node instance type
+        default: Hashicorp Vault node instance type
       VaultDownloadURL:
         default: Which Vault package to install
       VaultNumberOfKeys:
@@ -196,7 +199,7 @@ Parameters:
     Default: '0'
   VaultInstanceType:
     Type: String
-    Description: Vault node instance type
+    Description: Hashicorp Vault node instance type
     AllowedValues:
     - t2.micro
     - t2.small
@@ -325,9 +328,13 @@ Resources:
         PrivateSubnet1ID: !GetAtt "VPCStack.Outputs.PrivateSubnet1AID"
         PrivateSubnet2ID: !GetAtt "VPCStack.Outputs.PrivateSubnet2AID"
         PrivateSubnet3ID: !GetAtt "VPCStack.Outputs.PrivateSubnet3AID"
+        PublicSubnet1ID: !GetAtt "VPCStack.Outputs.PublicSubnet1ID"
+        PublicSubnet2ID: !GetAtt "VPCStack.Outputs.PublicSubnet2ID"
+        PublicSubnet3ID: !GetAtt "VPCStack.Outputs.PublicSubnet3ID"
         QSS3BucketName: !Ref QSS3BucketName
         QSS3BucketRegion: !Ref QSS3BucketRegion
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        AccessCIDR: !Ref AccessCIDR
         VPCID: !GetAtt "VPCStack.Outputs.VPCID"
         VPCCIDR: !Ref VPCCIDR
         KeyPairName: !Ref KeyPairName

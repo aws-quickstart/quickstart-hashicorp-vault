@@ -5,36 +5,8 @@ SPLAY=$(shuf -i 1-10 -n 1)
 LEADER_ELECTED=0
 LEADER_ID="" # Get from SSM Parameter
 INSTANCE_ID="" # Get from instance metadata
-I_AM_LEADER=0
 
-# TODO: as these should come from common functions file
-get_ssm_param () {
-        local value=$(aws ssm get-parameter --region ${AWS_REGION} --name "$1"| jq -r ".Parameter|.Value" )
-        echo $value
-}
-
-user_ubuntu () {
-  # UBUNTU user setup
-  if ! getent group ${GROUP} >/dev/null
-  then
-    sudo addgroup --system ${GROUP} >/dev/null
-  fi
-
-  if ! getent passwd ${USER} >/dev/null
-  then
-    sudo adduser \
-      --system \
-      --disabled-login \
-      --ingroup ${GROUP} \
-      --home ${HOME} \
-      --no-create-home \
-      --gecos "${COMMENT}" \
-      --shell /bin/false \
-      ${USER}  >/dev/null
-  fi
-}
-
-# TODO: test that included functions work
+# Included functions shared for clients/servers
 . ./functions.sh
 
 # TODO: turn into MDSv2 function and include in functions.sh
@@ -78,24 +50,25 @@ mkdir -pm 0755 ${VAULT_STORAGE_PATH}
 chown -R vault:vault ${VAULT_STORAGE_PATH}
 chmod -R a+rwx ${VAULT_STORAGE_PATH}
 
-cat << EOF > /lib/systemd/system/vault.service
-[Unit]
-Description=Vault Agent
-Requires=network-online.target
-After=network-online.target
-[Service]
-Restart=on-failure
-PermissionsStartOnly=true
-ExecStartPre=/sbin/setcap 'cap_ipc_lock=+ep' /usr/local/bin/vault
-ExecStart=/usr/local/bin/vault server -config /etc/vault.d
-ExecReload=/bin/kill -HUP \$MAINPID
-KillSignal=SIGTERM
-User=vault
-Group=vault
-[Install]
-WantedBy=multi-user.target
-EOF
-
+# Create systemd service file for Vault
+vault_systemctl_file
+# cat << EOF > /lib/systemd/system/vault.service
+# [Unit]
+# Description=Vault Agent
+# Requires=network-online.target
+# After=network-online.target
+# [Service]
+# Restart=on-failure
+# PermissionsStartOnly=true
+# ExecStartPre=/sbin/setcap 'cap_ipc_lock=+ep' /usr/local/bin/vault
+# ExecStart=/usr/local/bin/vault server -config /etc/vault.d
+# ExecReload=/bin/kill -HUP \$MAINPID
+# KillSignal=SIGTERM
+# User=vault
+# Group=vault
+# [Install]
+# WantedBy=multi-user.target
+# EOF
 
 ASG_NAME=$(aws autoscaling describe-auto-scaling-instances --instance-ids "$INSTANCE_ID" --region "${AWS_REGION}" | jq -r ".AutoScalingInstances[].AutoScalingGroupName")
 echo ASG_NAME $ASG_NAME
@@ -159,7 +132,6 @@ EOF
 
 setcap cap_ipc_lock=+ep /usr/local/bin/vault
 
-# TODO: Andrew Code here 
 # So each node doesn't start same time spread out the starts
 echo Sleeping for a splay time: $SPLAY
 sleep ${SPLAY}
@@ -189,6 +161,7 @@ done
 echo -n Who was elected leader:
 LEADER_ID=$(get_ssm_param "$LEADER_ID_SSM_PARAMETER")
 echo $LEADER_ID
+
 # If I am the leader do the leader bootstrap stuff
 if [ "$LEADER_ID" = "$INSTANCE_ID" ]
 then
@@ -210,30 +183,29 @@ then
         if [ "$init" == "false" ]; then
                 echo "Initializing Vault"
                 install -d -m 0755 -o vault -g vault /etc/vault
-                vault operator init -recovery-shares=${VAULT_NUMBER_OF_KEYS} -recovery-threshold=${VAULT_NUMBER_OF_KEYS_FOR_UNSEAL} | tee /etc/vault/vault-init.txt
-                aws secretsmanager put-secret-value --region ${AWS_REGION} --secret-id ${VAULT_SECRET} --secret-string "$(cat /etc/vault/vault-init.txt)" 
-                sudo chown ubuntu:ubuntu /etc/vault/vault-init.txt
+                SECRET_VALUE=$(vault operator init -recovery-shares=${VAULT_NUMBER_OF_KEYS} -recovery-threshold=${VAULT_NUMBER_OF_KEYS_FOR_UNSEAL})
+                echo storing SECRET_VALUE: ${SECRET_VALUE}
+                aws secretsmanager put-secret-value --region ${AWS_REGION} --secret-id ${VAULT_SECRET} --secret-string "${SECRET_VALUE}" 
         else
                 echo "Vault is already initialized"
         fi
 
         sealed=$(curl -fs localhost:8200/v1/sys/seal-status | jq -r .sealed)
 
-        # TODO: Get these from the Secrets Manager
-        #unseal_key=$(awk '{ if (match($0,/Recovery Key 1: (.*)/,m)) print m[1] }' /etc/vault/vault-init.txt)
-        #root_token=$(awk '{ if (match($0,/Initial Root Token: (.*)/,m)) print m[1] }' /etc/vault/vault-init.txt)
+        VAULT_SECRET_VALUE=$(get_secret ${VAULT_SECRET})
+        echo got VAULT_SECRET_VALUE: ${VAULT_SECRET_VALUE}
 
-        root_token=$(get_secret ${VAULT_SECRET} | awk '{ if (match($0,/Initial Root Token: (.*)/,m)) print m[1] }') 
-        # TODO: Handle a variable number of unseal keys
+        root_token=$(echo ${VAULT_SECRET_VALUE} | awk '{ if (match($0,/Initial Root Token: (.*)/,m)) print m[1] }' | cut -d " " -f 1) 
+        # Handle a variable number of unseal keys
         for UNSEAL_KEY_INDEX in {1..${VAULT_NUMBER_OF_KEYS_FOR_UNSEAL}}
         do
-                unseal_key+=($(get_secret ${VAULT_SECRET} | awk '{ if (match($0,/Recovery Key '${UNSEAL_KEY_INDEX}': (.*)/,m)) print m[1] }'))
+                unseal_key+=($(echo ${VAULT_SECRET_VALUE} | awk '{ if (match($0,/Recovery Key '${UNSEAL_KEY_INDEX}': (.*)/,m)) print m[1] }'| cut -d " " -f 1))
         done
         
         # Should Auto unseal using KMS but this is for demonstration for manual unseal
         if [ "$sealed" == "true" ]; then
                 echo "Unsealing Vault"
-                # TODO: Handle variable number of unseal keys
+                # Handle variable number of unseal keys
                 for UNSEAL_KEY_INDEX in {1..${VAULT_NUMBER_OF_KEYS_FOR_UNSEAL}}
                 do
                         vault operator unseal $unseal_key[${UNSEAL_KEY_INDEX}] 

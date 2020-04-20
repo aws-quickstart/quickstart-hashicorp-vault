@@ -35,6 +35,26 @@ get_mdsv2 () {
 && curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/${1} 2>/dev/null)
 }
 
+vault_systemctl_file () {
+cat << EOF > /lib/systemd/system/vault.service
+[Unit]
+Description=Vault Agent
+Requires=network-online.target
+After=network-online.target
+[Service]
+Restart=on-failure
+PermissionsStartOnly=true
+ExecStartPre=/sbin/setcap 'cap_ipc_lock=+ep' /usr/local/bin/vault
+ExecStart=/usr/local/bin/vault server -config /etc/vault.d
+ExecReload=/bin/kill -HUP \$MAINPID
+KillSignal=SIGTERM
+User=vault
+Group=vault
+[Install]
+WantedBy=multi-user.target
+EOF
+}
+
 USER="vault"
 COMMENT="Hashicorp vault user"
 GROUP="vault"
