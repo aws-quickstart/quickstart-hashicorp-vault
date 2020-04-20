@@ -211,22 +211,33 @@ then
                 echo "Initializing Vault"
                 install -d -m 0755 -o vault -g vault /etc/vault
                 vault operator init -recovery-shares=${VAULT_NUMBER_OF_KEYS} -recovery-threshold=${VAULT_NUMBER_OF_KEYS_FOR_UNSEAL} | tee /etc/vault/vault-init.txt
-                aws put-secret-value --secret-id ${VAULT_SECRET} --secret-string "$(cat /etc/vault/vault-init.txt)"
+                aws secretsmanager put-secret-value --region ${AWS_REGION} --secret-id ${VAULT_SECRET} --secret-string "$(cat /etc/vault/vault-init.txt)" 
                 sudo chown ubuntu:ubuntu /etc/vault/vault-init.txt
         else
                 echo "Vault is already initialized"
         fi
 
         sealed=$(curl -fs localhost:8200/v1/sys/seal-status | jq -r .sealed)
-        unseal_key=$(awk '{ if (match($0,/Recovery Key 1: (.*)/,m)) print m[1] }' /etc/vault/vault-init.txt)
-        root_token=$(awk '{ if (match($0,/Initial Root Token: (.*)/,m)) print m[1] }' /etc/vault/vault-init.txt)
 
-        echo $unseal_key > /etc/vault/unseal-key.txt 
-        echo $root_token > /etc/vault/root-token.txt
-  
+        # TODO: Get these from the Secrets Manager
+        #unseal_key=$(awk '{ if (match($0,/Recovery Key 1: (.*)/,m)) print m[1] }' /etc/vault/vault-init.txt)
+        #root_token=$(awk '{ if (match($0,/Initial Root Token: (.*)/,m)) print m[1] }' /etc/vault/vault-init.txt)
+
+        root_token=$(get_secret ${VAULT_SECRET} | awk '{ if (match($0,/Initial Root Token: (.*)/,m)) print m[1] }') 
+        # TODO: Handle a variable number of unseal keys
+        for UNSEAL_KEY_INDEX in {1..${VAULT_NUMBER_OF_KEYS_FOR_UNSEAL}}
+        do
+                unseal_key+=($(get_secret ${VAULT_SECRET} | awk '{ if (match($0,/Recovery Key '${UNSEAL_KEY_INDEX}': (.*)/,m)) print m[1] }'))
+        done
+        
+        # Should Auto unseal using KMS but this is for demonstration for manual unseal
         if [ "$sealed" == "true" ]; then
                 echo "Unsealing Vault"
-                vault operator unseal $unseal_key 
+                # TODO: Handle variable number of unseal keys
+                for UNSEAL_KEY_INDEX in {1..${VAULT_NUMBER_OF_KEYS_FOR_UNSEAL}}
+                do
+                        vault operator unseal $unseal_key[${UNSEAL_KEY_INDEX}] 
+                done
         else
                 echo "Vault is already unsealed"
         fi

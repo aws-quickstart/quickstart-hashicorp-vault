@@ -1,5 +1,11 @@
+# Common functions for bootstrap
 get_ssm_param () {
         local value=$(aws ssm get-parameter --region ${AWS_REGION} --name "$1"| jq -r ".Parameter|.Value" )
+        echo $value
+}
+
+get_secret () {
+        local value=$(aws secretsmanager --region ${AWS_REGION} get-secret-value --secret-id "$1" | jq --raw-output .SecretString)
         echo $value
 }
 

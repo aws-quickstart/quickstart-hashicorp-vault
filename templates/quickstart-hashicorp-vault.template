@@ -449,9 +449,10 @@ Resources:
             Action:
             - secretsmanager:UpdateSecretVersionStage
             - secretsmanager:UpdateSecret
-            # TODO: Make this specific but fix circular dependency by generating unique id
-            # Resource: !Ref VaultSecret
-            Resource: "*"
+            - secretsmanager:PutSecretValue
+            - secretsmanager:GetSecretValue
+            Resource:
+            - "*" # !Ref VaultSecret  # Ref gives the ARN
           - Effect: Allow
             Action:
               - iam:GetRole
@@ -561,12 +562,10 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       LaunchConfigurationName: !Sub "VaultLC-${AWS::StackName}"
-      InstanceType:
-        Ref: VaultInstanceType
-      KeyName:
-        Ref: KeyPairName
+      InstanceType: !Ref VaultInstanceType
+      KeyName: !Ref KeyPairName
       SecurityGroups:
-        - !Ref VaultSecGroup
+      - !Ref VaultSecGroup
       ImageId:
         Fn::FindInMap:
         - AWSAMIRegionMap
@@ -580,8 +579,7 @@ Resources:
         Ebs:
           VolumeSize: 20
           VolumeType: gp2
-      IamInstanceProfile: 
-        Ref: "VaultInstanceProfile" 
+      IamInstanceProfile: !Ref "VaultInstanceProfile" 
       UserData:
         Fn::Base64: !Sub
           - |
