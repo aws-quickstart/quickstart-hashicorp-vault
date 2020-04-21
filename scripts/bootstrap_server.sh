@@ -46,13 +46,12 @@ VAULT_STORAGE_PATH="/vault/$INSTANCE_ID"
 install_vault
 
 # Allow local firewall Access
-iptables -I INPUT 6 -m tcp --dport 8200 -j ACCEPT 2>&1 > /dev/null
-iptables -I INPUT 7 -m tcp --dport 8201 -j ACCEPT 2>&1 > /dev/null
-iptables-save > /etc/iptables/rules.v4 2>&1 > /dev/null
+iptables -I INPUT 6 -p tcp -m tcp --dport 8200 -j ACCEPT
+iptables -I INPUT 7 -p tcp -m tcp --dport 8201 -j ACCEPT
 
 # Create systemd service file for Vault
 vault_systemctl_file
-
+s
 # Find AWS AutoScaling Group ID from this instance
 ASG_NAME=$(aws autoscaling describe-auto-scaling-instances --instance-ids "$INSTANCE_ID" --region "${AWS_REGION}" | jq -r ".AutoScalingInstances[].AutoScalingGroupName")
 echo ASG_NAME $ASG_NAME
