@@ -201,47 +201,51 @@ Parameters:
     Type: String
     Description: Hashicorp Vault node instance type
     AllowedValues:
-    - t2.micro
-    - t2.small
-    - t2.medium
-    - t2.large
-    - m4.large
-    - m4.xlarge
-    - m4.2xlarge
-    - m4.4xlarge
-    - m4.10xlarge
-    - m3.medium
-    - m3.large
-    - m3.xlarge
-    - m3.2xlarge
-    - c4.large
-    - c4.xlarge
-    - c4.2xlarge
-    - c4.4xlarge
-    - c4.8xlarge
-    - c3.large
-    - c3.xlarge
-    - c3.2xlarge
-    - c3.4xlarge
-    - c3.8xlarge
-    - r3.large
-    - r3.xlarge
-    - r3.2xlarge
-    - r3.4xlarge
-    - r3.8xlarge
-    - i2.xlarge
-    - i2.2xlarge
-    - i2.4xlarge
-    - i2.8xlarge
+    - 'c5.12xlarge'
+    - 'c5.18xlarge'
+    - 'c5.24xlarge'
+    - 'c5.2xlarge'
+    - 'c5.4xlarge'
+    - 'c5.9xlarge'
+    - 'c5.large'
+    - 'c5.xlarge'
+    - 'm5.12xlarge'
+    - 'm5.16xlarge'
+    - 'm5.24xlarge'
+    - 'm5.2xlarge'
+    - 'm5.4xlarge'
+    - 'm5.8xlarge'
+    - 'm5.large'
+    - 'm5.metal'
+    - 'm5.xlarge'
+    - 'r5.12xlarge'
+    - 'r5.16xlarge'
+    - 'r5.24xlarge'
+    - 'r5.2xlarge'
+    - 'r5.4xlarge'
+    - 'r5.8xlarge'
+    - 'r5.large'
+    - 'r5.xlarge'
+    - 't3.2xlarge'
+    - 't3.large'
+    - 't3.medium'
+    - 't3.micro'
+    - 't3.nano'
+    - 't3.small'
+    - 't3.xlarge'
     ConstraintDescription: Choose an instance type. m4.large or larger recommended.
-    Default: m4.large
+    Default: m5.large
   VaultNumberOfKeys:
     Type: String
-    Default: 5
+    Default: '5'
+    AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
+    ConstraintDescription: Must be a value between 1 and 99.
     Description: The number of unseal keys to generate when initializing the Hashicorp Vault cluster.
   VaultNumberOfKeysForUnseal:
     Type: String
-    Default: 3
+    Default: '3'
+    AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
+    ConstraintDescription: Must be a value between 1 and 99.
     Description: The number of keys required to unseal the Hashicorp Vault cluster.
   VaultClientRoleName:
     Type: String

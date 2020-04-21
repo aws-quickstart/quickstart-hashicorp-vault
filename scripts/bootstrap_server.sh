@@ -45,6 +45,11 @@ VAULT_STORAGE_PATH="/vault/$INSTANCE_ID"
 # Install Vault
 install_vault
 
+# Allow local firewall Access
+iptables -I INPUT 6 -m tcp --dport 8200 -j ACCEPT 2>&1 > /dev/null
+iptables -I INPUT 7 -m tcp --dport 8201 -j ACCEPT 2>&1 > /dev/null
+iptables-save > /etc/iptables/rules.v4 2>&1 > /dev/null
+
 # Create systemd service file for Vault
 vault_systemctl_file
 

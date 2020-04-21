@@ -24,8 +24,6 @@ VAULT_STORAGE_PATH="/vault/$INSTANCE_ID"
 echo 'set +o history' >> /etc/profile  # Disable command history
 echo 'ulimit -c 0 > /dev/null 2>&1' > /etc/profile.d/disable-coredumps.sh  # Disable Core Dumps
 
-# TODO: Cleanupt this as it should come from parameter
-#VAULT_URL="https://releases.hashicorp.com/vault/1.4.0/vault_1.4.0_linux_amd64.zip"
 VAULT_ZIP=$(echo $VAULT_URL | rev | cut -d "/" -f 1 | rev)
 
 # Create Vault User

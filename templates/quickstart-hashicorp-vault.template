@@ -121,50 +121,54 @@ Parameters:
      - '1'
   VaultNumberOfKeys:
     Type: String
-    Default: 5
+    Default: '5'
+    AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
+    ConstraintDescription: Must be a value between 1 and 99.
     Description: Number of unseal keys to create for Hashicorp Vault.
   VaultNumberOfKeysForUnseal:
     Type: String
-    Default: 3
+    Default: '3'
+    AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
+    ConstraintDescription: Must be a value between 1 and 99.
     Description: Number of keys required for unsealing Hashicorp Vault.
   VaultInstanceType:
     Type: String
     Description: Hashicorp Vault node instance type.
     AllowedValues:
-    - t2.micro
-    - t2.small
-    - t2.medium
-    - t2.large
-    - m4.large
-    - m4.xlarge
-    - m4.2xlarge
-    - m4.4xlarge
-    - m4.10xlarge
-    - m3.medium
-    - m3.large
-    - m3.xlarge
-    - m3.2xlarge
-    - c4.large
-    - c4.xlarge
-    - c4.2xlarge
-    - c4.4xlarge
-    - c4.8xlarge
-    - c3.large
-    - c3.xlarge
-    - c3.2xlarge
-    - c3.4xlarge
-    - c3.8xlarge
-    - r3.large
-    - r3.xlarge
-    - r3.2xlarge
-    - r3.4xlarge
-    - r3.8xlarge
-    - i2.xlarge
-    - i2.2xlarge
-    - i2.4xlarge
-    - i2.8xlarge
+    - 'c5.12xlarge'
+    - 'c5.18xlarge'
+    - 'c5.24xlarge'
+    - 'c5.2xlarge'
+    - 'c5.4xlarge'
+    - 'c5.9xlarge'
+    - 'c5.large'
+    - 'c5.xlarge'
+    - 'm5.12xlarge'
+    - 'm5.16xlarge'
+    - 'm5.24xlarge'
+    - 'm5.2xlarge'
+    - 'm5.4xlarge'
+    - 'm5.8xlarge'
+    - 'm5.large'
+    - 'm5.metal'
+    - 'm5.xlarge'
+    - 'r5.12xlarge'
+    - 'r5.16xlarge'
+    - 'r5.24xlarge'
+    - 'r5.2xlarge'
+    - 'r5.4xlarge'
+    - 'r5.8xlarge'
+    - 'r5.large'
+    - 'r5.xlarge'
+    - 't3.2xlarge'
+    - 't3.large'
+    - 't3.medium'
+    - 't3.micro'
+    - 't3.nano'
+    - 't3.small'
+    - 't3.xlarge'
     ConstraintDescription: Choose an instance type. m4.large or larger recommended.
-    Default: m4.large
+    Default: m5.large
   QSS3BucketName:
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
@@ -284,12 +288,18 @@ Mappings:
     us-east-2:
       CISUBUNTU1604: ami-08ea22e68c0de3e0d #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
       US1604HVM: ami-0009e532719fe9bff #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
-    us-west-1:
-      CISUBUNTU1604: ami-00fcee2bce8b03aed #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-0798ac7e2b0fb9e75 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     us-west-2:
       CISUBUNTU1604: ami-04c0bc30b93eb5a25 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
       US1604HVM: ami-02e30ba14d8ffa6e6 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+    me-south-1:
+      CISUBUNTU1604: ami-0fc34e7761742a76d #null
+      US1604HVM: ami-0fc34e7761742a76d #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+    ap-east-1:
+      CISUBUNTU1604: ami-5493d525 #null
+      US1604HVM: ami-5493d525 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+    ap-northeast-3:
+      CISUBUNTU1604: ami-0da6a3ae32f8f6730 #null
+      US1604HVM: ami-0da6a3ae32f8f6730 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Resources:

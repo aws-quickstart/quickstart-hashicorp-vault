@@ -1,5 +1,5 @@
 venv/
 *.swp
 *.swo
-.taskcat.yml
 .taskcat_overrides.yml
+tmp/
