@@ -15,11 +15,6 @@ INSTANCE_ID=$(get_mdsv2 "instance-id")
 echo INSTANCE_ID: ${INSTANCE_ID}
 VAULT_STORAGE_PATH="/vault/$INSTANCE_ID"
 
-# TODO: General Vault Installation happens here
-#/usr/local/bin/cfn-init --verbose --stack ${CFN_STACK_NAME} --region ${AWS_REGION} --resource "VaultClientAutoScalingGroup" --configsets vault_install
-# TODO: If this fails bail out
-# if [ $? -ne 0 ]; then /usr/local/bin/cfn-signal -e 1 --stack ${CFN_STACK_NAME} --region ${AWS_REGION} --resource "VaultClientAutoScalingGroup"; echo "Vault setup failed";exit 1; fi
-
 # Minimum Security Measures
 echo 'set +o history' >> /etc/profile  # Disable command history
 echo 'ulimit -c 0 > /dev/null 2>&1' > /etc/profile.d/disable-coredumps.sh  # Disable Core Dumps
@@ -65,7 +60,7 @@ do
                         VAULT_SERVER_ADDR="$i"
                         break
                 fi
-                sleep 1
+                sleep 2
                 echo "$i Vault Cluster member not ready trying next server"
         done
         if [ "${VAULT_SERVER_ADDR}X" != "X" ]
@@ -132,7 +127,6 @@ sudo chmod 0775 /home/ubuntu/vault-agent-wrapped.hcl
 
 # Test Vault by Adding and retrieving a secret using our Instance Profile IAM Role using AWS Vault Auth mechanism
 # Login to vault using Client Role
-# TODO: Allow this vault client-role-iam value to be customized
 vault login -method=aws role=${VAULT_CLIENT_ROLE_NAME}
 
 # Signal success if we can login as a client

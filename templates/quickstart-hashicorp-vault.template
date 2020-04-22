@@ -519,8 +519,8 @@ Resources:
       AWS::CloudFormation::Init:
         configSets:
           vault_install:
-          - install_vault
-          - run_vault
+          #- install_vault
+          #- run_vault
           - install_cloudwatch_logs_and_mon_scripts
         install_cloudwatch_logs_and_mon_scripts:
           packages:
@@ -533,23 +533,19 @@ Resources:
           files:
             "/etc/cron.hourly/cloudwatch-monitoring.sh":
               source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/cloudwatch-monitoring.sh
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
+                !Sub
+                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/cloudwatch-monitoring.sh'
+                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
               mode: '000744'
               owner: root
               group: root
             "/etc/awslogs-config-file":
               source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/awslogs-config-file
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
+                !Sub
+                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/awslogs-config-file'
+                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
               mode: '000700'
               owner: root
               group: root
@@ -560,21 +556,20 @@ Resources:
               group: root
           commands:
             01_create_awslogs_config_file:
-              command:
-                Fn::Sub: sed -i s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g /etc/awslogs-config-file
-            02_run_awslogs_agent_setup.py:
-              command:
-                Fn::Sub:
-                - python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c /etc/awslogs-config-file
-                - Region:
-                    Ref: AWS::Region
-            03_enable_awslogs_service:
+              command: !Sub "sed -i s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g /etc/awslogs-config-file"
+            02_dummy_ubuntu_os_check:  # CIS ubuntu tries to hide OS details breaking the installer 
+              command: "cp /etc/issue /etc/issue.old && echo Ubuntu | cat - /etc/issue > /etc/issue.temp && mv /etc/issue.temp /etc/issue"
+            03_run_awslogs_agent_setup.py:
+              command: !Sub "python /usr/local/awslogs-agent-setup.py -n -r ${AWS::Region} -c /etc/awslogs-config-file"
+            04_dummy_ubuntu_os_check_remove:  # CIS ubuntu tries to hide OS details breaking the installer remove
+              command: "mv /etc/issue.old /etc/issue"
+            04_enable_awslogs_service:
               command: systemctl enable awslogs
-            04_start_awslogs_service:
+            05_start_awslogs_service:
               command: systemctl start awslogs
-            05_make_mon_put_instance_data_exececutable:
+            06_make_mon_put_instance_data_exececutable:
               command: chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl
-            06_install_crontab:
+            07_install_crontab:
               command: crontab  /etc/cron.hourly/cloudwatch-monitoring.sh
         install_vault:
           sources:
@@ -583,39 +578,35 @@ Resources:
           files:
             "/etc/vault.d/vault.hcl":
               source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/vault.hcl
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
+                !Sub
+                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/vault.hcl'
+                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
               mode: '000700'
               owner: root
               group: root
             "/etc/systemd/system/vault.service":
               source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/vault.service
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
+                !Sub
+                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/vault.service'
+                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
               mode: '000700'
               owner: root
               group: root
           commands:
             01_chmod_and_chown_vault:
-              command: chmod 0755 /usr/bin/vault && chown root:root /usr/bin/vault
+              command: chmod 0755 /usr/bin/vault && chown vault:vault /usr/bin/vault
         run_vault:
           commands:
             01_register_vault_binary:
-              command: service vault start
+              command: systemctl daemon-reload && systemctl enable vault && systemctl start vault
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       LaunchConfigurationName: !Sub "VaultLC-${AWS::StackName}"
       InstanceType: !Ref VaultInstanceType
       KeyName: !Ref KeyPairName
-      SecurityGroups:
+      SecurityGroups: 
       - !Ref VaultSecGroup
       ImageId:
         Fn::FindInMap:
