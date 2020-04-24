@@ -3,3 +3,4 @@ venv/
 *.swo
 .taskcat_overrides.yml
 tmp/
+taskcat_outputs/

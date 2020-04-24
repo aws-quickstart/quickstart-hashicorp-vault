@@ -508,6 +508,12 @@ Resources:
             Action:
               - iam:GetRole
             Resource: !GetAtt VaultClientRole.Arn
+          - Action:
+            - s3:GetObject
+            Resource: !Sub
+              - arn:${AWS::Partition}:s3:::${S3Bucket}/${QSS3KeyPrefix}*
+              - S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+            Effect: Allow
   VaultInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
@@ -516,6 +522,11 @@ Resources:
       - Ref: VaultInstanceRole
   VaultServerLaunchConfiguration:
     Metadata:
+      AWS::CloudFormation::Authentication:
+        S3Auth:
+          buckets: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+          roleName: !Ref VaultInstanceRole
+          type: S3
       AWS::CloudFormation::Init:
         configSets:
           vault_install:
@@ -540,6 +551,7 @@ Resources:
               mode: '000744'
               owner: root
               group: root
+              authentication: S3auth
             "/etc/awslogs-config-file":
               source:
                 !Sub
@@ -549,6 +561,7 @@ Resources:
               mode: '000700'
               owner: root
               group: root
+              authentication: S3auth
             "/usr/local/awslogs-agent-setup.py":
               source: https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py
               mode: '000700'
@@ -599,8 +612,12 @@ Resources:
               command: chmod 0755 /usr/bin/vault && chown vault:vault /usr/bin/vault
         run_vault:
           commands:
-            01_register_vault_binary:
-              command: systemctl daemon-reload && systemctl enable vault && systemctl start vault
+            01_reload_systemctl:
+              command: systemctl daemon-reload
+            02_enable_vault_service:
+              command: systemctl enable vault
+            03_start_vault_service:
+              command: systemctl start vault
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       LaunchConfigurationName: !Sub "VaultLC-${AWS::StackName}"
@@ -629,7 +646,7 @@ Resources:
             
             # Install git
             apt-get update
-            apt-get install -y git
+            apt-get install -y git jq zip curl
 
             #Load Linux utils
             until git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git ; do echo "Retrying"; done
@@ -658,7 +675,6 @@ Resources:
             export VAULT_NUMBER_OF_KEYS_FOR_UNSEAL=${VaultNumberOfKeysForUnseal}
 
             pip install awscli
-            apt-get install -y jq zip curl
             mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
             
             aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/functions.sh .
@@ -836,7 +852,7 @@ Resources:
             
             # Install git
             apt-get update
-            apt-get install -y git
+            apt-get install -y git jq zip curl
 
             #Load Linux utils
             until git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git ; do echo "Retrying"; done
@@ -857,7 +873,6 @@ Resources:
             export ASG_NAME=${VaultServerAutoScalingGroup}
 
             pip install awscli
-            apt-get install -y jq zip curl
             mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
             aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/functions.sh .
             aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/bootstrap_client.sh .
@@ -968,7 +983,6 @@ Outputs:
   VaultClientIAMRoleName:
     Value: !Ref "VaultClientRole"
     Description: The name of the AWS IAM role linked to Hashicorp Vault.
-  # TODO: Make this configurable
   VaultClientRoleId:
-    Value: "client-role-iam"
+    Value: !Ref VaultClientRoleName
     Description: The Hashicorp Vault identifier of the AWS client role.

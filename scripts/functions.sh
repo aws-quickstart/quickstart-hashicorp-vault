@@ -38,18 +38,36 @@ get_mdsv2 () {
 vault_systemctl_file () {
 cat << EOF > /lib/systemd/system/vault.service
 [Unit]
-Description=Vault Agent
+Description="HashiCorp Vault"
+Documentation=https://www.vaultproject.io/docs/
 Requires=network-online.target
 After=network-online.target
+ConditionFileNotEmpty=/etc/vault.d/vault.hcl
 [Service]
-Restart=on-failure
-PermissionsStartOnly=true
-ExecStartPre=/sbin/setcap 'cap_ipc_lock=+ep' /usr/local/bin/vault
-ExecStart=/usr/local/bin/vault server -config /etc/vault.d
-ExecReload=/bin/kill -HUP \$MAINPID
-KillSignal=SIGTERM
 User=${USER}
 Group=${GROUP}
+ExecStart=/usr/local/bin/vault server -config /etc/vault.d -log-level=warn
+ExecReload=/bin/kill --signal HUP \$MAINPID
+KillMode=process
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=65536
+ProtectSystem=full
+ProtectHome=read-only
+PrivateTmp=yes
+PrivateDevices=yes
+SecureBits=keep-caps
+AmbientCapabilities=CAP_IPC_LOCK
+Capabilities=CAP_IPC_LOCK+ep
+CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
+NoNewPrivileges=yes
+KillSignal=SIGINT
+TimeoutStopSec=30
+StartLimitInterval=60
+StartLimitIntervalSec=60
+StartLimitBurst=3
+LimitMEMLOCK=infinity
+
 [Install]
 WantedBy=multi-user.target
 EOF

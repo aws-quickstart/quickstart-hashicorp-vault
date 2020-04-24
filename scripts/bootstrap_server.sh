@@ -26,10 +26,10 @@ user_ubuntu
 
 # Adjusting ulimits for vault user
 cat << EOF > /etc/security/limits.conf
-vault          soft    nofile          64000
-vault          hard    nofile          64000
-vault          soft    nproc           64000
-vault          hard    nproc           64000
+vault          soft    nofile          65536
+vault          hard    nofile          65536
+vault          soft    nproc           65536
+vault          hard    nproc           65536
 EOF
 
 VAULT_ZIP=$(echo $VAULT_URL | rev | cut -d "/" -f 1 | rev)
@@ -113,8 +113,6 @@ export VAULT_SKIP_VERIFY=true
 EOF
 
 . /etc/environment
-
-setcap cap_ipc_lock=+ep /usr/local/bin/vault
 
 # So each node doesn't start same time spread out the starts
 echo Sleeping for a splay time: $SPLAY
