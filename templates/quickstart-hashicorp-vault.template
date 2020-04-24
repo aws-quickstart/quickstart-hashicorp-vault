@@ -239,6 +239,13 @@ Parameters:
     MinLength: "3"
     ConstraintDescription: This identifier should be at least 3 characters in length.
     Description: The internal Hashicorp Vault identifier for the AWS IAM role.
+  DomainName:
+    Type: String
+    Description: The fully qualified domain name for the Hashicorp Vault load balancer. Use with 'HostedZoneID' if you are not using SSL.
+    MaxLength: 128
+  HostedZoneID:
+    Type: AWS::Route53::HostedZone::Id
+    Description: Route 53 Hosted Zone ID of the domain name. Used in conjunction with 'DomainName'.
 Mappings:
   LinuxAMINameMap:
     Ubuntu-1604-HVM:
@@ -306,6 +313,94 @@ Mappings:
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Resources:
+  # ALB & ACM 
+  VaultServerApplicationLoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Hashicorp Vault Server Load Balancer
+      VpcId: !Ref VPCID
+      SecurityGroupIngress:
+        - CidrIp: !Ref AccessCIDR
+          IpProtocol: '-1'
+  VaultServerApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      # TODO : Check if we are internal/external
+      Subnets: 
+      - !Ref PrivateSubnet1ID
+      - !Ref PrivateSubnet2ID
+      - !Ref PrivateSubnet3ID
+      SecurityGroups: 
+      - !Ref 'VaultServerApplicationLoadBalancerSecurityGroup'
+  VaultServerTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 80
+      Protocol: HTTP
+      Matcher:
+        HttpCode: 200-499
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+  ValutServerListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref VaultServerListenerHTTPS
+      Priority: 1
+      Conditions:
+      - Field: path-pattern
+        Values:
+        - "/"
+      Actions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: VaultServerTargetGroup
+  VaultServerListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn: !Ref VaultServerTargetGroup
+      LoadBalancerArn: !Ref VaultServerApplicationLoadBalancer
+      Port: 81
+      Protocol: HTTP
+  VaultServerListenerRedirectToHTTPS:
+   Type: "AWS::ElasticLoadBalancingV2::Listener"
+   Properties:
+     DefaultActions:
+       - Type: "redirect"
+         RedirectConfig:
+           Protocol: "HTTPS"
+           Port: "443"
+           Host: "#{host}"
+           Path: "/#{path}"
+           Query: "#{query}"
+           StatusCode: "HTTP_301"
+     LoadBalancerArn: !Ref VaultServerApplicationLoadBalancer
+     Port: 80
+     Protocol: "HTTP"
+  ACMCertificate:
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - W9198
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-acm-certificate/templates/quickstart-aws-acm-certificate.template.yml'
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        DomainName: !Ref DomainName
+        HostedZoneID: !Ref HostedZoneID
   CopyZipsTemplate:
     Metadata:
       cfn-lint:
@@ -545,6 +640,7 @@ Resources:
           sources:
             "/usr/local": http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip
           files:
+<<<<<<< HEAD
             "/etc/cron.hourly/cloudwatch-monitoring.sh":
               source:
                 !Sub
@@ -688,6 +784,8 @@ Resources:
     Properties:
       AutoScalingGroupName: !Sub "VaultServerAutoScalingGroup-${AWS::StackName}"
       LaunchConfigurationName: !Ref VaultServerLaunchConfiguration
+      TargetGroupARNs:
+      - !Ref VaultServerTargetGroup
       MinSize: !Ref VaultServerNodes
       MaxSize: !Ref VaultServerNodes
       DesiredCapacity: !Ref VaultServerNodes
