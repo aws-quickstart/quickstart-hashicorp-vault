@@ -25,10 +25,10 @@ Metadata:
       Parameters:
       - EmailAddress
       - KeyPairName
+      - VaultVersion
       - VaultAMIOS
       - VaultServerNodes
       - VaultInstanceType
-      - VaultDownloadURL
       - VaultNumberOfKeys
       - VaultNumberOfKeysForUnseal
       - VaultClientRoleName
@@ -72,14 +72,14 @@ Metadata:
         default: VPC CIDR
       VaultAMIOS:
         default: Which OS AMI should the Vault cluster run
+      VaultVersion:
+        default: Which version of Hashicorp Vault to install
       VaultClientNodes:
         default: Number of Vault client nodes
       VaultServerNodes:
         default: Number of Vault server nodes
       VaultInstanceType:
         default: Hashicorp Vault node instance type
-      VaultDownloadURL:
-        default: Which Vault package to install
       VaultNumberOfKeys:
         default: Number of unseal keys created when Hashicorp Vault cluster is initialized
       VaultNumberOfKeysForUnseal:
@@ -253,10 +253,12 @@ Parameters:
     MinLength: "3"
     ConstraintDescription: This identifier should be at least 3 characters in length.
     Description: The internal Hashicorp Vault identifier for the AWS IAM role.
-  VaultDownloadURL:
+  VaultVersion:
     Type: String
-    Description: 'The URL to download the Vault zip file'
-    Default: https://releases.hashicorp.com/vault/1.4.0/vault_1.4.0_linux_amd64.zip
+    Description: Which version of Hashicorp Vault to install
+    Default: 1.4.0
+    AllowedValues:
+    - 1.4.0
 Resources:
   VPCStack:
     Metadata:
@@ -343,13 +345,13 @@ Resources:
         VPCCIDR: !Ref VPCCIDR
         KeyPairName: !Ref KeyPairName
         EmailAddress: !Ref EmailAddress
+        VaultVersion: !Ref VaultVersion
         VaultInstanceType: !Ref VaultInstanceType
         VaultClientNodes: !Ref VaultClientNodes
         VaultServerNodes: !Ref VaultServerNodes
         VaultNumberOfKeys: !Ref VaultNumberOfKeys
         VaultNumberOfKeysForUnseal: !Ref VaultNumberOfKeysForUnseal
         VaultClientRoleName: !Ref VaultClientRoleName
-        VaultDownloadURL: !Ref VaultDownloadURL
 Outputs:
   BastionHost:
     Value: !GetAtt "LinuxBastionHostStack.Outputs.EIP1"

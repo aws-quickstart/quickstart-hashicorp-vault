@@ -13,7 +13,6 @@ INSTANCE_ID="" # Get from instance metadata
 INSTANCE_ID=$(get_mdsv2 "instance-id")
 echo INSTANCE_ID: ${INSTANCE_ID}
 
-# Minimum Security Measures
 echo 'set +o history' >> /etc/profile  # Disable command history
 echo 'ulimit -c 0 > /dev/null 2>&1' > /etc/profile.d/disable-coredumps.sh  # Disable Core Dumps
 
@@ -32,6 +31,7 @@ vault          soft    nproc           65536
 vault          hard    nproc           65536
 EOF
 
+VAULT_URL="https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip"
 VAULT_ZIP=$(echo $VAULT_URL | rev | cut -d "/" -f 1 | rev)
 
 VAULT_STORAGE_PATH="/vault/$INSTANCE_ID"

@@ -26,6 +26,7 @@ Metadata:
       Parameters:
       - EmailAddress
       - KeyPairName
+      - VaultVersion
       - VaultAMIOS
       - VaultServerNodes
       - VaultInstanceType
@@ -71,6 +72,8 @@ Metadata:
         default: VPC ID
       VPCCIDR:
         default: VPC CIDR
+      VaultVersion:
+        default: Which version of Hashicorp Vault to install
       VaultAMIOS:
         default: Which OS AMI should the Vault cluster run
       VaultClientNodes:
@@ -79,8 +82,6 @@ Metadata:
         default: Number of Vault server nodes
       VaultInstanceType:
         default: Instance type for Hashicorp Vault nodes
-      VaultDownloadURL:
-        default: Which Vault package to install
       VaultNumberOfKeys:
         default: Number of unseal keys created when Hashicorp Vault cluster is initialized
       VaultNumberOfKeysForUnseal:
@@ -226,13 +227,15 @@ Parameters:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
     Description: CIDR Block for the VPC
     Type: String
-  VaultDownloadURL:
+  VaultVersion:
     Type: String
-    Description: 'The URL to download the Vault zip file'
-    Default: https://releases.hashicorp.com/vault/1.4.0/vault_1.4.0_linux_amd64.zip
+    Description: Which version of Hashicorp Vault to install
+    Default: 1.4.0
+    AllowedValues:
+    - 1.4.0
   VaultClientRoleName:
     Type: String
-    Default: "client-role-iam"
+    Default: "quickstart-client-role-iam"
     MinLength: "3"
     ConstraintDescription: This identifier should be at least 3 characters in length.
     Description: The internal Hashicorp Vault identifier for the AWS IAM role.
@@ -580,14 +583,10 @@ Resources:
               command: systemctl enable awslogs
             05_start_awslogs_service:
               command: systemctl start awslogs
-            06_make_mon_put_instance_data_exececutable:
-              command: chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl
-            07_install_crontab:
-              command: crontab  /etc/cron.hourly/cloudwatch-monitoring.sh
         install_vault:
           sources:
-            "/usr/bin":
-              Ref: VaultDownloadURL
+            "/usr/bin": 
+              !Sub "https://releases.hashicorp.com/vault/${VaultVersion}/vault_${VaultVersion}_linux_amd64.zip"
           files:
             "/etc/vault.d/vault.hcl":
               source:
@@ -670,7 +669,7 @@ Resources:
             export VAULT_SECRET=${VaultSecret}
             export VAULT_CLIENT_ROLE=${VaultClientRole.Arn}
             export VAULT_CLIENT_ROLE_NAME=${VaultClientRoleName}
-            export VAULT_URL=${VaultDownloadURL}
+            export VAULT_VERSION=${VaultVersion}
             export VAULT_NUMBER_OF_KEYS=${VaultNumberOfKeys}
             export VAULT_NUMBER_OF_KEYS_FOR_UNSEAL=${VaultNumberOfKeysForUnseal}
 
@@ -869,7 +868,7 @@ Resources:
             export CFN_STACK_NAME=${AWS::StackName}
             export VAULT_CLIENT_ROLE_ID=${VaultClientRole}
             export VAULT_CLIENT_ROLE_NAME=${VaultClientRoleName}
-            export VAULT_URL=${VaultDownloadURL}
+            export VAULT_VERSION=${VaultVersion}
             export ASG_NAME=${VaultServerAutoScalingGroup}
 
             pip install awscli
