@@ -47,9 +47,7 @@ iptables -I INPUT 7 -p tcp -m tcp --dport 8201 -j ACCEPT 2>&1 /dev/null
 vault_systemctl_file
 
 # install awslogs agent
-/usr/local/bin/cfn-init --verbose --stack ${CFN_STACK_NAME} --resource VaultServerLaunchConfiguration --configsets vault_install --region ${AWS_REGION}
-# if the installation of the awslogs agent fails signal failed instance launch
-/usr/local/bin/cfn-signal -e $? --stack ${CFN_STACK_NAME} --resource VaultServerLaunchConfiguration --region ${AWS_REGION}
+cloud_watch_logs
 
 # Find AWS AutoScaling Group ID from this instance
 ASG_NAME=$(aws autoscaling describe-auto-scaling-instances --instance-ids "$INSTANCE_ID" --region "${AWS_REGION}" | jq -r ".AutoScalingInstances[].AutoScalingGroupName")
