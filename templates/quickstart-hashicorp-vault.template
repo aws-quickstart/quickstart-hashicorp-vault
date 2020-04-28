@@ -1,9 +1,102 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'QS(0039) HashiCorp Vault License: Apache 2.0 (Please do not remove)
-  Oct,18,2019'
+Description: 'QS(0039) HashiCorp Vault License: Apache 2.0 (Please do not remove) Oct,18,2019'
+Metadata:
+  AWSAMIRegionMap:
+    Filters:
+      CISUBUNTU1604:
+        product-code: 2l0khimiqztu90zd64xu99tz5
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: Network configuration
+      Parameters:
+      - AccessCIDR
+      - VPCID
+      - VPCCIDR
+      - BastionSecurityGroupID
+      - PrivateSubnet1ID
+      - PrivateSubnet2ID
+      - PrivateSubnet3ID
+      - PublicSubnet1ID
+      - PublicSubnet2ID
+      - PublicSubnet3ID
+    - Label:
+        default: Vault Setup
+      Parameters:
+      - EmailAddress
+      - KeyPairName
+      - VaultVersion
+      - VaultAMIOS
+      - VaultServerNodes
+      - VaultInstanceType
+      - VaultDownloadURL
+      - VaultNumberOfKeys
+      - VaultNumberOfKeysForUnseal
+      - VaultClientRoleName
+      - VaultClientNodes
+    - Label:
+        default: AWS Quick Start configuration
+      Parameters:
+      - QSS3BucketName
+      - QSS3KeyPrefix
+      - QSS3BucketRegion
+    ParameterLabels:
+      BastionSecurityGroupID:
+        default: Bastion host security group ID
+      PrivateSubnet1ID:
+        default: First subnet ID for autoscaling group
+      PrivateSubnet2ID:
+        default: Second subnet ID for autoscaling group
+      PrivateSubnet3ID:
+        default: Third subnet ID for autoscaling group
+      PublicSubnet1ID:
+        default: First public subnet ID for autoscaling group
+      PublicSubnet2ID:
+        default: Second public subnet ID for autoscaling group
+      PublicSubnet3ID:
+        default: Third public subnet ID for autoscaling group
+      KeyPairName:
+        default: Key Name
+      QSS3BucketName:
+        default: Quick Start S3 Bucket Name
+      QSS3KeyPrefix:
+        default: Quick Start S3 Key Prefix
+      QSS3BucketRegion:
+        default: Quick Start S3 Bucket Region
+      AccessCIDR:
+        default: Permitted IP range
+      EmailAddress:
+        default: Email Address
+      VPCID:
+        default: VPC ID
+      VPCCIDR:
+        default: VPC CIDR
+      VaultVersion:
+        default: Which version of Hashicorp Vault to install
+      VaultAMIOS:
+        default: Which OS AMI should the Vault cluster run
+      VaultClientNodes:
+        default: Number of Vault client nodes
+      VaultServerNodes:
+        default: Number of Vault server nodes
+      VaultInstanceType:
+        default: Instance type for Hashicorp Vault nodes
+      VaultNumberOfKeys:
+        default: Number of unseal keys created when Hashicorp Vault cluster is initialized
+      VaultNumberOfKeysForUnseal:
+        default: Number of unseal keys required to unseal the Hashicorp Vault cluster
+      VaultClientRoleName:
+        default: Internal name of the AWS IAM role authorized to use Vault
 Parameters:
-  KeyPair:
+  VaultAMIOS:
+    AllowedValues:
+      - Ubuntu-1604-HVM
+      - CIS-Ubuntu-1604-HVM
+    Default: Ubuntu-1604-HVM
+    Description: The Linux distribution for the AMI to be used for the Vault instances.
+    Type: String
+  KeyPairName:
     Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
     Type: AWS::EC2::KeyPair::KeyName
     Default: id_rsa_aws
@@ -12,52 +105,71 @@ Parameters:
     Description: ID of the bastion host security group to enable SSH connections (e.g.,
       sg-7f16e910)
     Type: AWS::EC2::SecurityGroup::Id
-  ConsulEc2RetryTagKey:
-    Description: The Amazon EC2 instance tag key to filter on when joining to other
-      Consul nodes.
+  VaultServerNodes:
     Type: String
-  ConsulEc2RetryTagValue:
-    Description: The Amazon EC2 instance tag value to filter on when joining to other
-      Consul nodes.
+    Description: Number of Hashicorp Vault server cluster members.
+    Default: '5'
+    AllowedValues:
+     - '3'
+     - '5'
+     - '7'
+  VaultClientNodes:
     Type: String
+    Description: Number of Vault nodes to demonstrate client AWS IAM access to Hashicorp Vault.
+    Default: '0'
+    AllowedValues:
+     - '0'
+     - '1'
+  VaultNumberOfKeys:
+    Type: String
+    Default: '5'
+    AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
+    ConstraintDescription: Must be a value between 1 and 99.
+    Description: Number of unseal keys to create for Hashicorp Vault.
+  VaultNumberOfKeysForUnseal:
+    Type: String
+    Default: '3'
+    AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
+    ConstraintDescription: Must be a value between 1 and 99.
+    Description: Number of keys required for unsealing Hashicorp Vault.
   VaultInstanceType:
     Type: String
-    Description: vault node instance type
+    Description: Hashicorp Vault node instance type.
     AllowedValues:
-    - t2.micro
-    - t2.small
-    - t2.medium
-    - t2.large
-    - m4.large
-    - m4.xlarge
-    - m4.2xlarge
-    - m4.4xlarge
-    - m4.10xlarge
-    - m3.medium
-    - m3.large
-    - m3.xlarge
-    - m3.2xlarge
-    - c4.large
-    - c4.xlarge
-    - c4.2xlarge
-    - c4.4xlarge
-    - c4.8xlarge
-    - c3.large
-    - c3.xlarge
-    - c3.2xlarge
-    - c3.4xlarge
-    - c3.8xlarge
-    - r3.large
-    - r3.xlarge
-    - r3.2xlarge
-    - r3.4xlarge
-    - r3.8xlarge
-    - i2.xlarge
-    - i2.2xlarge
-    - i2.4xlarge
-    - i2.8xlarge
+    - 'c5.12xlarge'
+    - 'c5.18xlarge'
+    - 'c5.24xlarge'
+    - 'c5.2xlarge'
+    - 'c5.4xlarge'
+    - 'c5.9xlarge'
+    - 'c5.large'
+    - 'c5.xlarge'
+    - 'm5.12xlarge'
+    - 'm5.16xlarge'
+    - 'm5.24xlarge'
+    - 'm5.2xlarge'
+    - 'm5.4xlarge'
+    - 'm5.8xlarge'
+    - 'm5.large'
+    - 'm5.metal'
+    - 'm5.xlarge'
+    - 'r5.12xlarge'
+    - 'r5.16xlarge'
+    - 'r5.24xlarge'
+    - 'r5.2xlarge'
+    - 'r5.4xlarge'
+    - 'r5.8xlarge'
+    - 'r5.large'
+    - 'r5.xlarge'
+    - 't3.2xlarge'
+    - 't3.large'
+    - 't3.medium'
+    - 't3.micro'
+    - 't3.nano'
+    - 't3.small'
+    - 't3.xlarge'
     ConstraintDescription: Choose an instance type. m4.large or larger recommended.
-    Default: m4.large
+    Default: m5.large
   QSS3BucketName:
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
@@ -67,6 +179,10 @@ Parameters:
     Description: S3 bucket name for the Quick Start assets. Quick Start bucket name
       can include numbers, lowercase letters, uppercase letters, and hyphens (-).
       It cannot start or end with a hyphen (-).
+    Type: String
+  QSS3BucketRegion:
+    Default: 'us-east-1'
+    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
     Type: String
   QSS3KeyPrefix:
     AllowedPattern: "^[0-9a-zA-Z-/]*$"
@@ -79,7 +195,7 @@ Parameters:
     Type: String
   EmailAddress:
     Type: String
-    Description: Email Address for SNS Topic. Alarms for Vault instance memory utilzation
+    Description: Email Address for SNS Topic. Alarms for Vault instance memory utilization
     Default: none@example.com
   PrivateSubnet1ID:
     Description: ID of the private subnet 1 in Availability Zone 1 (e.g., subnet-xxxxxxxx)
@@ -87,6 +203,23 @@ Parameters:
   PrivateSubnet2ID:
     Description: ID of the private subnet 2 in Availability Zone 2 (e.g., subnet-xxxxxxxx)
     Type: AWS::EC2::Subnet::Id
+  PrivateSubnet3ID:
+    Description: ID of the private subnet 3 in Availability Zone 3 (e.g., subnet-xxxxxxxx)
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet1ID:
+    Description: ID of the public subnet 1 in Availability Zone 1 (e.g., subnet-xxxxxxxx)
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet2ID:
+    Description: ID of the public subnet 2 in Availability Zone 2 (e.g., subnet-xxxxxxxx)
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet3ID:
+    Description: ID of the public subnet 3 in Availability Zone 3 (e.g., subnet-xxxxxxxx)
+    Type: AWS::EC2::Subnet::Id
+  AccessCIDR:
+    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    Description: 'The CIDR IP range that is permitted to access Consul Note: a value
+      of 0.0.0.0/0 will allow access from ANY ip address'
+    Type: String
   VPCID:
     Description: VPC ID
     Type: AWS::EC2::VPC::Id
@@ -94,41 +227,103 @@ Parameters:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
     Description: CIDR Block for the VPC
     Type: String
-  VaultDownloadURL:
+  VaultVersion:
     Type: String
-    Description: 'The URL to download the Vault zip file '
-    Default: https://releases.hashicorp.com/vault/0.10.4/vault_0.10.4_linux_amd64.zip
+    Description: Which version of Hashicorp Vault to install
+    Default: 1.4.0
+    AllowedValues:
+    - 1.4.0
+  VaultClientRoleName:
+    Type: String
+    Default: "quickstart-client-role-iam"
+    MinLength: "3"
+    ConstraintDescription: This identifier should be at least 3 characters in length.
+    Description: The internal Hashicorp Vault identifier for the AWS IAM role.
 Mappings:
+  LinuxAMINameMap:
+    Ubuntu-1604-HVM:
+      Code: US1604HVM
+    CIS-Ubuntu-1604-HVM:
+      Code: CISUBUNTU1604
   AWSAMIRegionMap:
     AMI:
-      US1604HVM: ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20190628
-    ap-northeast-1:
-      US1604HVM: ami-03344c819e1ac354d
-    ap-northeast-2:
-      US1604HVM: ami-0c5a717974f63b04c
+      CISUBUNTU1604: "CIS 1 Ubuntu 16.04"
+      US1604HVM: "Ubuntu 16.04 LTS"
+    eu-north-1:
+      CISUBUNTU1604: ami-0aac33a0d5fbb7783 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-0eb04b36ce3c3b0ac #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     ap-south-1:
-      US1604HVM: ami-0c28d7c6dd94fb3a7
-    ap-southeast-1:
-      US1604HVM: ami-0ca13b3dabeb6c66d
-    ap-southeast-2:
-      US1604HVM: ami-02d7e25c1cfdd5695
-    eu-central-1:
-      US1604HVM: ami-03d8059563982d7b0
-    eu-west-1:
-      US1604HVM: ami-0f630a3f40b1eb0b8
+      CISUBUNTU1604: ami-0276232e1f03bc046 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-011c09ac5e09ba22f #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+    eu-west-3:
+      CISUBUNTU1604: ami-01028ca386421bffa #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-0a3fd389b49c645bf #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     eu-west-2:
-      US1604HVM: ami-0a590332f9f499197
+      CISUBUNTU1604: ami-0addd243b556771dd #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-014ae7e330e2651dc #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+    eu-west-1:
+      CISUBUNTU1604: ami-07704fc9abcc6c8f9 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-01793b684af7a3e2c #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+    ap-northeast-2:
+      CISUBUNTU1604: ami-0d494ee4c6e9ba2b9 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-0582405a4f3bf27c9 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+    ap-northeast-1:
+      CISUBUNTU1604: ami-05b4fcf6c27799ec7 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-003c6ed5c5176db19 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     sa-east-1:
-      US1604HVM: ami-0a16d0952a2a7b0ce
+      CISUBUNTU1604: ami-0362ea71f01b65019 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-017555a9eb5076e5f #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+    ca-central-1:
+      CISUBUNTU1604: ami-0a228636cea8a2698 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-02da4c4d67205fcc8 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+    ap-southeast-1:
+      CISUBUNTU1604: ami-00d4a1e80203512e5 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-0b21b3ea2cb8660a5 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+    ap-southeast-2:
+      CISUBUNTU1604: ami-048ff64b3f4bc163d #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-09d19bae4dbb07062 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+    eu-central-1:
+      CISUBUNTU1604: ami-0e435fddb305d6f9c #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-0257508f40836e6cf #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     us-east-1:
-      US1604HVM: ami-08bc77a2c7eb2b1da
+      CISUBUNTU1604: ami-08dee8ccd705ca825 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-04ac550b78324f651 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     us-east-2:
-      US1604HVM: ami-08cec7c429219e339
-    us-west-1:
-      US1604HVM: ami-094f0176b0d009d9f
+      CISUBUNTU1604: ami-08ea22e68c0de3e0d #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-0009e532719fe9bff #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     us-west-2:
-      US1604HVM: ami-02d0ea44ae3fe9561
+      CISUBUNTU1604: ami-04c0bc30b93eb5a25 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US1604HVM: ami-02e30ba14d8ffa6e6 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+    me-south-1:
+      CISUBUNTU1604: ami-0fc34e7761742a76d #null
+      US1604HVM: ami-0fc34e7761742a76d #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+    ap-east-1:
+      CISUBUNTU1604: ami-5493d525 #null
+      US1604HVM: ami-5493d525 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+    ap-northeast-3:
+      CISUBUNTU1604: ami-0da6a3ae32f8f6730 #null
+      US1604HVM: ami-0da6a3ae32f8f6730 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+Conditions:
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Resources:
+  CopyZipsTemplate:
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - W9198
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL:
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/lambda-copyzips/templates/copy-zips.template.yaml'
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        SourceObjects:  "functions/packages/LeaderElection/lambda.zip,functions/packages/ClusterBootstrap/lambda.zip"
   VaultSNSTopic:
     Type: AWS::SNS::Topic
     Properties:
@@ -136,6 +331,58 @@ Resources:
       - Endpoint:
           Ref: EmailAddress
         Protocol: email
+  # Vault will populate this when the cluster is initialized
+  VaultSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: "Vault Root/Recovery key"
+      KmsKeyId: !Ref VaultKmsKey 
+      SecretString: "empty"
+  VaultKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: "Vault Seal/Unseal key"
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: key-default-1
+        Statement:
+        - Sid: Enable IAM User Permissions
+          Effect: Allow
+          Principal:
+            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+          Action: kms:*
+          Resource: '*'
+        - Sid: Allow administration of the key
+          Effect: Allow
+          Principal:
+            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:role/${VaultInstanceRole}"
+          Action:
+          - kms:Create*
+          - kms:Describe*
+          - kms:Enable*
+          - kms:List*
+          - kms:Put*
+          - kms:Update*
+          - kms:Revoke*
+          - kms:Disable*
+          - kms:Get*
+          - kms:Delete*
+          - kms:ScheduleKeyDeletion
+          - kms:CancelKeyDeletion
+          Resource: '*'
+        - Sid: Allow use of the key
+          Effect: Allow
+          Principal:
+            # TODO: Potentially add the Lambda Functions to use the keys so potentially add their roles here as principles
+            AWS: !Sub arn:aws:iam::${AWS::AccountId}:role/${VaultInstanceRole}
+          Action:
+          - kms:DescribeKey
+          - kms:Encrypt
+          - kms:Decrypt
+          - kms:ReEncrypt*
+          - kms:GenerateDataKey
+          - kms:GenerateDataKeyWithoutPlaintext
+          Resource: '*'
   VaultSecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -148,6 +395,12 @@ Resources:
         ToPort: 22
         SourceSecurityGroupId:
           Ref: BastionSecurityGroupID
+      # Allow the VPC to connect to the vault API of the Cluster
+      - IpProtocol: tcp
+        FromPort: 8200
+        ToPort: 8200
+        CidrIp:
+          Ref: VPCCIDR
       - IpProtocol: tcp
         FromPort: 0
         ToPort: 65535
@@ -160,46 +413,30 @@ Resources:
           - "-"
           - - Ref: AWS::StackName
             - VaultSecGroup
-  Vault1MemoryAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: Memory alarm for my instance
-      AlarmActions:
-      - Ref: VaultSNSTopic
-      MetricName: MemoryUtilization
-      Namespace: System/Linux
-      Statistic: Average
-      Period: 60
-      EvaluationPeriods: 3
-      Threshold: 5
-      ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-      - Name: InstanceId
-        Value:
-          Ref: Vault1
-  Vault2MemoryAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: Memory alarm for my instance
-      AlarmActions:
-      - Ref: VaultSNSTopic
-      MetricName: MemoryUtilization
-      Namespace: System/Linux
-      Statistic: Average
-      Period: 60
-      EvaluationPeriods: 3
-      Threshold: 75
-      ComparisonOperator: GreaterThanThreshold
-      Dimensions:
-      - Name: InstanceId
-        Value:
-          Ref: Vault2
   VaultLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: Vault-Audit-Logs
       RetentionInDays: 7
-  vaultinstancerole:
+  # Informs the cluster nodes if they should boot strap
+  VaultLeaderElectedSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value: "false"
+  # This is to know who the elected leader is
+  VaultLeaderSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value: "null"
+  # List of Vault Cluster members managed by Lambda for cluster bootstrap control
+  VaultClusterMembersSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Type: String
+      Value: "{[]}"
+  VaultInstanceRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -236,20 +473,68 @@ Resources:
             Action:
             - ec2:DescribeInstances
             Resource: "*"
-  vaultinstanceprofile:
+          # TODO: Restrict to Parameters created above
+          - Effect: Allow
+            Action:
+            - ssm:GetParameter
+            Resource: "*"
+          # TODO: Restrict to the Lambda functions LeaderElection/ClusterBootstrapping
+          - Effect: Allow
+            Action:
+            - lambda:*
+            Resource: "*"
+          # TODO: Restrict to the Lambda functions LeaderElection/ClusterBootstrapping
+          - Effect: Allow
+            Action:
+            - s3:*
+            Resource: "*"
+          # TODO: Restrict to the Lambda functions LeaderElection/ClusterBootstrapping
+          - Effect: Allow
+            Action:
+            - autoscaling:*
+            Resource: "*"
+          # TODO: restrict to just describe instances to find local IP addresses
+          - Effect: Allow
+            Action:
+            - ec2:*
+            Resource: "*"
+          # Allow the first vault server to store the ROOT KEY and RECOVERY KEY
+          - Effect: Allow
+            Action:
+            - secretsmanager:UpdateSecretVersionStage
+            - secretsmanager:UpdateSecret
+            - secretsmanager:PutSecretValue
+            - secretsmanager:GetSecretValue
+            Resource:
+            - "*" # !Ref VaultSecret  # Ref gives the ARN
+          - Effect: Allow
+            Action:
+              - iam:GetRole
+            Resource: !GetAtt VaultClientRole.Arn
+          - Action:
+            - s3:GetObject
+            Resource: !Sub
+              - arn:${AWS::Partition}:s3:::${S3Bucket}/${QSS3KeyPrefix}*
+              - S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+            Effect: Allow
+  VaultInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: "/"
       Roles:
-      - Ref: vaultinstancerole
-  Vault1:
-    Type: AWS::EC2::Instance
+      - Ref: VaultInstanceRole
+  VaultServerLaunchConfiguration:
     Metadata:
+      AWS::CloudFormation::Authentication:
+        S3Auth:
+          buckets: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+          roleName: !Ref VaultInstanceRole
+          type: S3
       AWS::CloudFormation::Init:
         configSets:
           vault_install:
-          - install_vault
-          - run_vault
+          #- install_vault
+          #- run_vault
           - install_cloudwatch_logs_and_mon_scripts
         install_cloudwatch_logs_and_mon_scripts:
           packages:
@@ -262,26 +547,24 @@ Resources:
           files:
             "/etc/cron.hourly/cloudwatch-monitoring.sh":
               source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/cloudwatch-monitoring.sh
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
+                !Sub
+                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/cloudwatch-monitoring.sh'
+                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
               mode: '000744'
               owner: root
               group: root
+              authentication: S3auth
             "/etc/awslogs-config-file":
               source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/awslogs-config-file
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
+                !Sub
+                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/awslogs-config-file'
+                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
               mode: '000700'
               owner: root
               group: root
+              authentication: S3auth
             "/usr/local/awslogs-agent-setup.py":
               source: https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py
               mode: '000700'
@@ -289,387 +572,416 @@ Resources:
               group: root
           commands:
             01_create_awslogs_config_file:
-              command:
-                Fn::Sub: sed -i s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g /etc/awslogs-config-file
-            02_run_awslogs_agent_setup.py:
-              command:
-                Fn::Sub:
-                - python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c /etc/awslogs-config-file
-                - Region:
-                    Ref: AWS::Region
-            03_enable_awslogs_service:
+              command: !Sub "sed -i s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g /etc/awslogs-config-file"
+            02_dummy_ubuntu_os_check:  # CIS ubuntu tries to hide OS details breaking the installer 
+              command: "cp /etc/issue /etc/issue.old && echo Ubuntu | cat - /etc/issue > /etc/issue.temp && mv /etc/issue.temp /etc/issue"
+            03_run_awslogs_agent_setup.py:
+              command: !Sub "python /usr/local/awslogs-agent-setup.py -n -r ${AWS::Region} -c /etc/awslogs-config-file"
+            04_dummy_ubuntu_os_check_remove:  # CIS ubuntu tries to hide OS details breaking the installer remove
+              command: "mv /etc/issue.old /etc/issue"
+            04_enable_awslogs_service:
               command: systemctl enable awslogs
-            04_start_awslogs_service:
+            05_start_awslogs_service:
               command: systemctl start awslogs
-            05_make_mon_put_instance_data_exececutable:
-              command: chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl
-            06_install_crontab:
-              command: crontab  /etc/cron.hourly/cloudwatch-monitoring.sh
         install_vault:
           sources:
-            "/usr/bin":
-              Ref: VaultDownloadURL
+            "/usr/bin": 
+              !Sub "https://releases.hashicorp.com/vault/${VaultVersion}/vault_${VaultVersion}_linux_amd64.zip"
           files:
             "/etc/vault.d/vault.hcl":
               source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/vault.hcl
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
+                !Sub
+                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/vault.hcl'
+                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
               mode: '000700'
               owner: root
               group: root
             "/etc/systemd/system/vault.service":
               source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/vault.service
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
+                !Sub
+                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/vault.service'
+                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
               mode: '000700'
               owner: root
               group: root
           commands:
             01_chmod_and_chown_vault:
-              command: chmod 0755 /usr/bin/vault && chown root:root /usr/bin/vault
+              command: chmod 0755 /usr/bin/vault && chown vault:vault /usr/bin/vault
         run_vault:
           commands:
-            01_register_vault_binary:
-              command: service vault start
+            01_reload_systemctl:
+              command: systemctl daemon-reload
+            02_enable_vault_service:
+              command: systemctl enable vault
+            03_start_vault_service:
+              command: systemctl start vault
+    Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      InstanceType:
-        Ref: VaultInstanceType
-      KeyName:
-        Ref: KeyPair
-      NetworkInterfaces:
-      - DeleteOnTermination: true
-        DeviceIndex: '0'
-        SubnetId:
-          Ref: PrivateSubnet1ID
-        GroupSet:
-        - Ref: VaultSecGroup
+      LaunchConfigurationName: !Sub "VaultLC-${AWS::StackName}"
+      InstanceType: !Ref VaultInstanceType
+      KeyName: !Ref KeyPairName
+      SecurityGroups: 
+      - !Ref VaultSecGroup
       ImageId:
         Fn::FindInMap:
         - AWSAMIRegionMap
-        - Ref: AWS::Region
-        - US1604HVM
+        - !Ref 'AWS::Region'
+        - !FindInMap
+          - LinuxAMINameMap
+          - !Ref VaultAMIOS
+          - Code
       BlockDeviceMappings:
       - DeviceName: "/dev/sda1"
         Ebs:
           VolumeSize: 20
           VolumeType: gp2
+      IamInstanceProfile: !Ref "VaultInstanceProfile" 
       UserData:
-        Fn::Base64:
+        Fn::Base64: !Sub
+          - |
+            #!/bin/bash -x
+            
+            # Install git
+            apt-get update
+            apt-get install -y git jq zip curl
+
+            #Load Linux utils
+            until git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git ; do echo "Retrying"; done
+            cd /quickstart-linux-utilities && source quickstart-cfn-tools.source
+            
+            # Prep operating systems
+            qs_update-os || qs_err
+            qs_bootstrap_pip || qs_err
+            qs_aws-cfn-bootstrap || qs_err
+
+            # TODO: Fetch script from Bucket && Run
+            export LEADER_ELECTED_SSM_PARAMETER=${VaultLeaderElectedSSM}
+            export LEADER_ID_SSM_PARAMETER=${VaultLeaderSSM}
+            export VAULT_CLUSTER_MEMBERS_SSM_PARAMETER=${VaultClusterMembersSSM}
+            export LEADER_SSM_PARAM=${VaultLeaderSSM}
+            export AWS_REGION=${AWS::Region}
+            export CFN_STACK_NAME=${AWS::StackName}
+            export LEADER_ELECTION_LAMBDA=${LeaderElectionLambda}
+            export CLUSTER_BOOTSTRAP_LAMBDA=${ClusterBootstrapLambda}
+            export KMS_KEY=${VaultKmsKey}
+            export VAULT_SECRET=${VaultSecret}
+            export VAULT_CLIENT_ROLE=${VaultClientRole.Arn}
+            export VAULT_CLIENT_ROLE_NAME=${VaultClientRoleName}
+            export VAULT_VERSION=${VaultVersion}
+            export VAULT_NUMBER_OF_KEYS=${VaultNumberOfKeys}
+            export VAULT_NUMBER_OF_KEYS_FOR_UNSEAL=${VaultNumberOfKeysForUnseal}
+
+            pip install awscli
+            mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
+            
+            aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/functions.sh .
+            aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/bootstrap_server.sh .
+            chmod +x bootstrap_server.sh
+            ./bootstrap_server.sh
+            # Signalling done from within bootstrap script
+            # echo ${SomeValue} # for clean looking !Sub
+          - SomeValue: "SomeValue"
+  VaultServerAutoScalingGroup:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      AutoScalingGroupName: !Sub "VaultServerAutoScalingGroup-${AWS::StackName}"
+      LaunchConfigurationName: !Ref VaultServerLaunchConfiguration
+      MinSize: !Ref VaultServerNodes
+      MaxSize: !Ref VaultServerNodes
+      DesiredCapacity: !Ref VaultServerNodes
+      VPCZoneIdentifier:
+        - !Ref PrivateSubnet1ID
+        - !Ref PrivateSubnet2ID
+        - !Ref PrivateSubnet3ID
+      Tags:
+        - Key: Name
+          Value: !Join
+            - "-"
+            - - !Ref "AWS::StackName"
+              - VaultServer
+          PropagateAtLaunch: true
+    CreationPolicy:
+      ResourceSignal:
+        Count: !Ref VaultServerNodes
+        Timeout: PT20M
+  LeaderElectionLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        S3Bucket: !GetAtt 'CopyZipsTemplate.Outputs.LambdaZipsBucket'
+        S3Key: 
           Fn::Join:
-          - ''
-          - - "#!/bin/bash -x\n"
-            - 'apt-get -y update
+            - ""
+            - - !Ref QSS3KeyPrefix
+              - "functions/packages/LeaderElection/lambda.zip"
+      Handler: "lambda_function.lambda_handler"
+      Runtime: python3.6
+      Environment:
+        Variables:
+          LeaderElectedSSM: !Ref VaultLeaderElectedSSM
+          LeaderSSM: !Ref VaultLeaderSSM
+          AutoScalingGroup: !Sub "VaultServerAutoScalingGroup-${AWS::StackName}"
+      Timeout: 300
+      Role: !GetAtt LeaderElectionLambdaExecutionRole.Arn
+  LeaderElectionLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Resource:
+              - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+          # TODO: Restrict permissions to just the SSM Parameters we create
+          - Effect: Allow
+            Resource:
+              - '*'
+            Action:
+              - ssm:*
+          # TODO: Restrict to only our AutoScaling group
+          - Effect: Allow
+            Resource:
+              - '*'
+            Action:
+              - autoscaling:DescribeAutoScalingGroups         
+  ClusterBootstrapLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        S3Bucket: !GetAtt 'CopyZipsTemplate.Outputs.LambdaZipsBucket'
+        S3Key: 
+          Fn::Join:
+            - ""
+            - - !Ref QSS3KeyPrefix
+              - "functions/packages/ClusterBootstrap/lambda.zip"
+      Handler: "lambda_function.lambda_handler"
+      Environment:
+        Variables:
+          LeaderElectedSSM: !Ref VaultLeaderElectedSSM
+          LeaderSSM: !Ref VaultLeaderElectedSSM
+          ClusterMembersSSM: !Ref VaultClusterMembersSSM
+          AutoScalingGroup: !Sub "VaultServerAutoScalingGroup-${AWS::StackName}"
+      Runtime: python3.6
+      Timeout: 300
+      Role: !GetAtt ClusterBootstrapLambdaExecutionRole.Arn
+  ClusterBootstrapLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Resource:
+              - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+            Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents  
+          # TODO: Restrict permissions to just the SSM Parameters we create
+          - Effect: Allow
+            Resource:
+              - '*'
+            Action:
+              - ssm:*
+          # TODO: Restrict to only our AutoScaling group
+          - Effect: Allow
+            Resource:
+              - '*'
+            Action:
+              - autoscaling:DescribeAutoScalingGroups
+  VaultClientLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      LaunchConfigurationName: !Sub "VaultClientLC-${AWS::StackName}"
+      InstanceType:
+        Ref: VaultInstanceType
+      KeyName:
+        Ref: KeyPairName
+      SecurityGroups:
+        - !Ref VaultClientSecurityGroup
+      ImageId:
+        Fn::FindInMap:
+        - AWSAMIRegionMap
+        - !Ref 'AWS::Region'
+        - !FindInMap
+          - LinuxAMINameMap
+          - !Ref VaultAMIOS
+          - Code
+      BlockDeviceMappings:
+      - DeviceName: "/dev/sda1"
+        Ebs:
+          VolumeSize: 20
+          VolumeType: gp2
+      IamInstanceProfile: 
+        Ref: "VaultClientInstanceProfile" 
+      UserData:
+        Fn::Base64: !Sub
+          - |
+            #!/bin/bash -x
+            
+            # Install git
+            apt-get update
+            apt-get install -y git jq zip curl
 
-'
-            - 'apt-get -y install  python-setuptools
+            #Load Linux utils
+            until git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git ; do echo "Retrying"; done
+            cd /quickstart-linux-utilities && source quickstart-cfn-tools.source
+            
+            # Prep operating systems
+            qs_update-os || qs_err
+            qs_bootstrap_pip || qs_err
+            qs_aws-cfn-bootstrap || qs_err
 
-'
-            - 'easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
+            # TODO: Fetch script from Bucket && Run
+            export LEADER_SSM_PARAM=${VaultLeaderSSM}
+            export AWS_REGION=${AWS::Region}
+            export CFN_STACK_NAME=${AWS::StackName}
+            export VAULT_CLIENT_ROLE_ID=${VaultClientRole}
+            export VAULT_CLIENT_ROLE_NAME=${VaultClientRoleName}
+            export VAULT_VERSION=${VaultVersion}
+            export ASG_NAME=${VaultServerAutoScalingGroup}
 
-'
-            - 'mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
-
-'
-            - Fn::Sub:
-              - 'wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh
-
-'
-              - QSS3BucketName:
-                  Ref: QSS3BucketName
-                QSS3KeyPrefix:
-                  Ref: QSS3KeyPrefix
-            - ''
-            - 'chmod 755 ./consul_client_bootstrap.sh
-
-'
-            - Fn::Sub:
-              - "./consul_client_bootstrap.sh --consul_tag_key ${ConsulEc2RetryTagKey}
-                --consul_tag_value ${ConsulEc2RetryTagValue} --s3bucket ${QSS3BucketName}
-                --s3prefix ${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul"
-              - ConsulEc2RetryTagKey:
-                  Ref: ConsulEc2RetryTagKey
-                ConsulEc2RetryTagValue:
-                  Ref: ConsulEc2RetryTagValue
-                QSS3BucketName:
-                  Ref: QSS3BucketName
-                QSS3KeyPrefix:
-                  Ref: QSS3KeyPrefix
-            - "\n"
-            - "/usr/local/bin/cfn-init"
-            - " --verbose "
-            - " --stack "
-            - Ref: AWS::StackName
-            - " --resource Vault1"
-            - " --configsets vault_install"
-            - " --region "
-            - Ref: AWS::Region
-            - "\n"
-            - "/usr/local/bin/cfn-signal -e $? "
-            - "  --stack "
-            - Ref: AWS::StackName
-            - " --resource Vault1 "
-            - " --region "
-            - Ref: AWS::Region
-            - "\n"
-      IamInstanceProfile:
-        Ref: vaultinstanceprofile
+            pip install awscli
+            mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
+            aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/functions.sh .
+            aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/bootstrap_client.sh .
+            chmod +x bootstrap_client.sh
+            ./bootstrap_client.sh
+            # Signalling done from within bootstrap script
+            # echo ${SomeValue} # for clean looking !Sub
+          - SomeValue: "SomeValue"
+  VaultClientAutoScalingGroup:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      AutoScalingGroupName: !Sub "VaultClientAutoScalingGroup-${AWS::StackName}"
+      LaunchConfigurationName: !Ref VaultClientLaunchConfiguration
+      MinSize: !Ref VaultClientNodes
+      MaxSize: !Ref VaultClientNodes
+      DesiredCapacity: !Ref VaultClientNodes
+      VPCZoneIdentifier:
+        - !Ref PrivateSubnet1ID
+        - !Ref PrivateSubnet2ID
+        - !Ref PrivateSubnet3ID
+      Tags:
+        - Key: Name
+          Value: !Join
+            - "-"
+            - - !Ref "AWS::StackName"
+              - VaultClient
+          PropagateAtLaunch: true
+    CreationPolicy:
+      ResourceSignal:
+        Count: !Ref VaultClientNodes
+        Timeout: PT20M
+  VaultClientSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enables SSH access from the Bastion servers.
+      VpcId:
+        Ref: VPCID
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        SourceSecurityGroupId:
+          Ref: BastionSecurityGroupID
+      - IpProtocol: tcp
+        FromPort: 0
+        ToPort: 65535
+        CidrIp:
+          Ref: VPCCIDR
       Tags:
       - Key: Name
         Value:
           Fn::Join:
           - "-"
           - - Ref: AWS::StackName
-            - Vault1
-  Vault1RecoveryAlarm:
-    Type: AWS::CloudWatch::Alarm
+            - VaultClientSecurityGroup
+  VaultClientInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
     Properties:
-      AlarmDescription: EC2 Autorecovery for Vault1 node. Autorecover if we fail EC2
-        status checks for 5 minutes.
-      Namespace: AWS/EC2
-      MetricName: StatusCheckFailed_System
-      Statistic: Minimum
-      Period: 60
-      EvaluationPeriods: 5
-      ComparisonOperator: GreaterThanThreshold
-      Threshold: 0
-      AlarmActions:
-      - Ref: VaultSNSTopic
-      - Fn::Join:
-        - ''
-        - - 'arn:aws:automate:'
-          - Ref: AWS::Region
-          - ":ec2:recover"
-      Dimensions:
-      - Name: InstanceId
-        Value:
-          Ref: Vault1
-  Vault2:
-    Type: AWS::EC2::Instance
-    Metadata:
-      AWS::CloudFormation::Init:
-        configSets:
-          vault_install:
-          - install_vault
-          - run_vault
-          - install_cloudwatch_logs_and_mon_scripts
-        install_cloudwatch_logs_and_mon_scripts:
-          packages:
-            apt:
-              unzip: []
-              libwww-perl: []
-              libdatetime-perl: []
-          sources:
-            "/usr/local": http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip
-          files:
-            "/etc/cron.hourly/cloudwatch-monitoring.sh":
-              source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/cloudwatch-monitoring.sh
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
-              mode: '000744'
-              owner: root
-              group: root
-            "/etc/awslogs-config-file":
-              source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/awslogs-config-file
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
-              mode: '000700'
-              owner: root
-              group: root
-            "/usr/local/awslogs-agent-setup.py":
-              source: https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py
-              mode: '000700'
-              owner: root
-              group: root
-          commands:
-            01_create_awslogs_config_file:
-              command:
-                Fn::Sub: sed -i s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g /etc/awslogs-config-file
-            02_run_awslogs_agent_setup.py:
-              command:
-                Fn::Sub:
-                - python /usr/local/awslogs-agent-setup.py -n -r ${Region} -c /etc/awslogs-config-file
-                - Region:
-                    Ref: AWS::Region
-            03_enable_awslogs_service:
-              command: systemctl enable awslogs
-            04_start_awslogs_service:
-              command: systemctl start awslogs
-            05_make_mon_put_instance_data_exececutable:
-              command: chmod +x /usr/local/aws-scripts-mon/mon-put-instance-data.pl
-            06_install_crontab:
-              command: crontab  /etc/cron.hourly/cloudwatch-monitoring.sh
-        install_vault:
-          sources:
-            "/usr/bin":
-              Ref: VaultDownloadURL
-          files:
-            "/etc/vault.d/vault.hcl":
-              source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/vault.hcl
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
-              mode: '000700'
-              owner: root
-              group: root
-            "/etc/systemd/system/vault.service":
-              source:
-                Fn::Sub:
-                - https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}scripts/vault.service
-                - QSS3BucketName:
-                    Ref: QSS3BucketName
-                  QSS3KeyPrefix:
-                    Ref: QSS3KeyPrefix
-              mode: '000700'
-              owner: root
-              group: root
-          commands:
-            01_chmod_and_chown_vault:
-              command: chmod 0755 /usr/bin/vault && chown root:root /usr/bin/vault
-        run_vault:
-          commands:
-            01_register_vault_binary:
-              command: service vault start
+      Path: "/"
+      Roles:
+      - Ref: VaultClientRole
+  VaultClientRole:
+    Type: AWS::IAM::Role
     Properties:
-      InstanceType:
-        Ref: VaultInstanceType
-      KeyName:
-        Ref: KeyPair
-      NetworkInterfaces:
-      - DeleteOnTermination: true
-        DeviceIndex: '0'
-        SubnetId:
-          Ref: PrivateSubnet2ID
-        GroupSet:
-        - Ref: VaultSecGroup
-      ImageId:
-        Fn::FindInMap:
-        - AWSAMIRegionMap
-        - Ref: AWS::Region
-        - US1604HVM
-      BlockDeviceMappings:
-      - DeviceName: "/dev/sda1"
-        Ebs:
-          VolumeSize: 20
-          VolumeType: gp2
-      UserData:
-        Fn::Base64:
-          Fn::Join:
-          - ''
-          - - "#!/bin/bash -x\n"
-            - 'apt-get -y update
-
-'
-            - 'apt-get -y install  python-setuptools
-
-'
-            - 'easy_install https://s3.amazonaws.com/cloudformation-examples/aws-cfn-bootstrap-latest.tar.gz
-
-'
-            - 'mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
-
-'
-            - Fn::Sub:
-              - 'wget https://s3.amazonaws.com/${QSS3BucketName}/${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul/scripts/consul_client_bootstrap.sh
-
-'
-              - QSS3BucketName:
-                  Ref: QSS3BucketName
-                QSS3KeyPrefix:
-                  Ref: QSS3KeyPrefix
-            - ''
-            - 'chmod 755 ./consul_client_bootstrap.sh
-
-'
-            - Fn::Sub:
-              - "./consul_client_bootstrap.sh --consul_tag_key ${ConsulEc2RetryTagKey}
-                --consul_tag_value ${ConsulEc2RetryTagValue} --s3bucket ${QSS3BucketName}
-                --s3prefix ${QSS3KeyPrefix}submodules/quickstart-hashicorp-consul"
-              - ConsulEc2RetryTagKey:
-                  Ref: ConsulEc2RetryTagKey
-                ConsulEc2RetryTagValue:
-                  Ref: ConsulEc2RetryTagValue
-                QSS3BucketName:
-                  Ref: QSS3BucketName
-                QSS3KeyPrefix:
-                  Ref: QSS3KeyPrefix
-            - "\n"
-            - "/usr/local/bin/cfn-init"
-            - " --verbose "
-            - " --stack "
-            - Ref: AWS::StackName
-            - " --resource Vault2"
-            - " --configsets vault_install"
-            - " --region "
-            - Ref: AWS::Region
-            - "\n"
-            - "/usr/local/bin/cfn-signal -e $? "
-            - "  --stack "
-            - Ref: AWS::StackName
-            - " --resource Vault2 "
-            - " --region "
-            - Ref: AWS::Region
-            - "\n"
-      IamInstanceProfile:
-        Ref: vaultinstanceprofile
-      Tags:
-      - Key: Name
-        Value:
-          Fn::Join:
-          - "-"
-          - - Ref: AWS::StackName
-            - Vault2
-  Vault2RecoveryAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmDescription: EC2 Autorecovery for Vault2 node. Autorecover if we fail EC2
-        status checks for 5 minutes.
-      Namespace: AWS/EC2
-      MetricName: StatusCheckFailed_System
-      Statistic: Minimum
-      Period: 60
-      EvaluationPeriods: 5
-      ComparisonOperator: GreaterThanThreshold
-      Threshold: 0
-      AlarmActions:
-      - Ref: VaultSNSTopic
-      - Fn::Join:
-        - ''
-        - - 'arn:aws:automate:'
-          - Ref: AWS::Region
-          - ":ec2:recover"
-      Dimensions:
-      - Name: InstanceId
-        Value:
-          Ref: Vault2
+      # This example allows for an EC2 instance to assume this role. This should be customized for where the Role is being used. Eg: Lambda/Codebuild/EC2 etc.
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          # TODO: Restrict to the Lambda functions LeaderElection/ClusterBootstrapping
+          - Effect: Allow
+            Action:
+            - s3:*
+            Resource: "*"
+          # TODO: Adjust this to be a distinct policy to reference this role. (Circular dependency)
+          #- Effect: Allow
+          #  Action:
+          #  - sts:AssumeRole
+          #  Resource: !GetAtt "VaultClientRole.Arn"
+          - Effect: Allow
+            Action:
+            - ec2:DescribeInstances
+            - iam:GetInstanceProfile
+            - iam:GetUser
+            - iam:GetRole
+            Resource: "*"
+          - Effect: Allow
+            Action:
+            - autoscaling:DescribeAutoScalingGroups
+            Resource: "*"
 Outputs:
-  VaultNode1PrivateIp:
-    Description: 'Private IP of Vault Node #1'
-    Value:
-      Fn::GetAtt:
-      - Vault1
-      - PrivateIp
-  VaultNode2PrivateIp:
-    Description: 'Private IP of Vault Node #2'
-    Value:
-      Fn::GetAtt:
-      - Vault2
-      - PrivateIp
+  VaultSecret:
+    Value: !Ref "VaultSecret"
+    Description: The AWS Secrets Manager Secret containing the ROOT TOKEN and Recovery Secret for Hashicorp Vault.
+  VaultClientIAMRoleArn:
+    Value: !GetAtt "VaultClientRole.Arn"
+    Description: The ARN of the AWS IAM role linked to Hashicorp Vault.
+  VaultClientIAMRoleName:
+    Value: !Ref "VaultClientRole"
+    Description: The name of the AWS IAM role linked to Hashicorp Vault.
+  VaultClientRoleId:
+    Value: !Ref VaultClientRoleName
+    Description: The Hashicorp Vault identifier of the AWS client role.
