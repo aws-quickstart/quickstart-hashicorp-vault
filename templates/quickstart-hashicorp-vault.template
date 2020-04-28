@@ -563,7 +563,7 @@ Resources:
   VaultLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: Vault-Audit-Logs
+      LogGroupName: !Sub "Vault-Audit-Logs-${AWS::StackName}"
       RetentionInDays: 7
   # Informs the cluster nodes if they should boot strap
   VaultLeaderElectedSSM:
