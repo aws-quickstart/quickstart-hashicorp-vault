@@ -38,36 +38,18 @@ get_mdsv2 () {
 vault_systemctl_file () {
 cat << EOF > /lib/systemd/system/vault.service
 [Unit]
-Description="HashiCorp Vault"
-Documentation=https://www.vaultproject.io/docs/
+Description=Vault Agent
 Requires=network-online.target
 After=network-online.target
-ConditionFileNotEmpty=/etc/vault.d/vault.hcl
 [Service]
+Restart=on-failure
+PermissionsStartOnly=true
+ExecStartPre=/sbin/setcap 'cap_ipc_lock=+ep' /usr/local/bin/vault
+ExecStart=/usr/local/bin/vault server -config /etc/vault.d
+ExecReload=/bin/kill -HUP \$MAINPID
+KillSignal=SIGTERM
 User=${USER}
 Group=${GROUP}
-ExecStart=/usr/local/bin/vault server -config /etc/vault.d -log-level=warn
-ExecReload=/bin/kill --signal HUP \$MAINPID
-KillMode=process
-Restart=on-failure
-RestartSec=5
-LimitNOFILE=65536
-ProtectSystem=full
-ProtectHome=read-only
-PrivateTmp=yes
-PrivateDevices=yes
-SecureBits=keep-caps
-AmbientCapabilities=CAP_IPC_LOCK
-Capabilities=CAP_IPC_LOCK+ep
-CapabilityBoundingSet=CAP_SYSLOG CAP_IPC_LOCK
-NoNewPrivileges=yes
-KillSignal=SIGINT
-TimeoutStopSec=30
-StartLimitInterval=60
-StartLimitIntervalSec=60
-StartLimitBurst=3
-LimitMEMLOCK=infinity
-
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -82,6 +64,30 @@ install_vault () {
   mkdir -pm 0755 ${VAULT_STORAGE_PATH}
   chown -R vault:vault ${VAULT_STORAGE_PATH}
   chmod -R a+rwx ${VAULT_STORAGE_PATH}
+}
+
+cloud_watch_log_config () {
+cat << EOF >/etc/awslogs-config-file
+[general]
+state_file = /var/awslogs/state/agent-state
+
+[/var/log/syslog]
+file = /var/log/vault_audit.logstatus
+log_group_name = ${VAULT_LOG_GROUP}
+log_stream_name = {instance_id}
+datetime_format = %b %d %H:%M:%S
+EOF
+}
+
+cloud_watch_logs () {
+  cloud_watch_log_config
+  # CIS ubuntu tries to hide OS details breaking the installer 
+  cp /etc/issue /etc/issue.old && echo Ubuntu | cat - /etc/issue > /etc/issue.temp && mv /etc/issue.temp /etc/issue
+  python /usr/local/awslogs-agent-setup.py -n -r ${AWS_REGION} -c /etc/awslogs-config-file
+  # CIS ubuntu tries to hide OS details breaking the installer remove
+  mv /etc/issue.old /etc/issue
+  systemctl enable awslogs
+  systemctl start awslogs
 }
 
 USER="vault"

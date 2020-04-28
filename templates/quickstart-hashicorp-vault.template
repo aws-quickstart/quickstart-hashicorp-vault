@@ -41,6 +41,13 @@ Metadata:
       - QSS3BucketName
       - QSS3KeyPrefix
       - QSS3BucketRegion
+    - Label:
+        default: Load Balancer configuration
+      Parameters:
+      - LoadBalancerType
+      - DomainName
+      - HostedZoneID
+      - ACMSSLCertificateArn
     ParameterLabels:
       BastionSecurityGroupID:
         default: Bastion host security group ID
@@ -88,6 +95,14 @@ Metadata:
         default: Number of unseal keys required to unseal the Hashicorp Vault cluster
       VaultClientRoleName:
         default: Internal name of the AWS IAM role authorized to use Vault
+      LoadBalancerType:
+        default: Internval or external load balancer
+      ACMSSLCertificateArn:
+        default: SSL certificate ARN
+      HostedZoneID:
+        default: Route 53 hosted zone ID
+      DomainName:
+        default: Load Balancer DNS Domain Name
 Parameters:
   VaultAMIOS:
     AllowedValues:
@@ -239,6 +254,24 @@ Parameters:
     MinLength: "3"
     ConstraintDescription: This identifier should be at least 3 characters in length.
     Description: The internal Hashicorp Vault identifier for the AWS IAM role.
+  LoadBalancerType:
+    Type: String
+    Default: "Internal"
+    Description: Is the Load Balancer for Vault internal or external.
+    AllowedValues:
+    - "Internal"
+    - "External"
+  DomainName:
+    Type: String
+    Description: The fully qualified domain name for the Hashicorp Vault load balancer. Use with 'HostedZoneID' if you are not using SSL.
+    MaxLength: 128
+  HostedZoneID:
+    Type: AWS::Route53::HostedZone::Id
+    Description: Route 53 Hosted Zone ID of the domain name. Used in conjunction with 'DomainName'.
+  ACMSSLCertificateArn:
+    Description: The Amazon Resource Name (ARN) of the SSL certificate to use for the load balancer. Use 'ACMSSLCertificateArn' if you are not using 'DomainName' and 'HostedZoneID'.
+    Type: String
+    Default: ''
 Mappings:
   LinuxAMINameMap:
     Ubuntu-1604-HVM:
@@ -305,7 +338,121 @@ Mappings:
       US1604HVM: ami-0da6a3ae32f8f6730 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  InternalLoadBalancer: !Equals [!Ref LoadBalancerType, 'Internal']
+  CustomDns: !Not [!Equals [!Ref DomainName, '']]
+  HostedZoneExists: !Not [!Equals [!Ref HostedZoneID, '']]
+  CreateDns: !And
+    - !Not
+      - !Equals
+        - !Ref 'HostedZoneID'
+        - ''
+    - !Not
+      - !Equals
+        - !Ref 'DomainName'
+        - ''
 Resources:
+  # ALB & ACM 
+  VaultDNSRecord:
+    Condition: CreateDns
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Type: A
+      Name: !Ref DomainName
+      AliasTarget:
+        HostedZoneId: !GetAtt VaultServerApplicationLoadBalancer.CanonicalHostedZoneID
+        DNSName: !GetAtt VaultServerApplicationLoadBalancer.DNSName
+      HostedZoneId: !Ref 'HostedZoneID'
+  VaultServerApplicationLoadBalancerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Hashicorp Vault Server Load Balancer
+      VpcId: !Ref VPCID
+      SecurityGroupIngress:
+        - CidrIp: !Ref AccessCIDR
+          IpProtocol: '-1'
+  VaultServerApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      # TODO : Check if we are internal/external
+      Subnets: 
+      - !If [InternalLoadBalancer, !Ref PrivateSubnet1ID, !Ref PublicSubnet1ID]
+      - !If [InternalLoadBalancer, !Ref PrivateSubnet2ID, !Ref PublicSubnet2ID]
+      - !If [InternalLoadBalancer, !Ref PrivateSubnet3ID, !Ref PublicSubnet3ID]
+      SecurityGroups: 
+      - !Ref 'VaultServerApplicationLoadBalancerSecurityGroup'
+      Scheme: !If [InternalLoadBalancer, "internal", "internet-facing"]
+  VaultServerTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VPCID
+      Port: 8200
+      Protocol: HTTP
+      Matcher:
+        HttpCode: 200-499
+      HealthCheckIntervalSeconds: 10
+      HealthCheckPath: /v1/sys/health?activecode=200&standbycode=200&sealedcode=200&uninitcode=200
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 2
+  ValutServerListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref VaultServerListenerHTTPS
+      Priority: 1
+      Conditions:
+      - Field: path-pattern
+        Values:
+        - "/"
+      Actions:
+      - Type: forward
+        TargetGroupArn:
+          Ref: VaultServerTargetGroup
+  VaultServerListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Certificates:
+      - CertificateArn: !If [ CreateDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", ACMSSLCertificateArn ]
+      DefaultActions:
+      - Type: forward
+        TargetGroupArn: !Ref VaultServerTargetGroup
+      LoadBalancerArn: !Ref VaultServerApplicationLoadBalancer
+      Port: 443
+      Protocol: HTTPS
+  VaultServerListenerRedirectToHTTPS:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: "redirect"
+          RedirectConfig:
+            Protocol: "HTTPS"
+            Port: "443"
+            Host: "#{host}"
+            Path: "/#{path}"
+            Query: "#{query}"
+            StatusCode: "HTTP_301"
+      LoadBalancerArn: !Ref VaultServerApplicationLoadBalancer
+      Port: 80
+      Protocol: "HTTP"
+  ACMCertificate:
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+          - W9198
+    Type: AWS::CloudFormation::Stack
+    Condition: CreateDns
+    Properties:
+      TemplateURL:
+        !Sub
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-acm-certificate/templates/quickstart-aws-acm-certificate.template.yml'
+          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+            S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
+      Parameters:
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3BucketRegion: !Ref QSS3BucketRegion
+        QSS3KeyPrefix: !Ref QSS3KeyPrefix
+        DomainName: !Ref DomainName
+        HostedZoneID: !Ref HostedZoneID
   CopyZipsTemplate:
     Metadata:
       cfn-lint:
@@ -416,7 +563,7 @@ Resources:
   VaultLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: Vault-Audit-Logs
+      LogGroupName: !Sub "Vault-Audit-Logs-${AWS::StackName}"
       RetentionInDays: 7
   # Informs the cluster nodes if they should boot strap
   VaultLeaderElectedSSM:
@@ -524,99 +671,6 @@ Resources:
       Roles:
       - Ref: VaultInstanceRole
   VaultServerLaunchConfiguration:
-    Metadata:
-      AWS::CloudFormation::Authentication:
-        S3Auth:
-          buckets: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-          roleName: !Ref VaultInstanceRole
-          type: S3
-      AWS::CloudFormation::Init:
-        configSets:
-          vault_install:
-          #- install_vault
-          #- run_vault
-          - install_cloudwatch_logs_and_mon_scripts
-        install_cloudwatch_logs_and_mon_scripts:
-          packages:
-            apt:
-              unzip: []
-              libwww-perl: []
-              libdatetime-perl: []
-          sources:
-            "/usr/local": http://aws-cloudwatch.s3.amazonaws.com/downloads/CloudWatchMonitoringScripts-1.2.1.zip
-          files:
-            "/etc/cron.hourly/cloudwatch-monitoring.sh":
-              source:
-                !Sub
-                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/cloudwatch-monitoring.sh'
-                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-              mode: '000744'
-              owner: root
-              group: root
-              authentication: S3auth
-            "/etc/awslogs-config-file":
-              source:
-                !Sub
-                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/awslogs-config-file'
-                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-              mode: '000700'
-              owner: root
-              group: root
-              authentication: S3auth
-            "/usr/local/awslogs-agent-setup.py":
-              source: https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py
-              mode: '000700'
-              owner: root
-              group: root
-          commands:
-            01_create_awslogs_config_file:
-              command: !Sub "sed -i s/__VAULT_LOG_GROUP__/${VaultLogGroup}/g /etc/awslogs-config-file"
-            02_dummy_ubuntu_os_check:  # CIS ubuntu tries to hide OS details breaking the installer 
-              command: "cp /etc/issue /etc/issue.old && echo Ubuntu | cat - /etc/issue > /etc/issue.temp && mv /etc/issue.temp /etc/issue"
-            03_run_awslogs_agent_setup.py:
-              command: !Sub "python /usr/local/awslogs-agent-setup.py -n -r ${AWS::Region} -c /etc/awslogs-config-file"
-            04_dummy_ubuntu_os_check_remove:  # CIS ubuntu tries to hide OS details breaking the installer remove
-              command: "mv /etc/issue.old /etc/issue"
-            04_enable_awslogs_service:
-              command: systemctl enable awslogs
-            05_start_awslogs_service:
-              command: systemctl start awslogs
-        install_vault:
-          sources:
-            "/usr/bin": 
-              !Sub "https://releases.hashicorp.com/vault/${VaultVersion}/vault_${VaultVersion}_linux_amd64.zip"
-          files:
-            "/etc/vault.d/vault.hcl":
-              source:
-                !Sub
-                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/vault.hcl'
-                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-              mode: '000700'
-              owner: root
-              group: root
-            "/etc/systemd/system/vault.service":
-              source:
-                !Sub
-                  - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}scripts/vault.service'
-                  - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
-                    S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
-              mode: '000700'
-              owner: root
-              group: root
-          commands:
-            01_chmod_and_chown_vault:
-              command: chmod 0755 /usr/bin/vault && chown vault:vault /usr/bin/vault
-        run_vault:
-          commands:
-            01_reload_systemctl:
-              command: systemctl daemon-reload
-            02_enable_vault_service:
-              command: systemctl enable vault
-            03_start_vault_service:
-              command: systemctl start vault
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       LaunchConfigurationName: !Sub "VaultLC-${AWS::StackName}"
@@ -688,6 +742,8 @@ Resources:
     Properties:
       AutoScalingGroupName: !Sub "VaultServerAutoScalingGroup-${AWS::StackName}"
       LaunchConfigurationName: !Ref VaultServerLaunchConfiguration
+      TargetGroupARNs:
+      - !Ref VaultServerTargetGroup
       MinSize: !Ref VaultServerNodes
       MaxSize: !Ref VaultServerNodes
       DesiredCapacity: !Ref VaultServerNodes
@@ -973,6 +1029,11 @@ Resources:
             - autoscaling:DescribeAutoScalingGroups
             Resource: "*"
 Outputs:
+  VaultLoadBalancer:
+    Value: 
+      !Sub 
+      - "https://${DNSAddress}/"
+      - DNSAddress: !If [ CustomDns, !Ref DomainName, !GetAtt "VaultServerApplicationLoadBalancer.DNSName"  ]
   VaultSecret:
     Value: !Ref "VaultSecret"
     Description: The AWS Secrets Manager Secret containing the ROOT TOKEN and Recovery Secret for Hashicorp Vault.

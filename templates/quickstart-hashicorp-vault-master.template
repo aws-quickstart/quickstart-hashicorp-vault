@@ -39,6 +39,13 @@ Metadata:
       - QSS3BucketName
       - QSS3KeyPrefix
       - QSS3BucketRegion
+    - Label:
+        default: Load Balancer configuration
+      Parameters:
+      - LoadBalancerType
+      - DomainName
+      - HostedZoneID
+      - ACMSSLCertificateArn
     ParameterLabels:
       AvailabilityZones:
         default: Availability Zones
@@ -86,6 +93,14 @@ Metadata:
         default: Number of unseal keys required to unseal the Hashicorp Vault cluster
       VaultClientRoleName:
         default: Internal name of the AWS IAM role authorized to use Vault
+      LoadBalancerType:
+        default: Internval or external load balancer
+      ACMSSLCertificateArn:
+        default: SSL certificate ARN
+      HostedZoneID:
+        default: Route 53 hosted zone ID
+      DomainName:
+        default: Load Balancer DNS Domain Name
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Parameters:
@@ -259,6 +274,24 @@ Parameters:
     Default: 1.4.0
     AllowedValues:
     - 1.4.0
+  LoadBalancerType:
+    Type: String
+    Default: "Internal"
+    Description: Is the Load Balancer for Vault internal or external.
+    AllowedValues:
+    - "Internal"
+    - "External"
+  DomainName:
+    Type: String
+    Description: The fully qualified domain name for the Hashicorp Vault load balancer. Use with 'HostedZoneID' if you are not using SSL.
+    MaxLength: 128
+  HostedZoneID:
+    Type: AWS::Route53::HostedZone::Id
+    Description: Route 53 Hosted Zone ID of the domain name. Used in conjunction with 'DomainName'.
+  ACMSSLCertificateArn:
+    Description: The Amazon Resource Name (ARN) of the SSL certificate to use for the load balancer. Use 'ACMSSLCertificateArn' if you are not using 'DomainName' and 'HostedZoneID'.
+    Type: String
+    Default: ''
 Resources:
   VPCStack:
     Metadata:
@@ -352,6 +385,10 @@ Resources:
         VaultNumberOfKeys: !Ref VaultNumberOfKeys
         VaultNumberOfKeysForUnseal: !Ref VaultNumberOfKeysForUnseal
         VaultClientRoleName: !Ref VaultClientRoleName
+        DomainName: !Ref DomainName
+        HostedZoneID: !Ref HostedZoneID
+        ACMSSLCertificateArn: !Ref ACMSSLCertificateArn 
+        LoadBalancerType: !Ref LoadBalancerType 
 Outputs:
   BastionHost:
     Value: !GetAtt "LinuxBastionHostStack.Outputs.EIP1"
@@ -368,3 +405,6 @@ Outputs:
   VaultSecret:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultSecret"
     Description: The AWS Secrets Manager Secret containing the ROOT TOKEN and Recovery Secret for Hashicorp Vault.
+  VaultLoadBalancer:
+    Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultLoadBalancer"
+    Description: Hashicorp Vault Load Balancer address

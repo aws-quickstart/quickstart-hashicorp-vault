@@ -14,3 +14,6 @@
 	path = submodules/lambda-copyzips
 	url = ../../aws-quickstart/lambda-copyzips.git
 	branch = master
+[submodule "submodules/quickstart-aws-acm-certificate"]
+	path = submodules/quickstart-aws-acm-certificate
+	url = https://github.com/aws-quickstart/quickstart-aws-acm-certificate.git
