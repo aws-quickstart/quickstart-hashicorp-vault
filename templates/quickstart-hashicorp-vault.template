@@ -340,7 +340,16 @@ Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   InternalLoadBalancer: !Equals [!Ref LoadBalancerType, 'Internal']
   CustomDns: !Not [!Equals [!Ref DomainName, '']]
-  CreateDns: !And [!Not [!Equals [!Ref DomainName, '']], [!Not [!Equals [!Ref HostedZoneID, '']]]]
+  HostedZoneExists: !Not [!Equals [!Ref HostedZoneID, '']]
+  CreateDns: !And
+    - !Not
+      - !Equals
+        - !Ref 'HostedZoneID'
+        - ''
+    - !Not
+      - !Equals
+        - !Ref 'DomainName'
+        - ''
 Resources:
   # ALB & ACM 
   VaultDNSRecord:
@@ -402,7 +411,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       Certificates:
-      - CertificateArn: !If [ CustomDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", ACMSSLCertificateArn ]
+      - CertificateArn: !If [ CreateDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", ACMSSLCertificateArn ]
       DefaultActions:
       - Type: forward
         TargetGroupArn: !Ref VaultServerTargetGroup
@@ -431,7 +440,7 @@ Resources:
           ignore_checks:
           - W9198
     Type: AWS::CloudFormation::Stack
-    Conditon: CreateDns
+    Condition: CreateDns
     Properties:
       TemplateURL:
         !Sub
