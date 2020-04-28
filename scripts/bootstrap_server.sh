@@ -207,6 +207,9 @@ then
 
         # TODO: Kubernetes auth adding (https://www.vaultproject.io/docs/auth/kubernetes.html)
 
+        # Take a raft snapshot
+        vault operator raft snapshot save postinstall.snapshot
+
         # Signal based on cfn-init commands status code
         /usr/local/bin/cfn-signal -e $? --stack ${CFN_STACK_NAME} --region ${AWS_REGION} --resource "VaultServerAutoScalingGroup"
         # Bailout
