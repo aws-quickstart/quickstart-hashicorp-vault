@@ -340,10 +340,11 @@ Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   InternalLoadBalancer: !Equals [!Ref LoadBalancerType, 'Internal']
   CustomDns: !Not [!Equals [!Ref DomainName, '']]
+  CreateDns: !And [!Not [!Equals [!Ref DomainName, '']], [!Not [!Equals [!Ref HostedZoneID, '']]]]
 Resources:
   # ALB & ACM 
   VaultDNSRecord:
-    Condition: CustomDns
+    Condition: CreateDns
     Type: AWS::Route53::RecordSet
     Properties:
       Type: A
