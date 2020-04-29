@@ -40,8 +40,8 @@ VAULT_STORAGE_PATH="/vault/$INSTANCE_ID"
 install_vault
 
 # Allow local firewall Access (Required to open local FW access for Vault Server on CIS images) 
-iptables -I INPUT 6 -p tcp -m tcp --dport 8200 -j ACCEPT 2>&1 /dev/null
-iptables -I INPUT 7 -p tcp -m tcp --dport 8201 -j ACCEPT 2>&1 /dev/null
+iptables -I INPUT 6 -p tcp -m tcp --dport 8200 -j ACCEPT 2>&1 > /dev/null
+iptables -I INPUT 7 -p tcp -m tcp --dport 8201 -j ACCEPT 2>&1 > /dev/null
 
 # Create systemd service file for Vault
 vault_systemctl_file
@@ -206,6 +206,9 @@ then
                 ttl=24h
 
         # TODO: Kubernetes auth adding (https://www.vaultproject.io/docs/auth/kubernetes.html)
+
+        # Take a raft snapshot
+        vault operator raft snapshot save postinstall.snapshot
 
         # Signal based on cfn-init commands status code
         /usr/local/bin/cfn-signal -e $? --stack ${CFN_STACK_NAME} --region ${AWS_REGION} --resource "VaultServerAutoScalingGroup"
