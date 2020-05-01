@@ -62,8 +62,12 @@ install_vault () {
   chown ${USER}:${GROUP} /usr/local/bin/vault
   mkdir -pm 0755 /etc/vault.d
   mkdir -pm 0755 ${VAULT_STORAGE_PATH}
-  chown -R vault:vault ${VAULT_STORAGE_PATH}
+  chown -R ${USER}:${GROUP} ${VAULT_STORAGE_PATH}
   chmod -R a+rwx ${VAULT_STORAGE_PATH}
+
+  mkdir -pm 0755 ${VAULT_LOG_PATH}
+  chown -R ${USER}:${GROUP} ${VAULT_LOG_PATH}
+  chmod -R a+rwx ${VAULT_LOG_PATH}
 }
 
 cloud_watch_log_config () {
@@ -72,7 +76,7 @@ cat << EOF >/etc/awslogs-config-file
 state_file = /var/awslogs/state/agent-state
 
 [/var/log/syslog]
-file = /vault/vault_audit.logs
+file = ${VAULT_LOG_PATH}/vault_audit.logs
 log_group_name = ${VAULT_LOG_GROUP}
 log_stream_name = {instance_id}
 datetime_format = %b %d %H:%M:%S

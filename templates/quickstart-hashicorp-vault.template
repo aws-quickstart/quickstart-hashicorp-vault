@@ -114,7 +114,7 @@ Metadata:
       VaultKubernetesHostURL:
         default: "URL of the Kubernetes cluster eg - https://192.168.99.100:8443"
       VaultKubernetesCertificate:
-        default: "PEM encoded CA cert for use by the TLS client used to talk with the Kubernetes API. NOTE: Every line must end with a newline: \n"
+        default: "AWS SSM Parameter containing PEM encoded CA cert of the Kubernetes cluster"
 Parameters:
   VaultAMIOS:
     AllowedValues:
@@ -287,7 +287,7 @@ Parameters:
   VaultKubernetesEnable:
     Description: Enable Kubernetes Authentication and create role
     Type: String
-    Default: 'true'
+    Default: 'false'
     AllowedValues:
       - 'true'
       - 'false'
@@ -296,10 +296,10 @@ Parameters:
     Type: String
     Default: 'kube-auth-role'
   VaultKubernetesHostURL:
-    Description: "URL of the Kubernetes cluster eg - https://192.168.99.100:8443"
+    Description: "URL of the Kubernetes cluster eg: - https://192.168.99.100:8443"
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS Secrets Manager Secret name containing PEM encoded CA cert for use by the TLS client used to talk with the Kubernetes API"
+    Description: "AWS SSM Parameter containing your Kubernetes PEM encoded CA cert"
     Type: String
 Mappings:
   LinuxAMINameMap:

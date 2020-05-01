@@ -35,6 +35,7 @@ VAULT_URL="https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_V
 VAULT_ZIP=$(echo $VAULT_URL | rev | cut -d "/" -f 1 | rev)
 
 VAULT_STORAGE_PATH="/vault/$INSTANCE_ID"
+VAULT_LOG_PATH="/vault/log"
 
 # Install Vault
 install_vault
@@ -195,8 +196,13 @@ then
 
         sleep ${SLEEP} 
 
-        # Enable AWS Auth
+        # Login to Vault
         vault login token=$root_token 2>&1 > /dev/null  # Hide this output from the console
+
+        # Enable Vault audit logs
+        vault audit enable file file_path=${VAULT_LOG_PATH}/vault-audit.log
+
+        # Enable AWS Auth
         vault auth enable aws
 
         # Create client-role-iam role
@@ -224,9 +230,6 @@ then
                         policies=default \
                         ttl=1h
         fi
-        
-        # Enable Vault audit logs
-        vault audit enable file file_path=/vault/vault-audit.log
 
         # Take a raft snapshot
         vault operator raft snapshot save postinstall.snapshot
