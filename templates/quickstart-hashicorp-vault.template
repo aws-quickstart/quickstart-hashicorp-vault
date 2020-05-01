@@ -35,6 +35,10 @@ Metadata:
       - VaultNumberOfKeysForUnseal
       - VaultClientRoleName
       - VaultClientNodes
+      - VaultKubernetesEnable
+      - VaultKubernetesHostURL
+      - VaultKubernetesRoleName
+      - VaultKubernetesCertificate
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -103,6 +107,14 @@ Metadata:
         default: Route 53 hosted zone ID
       DomainName:
         default: Load Balancer DNS Domain Name
+      VaultKubernetesEnable:
+        default: Enable Kubernetes Authentication and create role
+      VaultKubernetesRoleName:
+        default: Internal Hashicorp Vault name for Kubernetes Authentication role
+      VaultKubernetesHostURL:
+        default: "URL of the Kubernetes cluster eg - https://192.168.99.100:8443"
+      VaultKubernetesCertificate:
+        default: "PEM encoded CA cert for use by the TLS client used to talk with the Kubernetes API. NOTE: Every line must end with a newline: \n"
 Parameters:
   VaultAMIOS:
     AllowedValues:
@@ -272,6 +284,23 @@ Parameters:
     Description: The Amazon Resource Name (ARN) of the SSL certificate to use for the load balancer. Use 'ACMSSLCertificateArn' if you are not using 'DomainName' and 'HostedZoneID'.
     Type: String
     Default: ''
+  VaultKubernetesEnable:
+    Description: Enable Kubernetes Authentication and create role
+    Type: String
+    Default: 'true'
+    AllowedValues:
+      - 'true'
+      - 'false'
+  VaultKubernetesRoleName:
+    Description: Internal Hashicorp Vault name for Kubernetes Authentication role
+    Type: String
+    Default: 'kube-auth-role'
+  VaultKubernetesHostURL:
+    Description: "URL of the Kubernetes cluster eg - https://192.168.99.100:8443"
+    Type: String
+  VaultKubernetesCertificate:
+    Description: "AWS Secrets Manager Secret name containing PEM encoded CA cert for use by the TLS client used to talk with the Kubernetes API"
+    Type: String
 Mappings:
   LinuxAMINameMap:
     Ubuntu-1604-HVM:
@@ -394,7 +423,7 @@ Resources:
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2
-  ValutServerListenerRule:
+  VaultServerListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
       ListenerArn: !Ref VaultServerListenerHTTPS
@@ -710,16 +739,19 @@ Resources:
             qs_bootstrap_pip || qs_err
             qs_aws-cfn-bootstrap || qs_err
 
-            # TODO: Fetch script from Bucket && Run
+            # Fetch bootstrap script from Bucket & Run
             export LEADER_ELECTED_SSM_PARAMETER=${VaultLeaderElectedSSM}
             export LEADER_ID_SSM_PARAMETER=${VaultLeaderSSM}
-            export VAULT_CLUSTER_MEMBERS_SSM_PARAMETER=${VaultClusterMembersSSM}
             export LEADER_SSM_PARAM=${VaultLeaderSSM}
+            export VAULT_CLUSTER_MEMBERS_SSM_PARAMETER=${VaultClusterMembersSSM}
+            export VAULT_LOG_GROUP=${VaultLogGroup}
+            
             export AWS_REGION=${AWS::Region}
             export CFN_STACK_NAME=${AWS::StackName}
             export LEADER_ELECTION_LAMBDA=${LeaderElectionLambda}
             export CLUSTER_BOOTSTRAP_LAMBDA=${ClusterBootstrapLambda}
             export KMS_KEY=${VaultKmsKey}
+            
             export VAULT_SECRET=${VaultSecret}
             export VAULT_CLIENT_ROLE=${VaultClientRole.Arn}
             export VAULT_CLIENT_ROLE_NAME=${VaultClientRoleName}
@@ -727,13 +759,20 @@ Resources:
             export VAULT_NUMBER_OF_KEYS=${VaultNumberOfKeys}
             export VAULT_NUMBER_OF_KEYS_FOR_UNSEAL=${VaultNumberOfKeysForUnseal}
 
+            export VAULT_KUBERNETES_ENABLE=${VaultKubernetesEnable}
+            export VAULT_KUBERNETES_ROLE_NAME=${VaultKubernetesRoleName}
+            export VAULT_KUBERNETES_HOST_URL=${VaultKubernetesHostURL}
+            export VAULT_KUBERNETES_CERTIFICATE=${VaultKubernetesCertificate}
+
             pip install awscli
             mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
             
             aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/functions.sh .
             aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/bootstrap_server.sh .
             chmod +x bootstrap_server.sh
-            ./bootstrap_server.sh
+            $(which bash) -e ./bootstrap_server.sh
+            /usr/local/bin/cfn-signal -e $? --stack ${!CFN_STACK_NAME} --region ${!AWS_REGION} --resource "VaultServerAutoScalingGroup"
+
             # Signalling done from within bootstrap script
             # echo ${SomeValue} # for clean looking !Sub
           - SomeValue: "SomeValue"
@@ -1043,6 +1082,12 @@ Outputs:
   VaultClientIAMRoleName:
     Value: !Ref "VaultClientRole"
     Description: The name of the AWS IAM role linked to Hashicorp Vault.
+  VaultKMSKeyId:
+    Value: !Ref "VaultKmsKey"
+    Description: The AWS KMS Key used to Auto Unseal Hashicorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
+  VaultKMSKeyArn:
+    Value: !GetAtt "VaultKmsKey.Arn"
+    Description: The AWS KMS Key used to Auto Unseal Hashicorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
   VaultClientRoleId:
     Value: !Ref VaultClientRoleName
     Description: The Hashicorp Vault identifier of the AWS client role.

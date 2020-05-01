@@ -72,7 +72,7 @@ cat << EOF >/etc/awslogs-config-file
 state_file = /var/awslogs/state/agent-state
 
 [/var/log/syslog]
-file = /var/log/vault_audit.logstatus
+file = /vault/vault_audit.logs
 log_group_name = ${VAULT_LOG_GROUP}
 log_stream_name = {instance_id}
 datetime_format = %b %d %H:%M:%S
@@ -81,6 +81,7 @@ EOF
 
 cloud_watch_logs () {
   cloud_watch_log_config
+  curl -s https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py --output /usr/local/awslogs-agent-setup.py
   # CIS ubuntu tries to hide OS details breaking the installer 
   cp /etc/issue /etc/issue.old && echo Ubuntu | cat - /etc/issue > /etc/issue.temp && mv /etc/issue.temp /etc/issue
   python /usr/local/awslogs-agent-setup.py -n -r ${AWS_REGION} -c /etc/awslogs-config-file
@@ -88,6 +89,18 @@ cloud_watch_logs () {
   mv /etc/issue.old /etc/issue
   systemctl enable awslogs
   systemctl start awslogs
+}
+
+get_kubernetes_ca () {
+cat <<EOF > /etc/vault.d/ca.crt
+$(get_ssm_param ${VAULT_KUBERNETES_CERTIFICATE})
+EOF
+# The newlines get lost ... just fix the cert
+sed -zi 's/IN CE/IN_CE/g' /etc/vault.d/ca.crt
+sed -zi 's/ND CE/ND_CE/g' /etc/vault.d/ca.crt
+sed -zi 's/ /\n/g' /etc/vault.d/ca.crt
+sed -zi 's/IN_CE/IN CE/g' /etc/vault.d/ca.crt
+sed -zi 's/ND_CE/ND CE/g' /etc/vault.d/ca.crt
 }
 
 USER="vault"

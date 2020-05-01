@@ -1,4 +1,4 @@
-#/usr/bin/env bash
+#/usr/bin/env bash -e
 
 SLEEP=20
 SPLAY=$(shuf -i 1-10 -n 1)
@@ -205,13 +205,32 @@ then
                 policies=vaultclient \
                 ttl=24h
 
-        # TODO: Kubernetes auth adding (https://www.vaultproject.io/docs/auth/kubernetes.html)
+
+        # Kubernetes auth adding (https://www.vaultproject.io/docs/auth/kubernetes.html)
+        if [ "${VAULT_KUBERNETES_ENABLE}" = "true" ]
+        then
+                vault auth enable kubernetes
+
+                get_kubernetes_ca
+                
+                vault write auth/kubernetes/config \
+                        token_reviewer_jwt="reviewer_service_account_jwt" \
+                        kubernetes_host=${VAULT_KUBERNETES_HOST_URL} \
+                        kubernetes_ca_cert=@/etc/vault.d/ca.crt
+                
+                vault write auth/kubernetes/role/${VAULT_KUBERNETES_ROLE_NAME} \
+                        bound_service_account_names=vault-auth \
+                        bound_service_account_namespaces=default \
+                        policies=default \
+                        ttl=1h
+        fi
+        
+        # Enable Vault audit logs
+        vault audit enable file file_path=/vault/vault-audit.log
 
         # Take a raft snapshot
         vault operator raft snapshot save postinstall.snapshot
 
-        # Signal based on cfn-init commands status code
-        /usr/local/bin/cfn-signal -e $? --stack ${CFN_STACK_NAME} --region ${AWS_REGION} --resource "VaultServerAutoScalingGroup"
         # Bailout
         exit 0
 fi
@@ -273,4 +292,4 @@ until curl -fs -o /dev/null localhost:8200/v1/sys/init; do
 done
 
 # Vault has started signal success to Cloudformation
-/usr/local/bin/cfn-signal -e 0 --stack ${CFN_STACK_NAME} --region ${AWS_REGION} --resource "VaultServerAutoScalingGroup"
+exit 0

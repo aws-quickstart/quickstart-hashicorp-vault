@@ -33,6 +33,10 @@ Metadata:
       - VaultNumberOfKeysForUnseal
       - VaultClientRoleName
       - VaultClientNodes
+      - VaultKubernetesEnable
+      - VaultKubernetesHostURL
+      - VaultKubernetesRoleName
+      - VaultKubernetesCertificate
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -101,6 +105,14 @@ Metadata:
         default: Route 53 hosted zone ID
       DomainName:
         default: Load Balancer DNS Domain Name
+      VaultKubernetesEnable:
+        default: Enable Kubernetes Authentication and create role
+      VaultKubernetesRoleName:
+        default: Internal Hashicorp Vault name for Kubernetes Authentication role
+      VaultKubernetesHostURL:
+        default: "URL of the Kubernetes cluster eg - https://192.168.99.100:8443"
+      VaultKubernetesCertificate:
+        default: "PEM encoded CA cert for use by the TLS client used to talk with the Kubernetes API. NOTE: Every line must end with a newline: \n"
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Parameters:
@@ -292,6 +304,23 @@ Parameters:
     Description: The Amazon Resource Name (ARN) of the SSL certificate to use for the load balancer. Use 'ACMSSLCertificateArn' if you are not using 'DomainName' and 'HostedZoneID'.
     Type: String
     Default: ''
+  VaultKubernetesEnable:
+    Description: Enable Kubernetes Authentication and create role
+    Type: String
+    Default: 'true'
+    AllowedValues:
+      - 'true'
+      - 'false'
+  VaultKubernetesRoleName:
+    Description: Internal Hashicorp Vault name for Kubernetes Authentication role
+    Type: String
+    Default: 'kube-auth-role'
+  VaultKubernetesHostURL:
+    Description: "URL of the Kubernetes cluster eg - https://192.168.99.100:8443"
+    Type: String
+  VaultKubernetesCertificate:
+    Description: "AWS Secrets Manager Secret name for Secret Containing Kubernetes CA certificate"
+    Type: String
 Resources:
   VPCStack:
     Metadata:
@@ -389,6 +418,10 @@ Resources:
         HostedZoneID: !Ref HostedZoneID
         ACMSSLCertificateArn: !Ref ACMSSLCertificateArn 
         LoadBalancerType: !Ref LoadBalancerType 
+        VaultKubernetesEnable: !Ref VaultKubernetesEnable
+        VaultKubernetesRoleName: !Ref VaultKubernetesRoleName
+        VaultKubernetesHostURL: !Ref VaultKubernetesHostURL
+        VaultKubernetesCertificate: !Ref VaultKubernetesCertificate
 Outputs:
   BastionHost:
     Value: !GetAtt "LinuxBastionHostStack.Outputs.EIP1"
@@ -405,6 +438,12 @@ Outputs:
   VaultSecret:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultSecret"
     Description: The AWS Secrets Manager Secret containing the ROOT TOKEN and Recovery Secret for Hashicorp Vault.
+  VaultKMSKeyId:
+    Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultKMSKeyId"
+    Description: The AWS KMS Key used to Auto Unseal Hashicorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
+  VaultKMSKeyArn:
+    Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultKMSKeyArn"
+    Description: The AWS KMS Key used to Auto Unseal Hashicorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
   VaultLoadBalancer:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultLoadBalancer"
     Description: Hashicorp Vault Load Balancer address
