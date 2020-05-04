@@ -1,4 +1,4 @@
-#/usr/bin/env bash
+#/usr/bin/env bash -e
 
 SLEEP=20
 SPLAY=$(shuf -i 1-10 -n 1)
@@ -35,6 +35,7 @@ VAULT_URL="https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_V
 VAULT_ZIP=$(echo $VAULT_URL | rev | cut -d "/" -f 1 | rev)
 
 VAULT_STORAGE_PATH="/vault/$INSTANCE_ID"
+VAULT_LOG_PATH="/vault/log"
 
 # Install Vault
 install_vault
@@ -195,8 +196,13 @@ then
 
         sleep ${SLEEP} 
 
-        # Enable AWS Auth
+        # Login to Vault
         vault login token=$root_token 2>&1 > /dev/null  # Hide this output from the console
+
+        # Enable Vault audit logs
+        vault audit enable file file_path=${VAULT_LOG_PATH}/vault-audit.log
+
+        # Enable AWS Auth
         vault auth enable aws
 
         # Create client-role-iam role
@@ -205,13 +211,29 @@ then
                 policies=vaultclient \
                 ttl=24h
 
-        # TODO: Kubernetes auth adding (https://www.vaultproject.io/docs/auth/kubernetes.html)
+
+        # Kubernetes auth adding (https://www.vaultproject.io/docs/auth/kubernetes.html)
+        if [ "${VAULT_KUBERNETES_ENABLE}" = "true" ]
+        then
+                vault auth enable kubernetes
+
+                get_kubernetes_ca
+                
+                vault write auth/kubernetes/config \
+                        token_reviewer_jwt="reviewer_service_account_jwt" \
+                        kubernetes_host=${VAULT_KUBERNETES_HOST_URL} \
+                        kubernetes_ca_cert=@/etc/vault.d/ca.crt
+                
+                vault write auth/kubernetes/role/${VAULT_KUBERNETES_ROLE_NAME} \
+                        bound_service_account_names=vault-auth \
+                        bound_service_account_namespaces=default \
+                        policies=default \
+                        ttl=1h
+        fi
 
         # Take a raft snapshot
         vault operator raft snapshot save postinstall.snapshot
 
-        # Signal based on cfn-init commands status code
-        /usr/local/bin/cfn-signal -e $? --stack ${CFN_STACK_NAME} --region ${AWS_REGION} --resource "VaultServerAutoScalingGroup"
         # Bailout
         exit 0
 fi
@@ -273,4 +295,4 @@ until curl -fs -o /dev/null localhost:8200/v1/sys/init; do
 done
 
 # Vault has started signal success to Cloudformation
-/usr/local/bin/cfn-signal -e 0 --stack ${CFN_STACK_NAME} --region ${AWS_REGION} --resource "VaultServerAutoScalingGroup"
+exit 0
