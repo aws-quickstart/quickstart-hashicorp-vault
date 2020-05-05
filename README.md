@@ -70,7 +70,7 @@ The CIS AMI for Ubuntu Linux 16.04 LTS is available as an optional hardened AMI 
 [Kubernetes auth method](https://www.vaultproject.io/docs/auth/kubernetes) is available as an optional auth method in the deployment wizard. The kubernetes auth method can be used to authenticate with Vault using a Kubernetes Service Account Token. For more information, please visit [Vault Agent with Kubernetes](https://learn.hashicorp.com/vault/identity-access-management/vault-agent-k8s).
 
 #### How to Manage Vault Auto Unseal with AWS KMS
-[Vault auto unseal](https://www.vaultproject.io/docs/concepts/seal#auto-unseal) was developed to aid in reducing the operational complexity of keeping the master key secure. For more information, please visit [Auto Unseal using AWS KMS](https://learn.hashicorp.com/vault/operations/ops-autounseal-aws-kms).
+[Vault auto unseal](https://www.vaultproject.io/docs/concepts/seal#auto-unseal) was developed to aid in reducing the operational complexity of keeping the master key secure. This feature is enabled by default. For more information, please visit [Auto Unseal using AWS KMS](https://learn.hashicorp.com/vault/operations/ops-autounseal-aws-kms).
 
 ### Documentation
 Vault provides several key features:
