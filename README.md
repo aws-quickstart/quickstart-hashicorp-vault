@@ -17,18 +17,6 @@ This repo contains a set of CloudFormation templates and modules for deploying a
 * Encryption & Data Protection: Simplify encryption and key management for developers and operators across different environments, applications, and services;
 * Privileged Access Management: Simplify and secure workloads for application to application and user to application credential management across different environments and services
 
-### Vault Storage Architectture
-
-![quickstart-hashicorp-Vault](images/hashicorp-vault-storage-architecture.png)
-
-The following table outlines the network traffic requirements for Vault cluster nodes.
-
-| Source        | Destination   | port | protocol | Direction     | Purpose                                       |
-| ------------- | ------------- | ---- | -------- | ------------- | --------------------------------------------- |
-| Vault clients | Vault servers | 8200 | tcp      | incoming      | Vault API                                     |
-| Vault servers | Vault servers | 8201 | tcp      | bidirectional | Vault replication traffic, request forwarding |
-| Vault servers | Vault servers | 8200 | tcp      | bidirectional | Raft gossip traffic                           |
-
 ### QuickStart Architectture
 
 ![quickstart-hashicorp-Vault](images/hashicorp-vault-architecture.png)
