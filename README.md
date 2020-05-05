@@ -53,6 +53,9 @@ To deploy a Vault cluster and clients using this repo, there are two approaches:
 * End-to-end Deployment: deploys HashiCorp Vault cluster and its ELB, Vault clients, and a bastion host into a new VPC with public, private subnets, and gateways. See [master deployment template](https://github.com/aws-quickstart/quickstart-hashicorp-vault/tree/master/templates/quickstart-hashicorp-vault-master.template).
 * Existing Infrastructure Deployment: deploys HashiCorp Vault cluster and its ALB, Vault clients, and a bastion host into a an existing VPC and its associated public, private subnets, and gateways. See [vault deployment template](https://github.com/aws-quickstart/quickstart-hashicorp-Vault/tree/master/templates/quickstart-hashicorp-vault.template).
 
+#### How to Deploy Vault with a CIS Ubuntu Linux 16.04 LTS Hardened AMI
+The CIS AMI for Ubuntu Linux 16.04 LTS is available as an optional hardened AMI type. This image of Ubuntu Linux 16.04 LTS is preconfigured by CIS to the recommendations in the associated CIS Benchmark and is available in the AWS Marketplace at a cost per hour. For more information, please visit [CIS Ubuntu Linux 16.04 LTS Benchmark - Level 1](https://aws.amazon.com/marketplace/pp/B078TPPXV2?qid=1588650469654).
+
 #### How to Deploy Vault with Raft Integrated Storage
 [Raft](https://www.vaultproject.io/docs/internals/integrated-storage) consensus algorithm is enabled by default. Using raft as a storage backend eliminates reliance on any third party systems, it implements high availability, supports Enterprise Replication features, and provides backup/restore workflows. For more information, please visit the following HashiCorp Learn pages:
 * [Vault with Integrated Storage Reference Architecture](https://learn.hashicorp.com/vault/operations/raft-reference-architecture)
@@ -60,10 +63,10 @@ To deploy a Vault cluster and clients using this repo, there are two approaches:
 * [Migrating to Integrated Storage](https://learn.hashicorp.com/vault/operations/storage-migration-checklist)
 
 #### How to Manage Vault Agent with AWS Auth Method
-[AWS auth method](https://www.vaultproject.io/docs/auth/aws) is available an optional auth method in the deployment wizard. The aws auth method provides an automated mechanism to retrieve a Vault token for IAM principals and AWS EC2 instances. For more information, please visit [Vault Agent with AWS](https://learn.hashicorp.com/vault/identity-access-management/vault-agent-aws).
+[AWS auth method](https://www.vaultproject.io/docs/auth/aws) is available as an optional auth method in the deployment wizard. The aws auth method provides an automated mechanism to retrieve a Vault token for IAM principals and AWS EC2 instances. For more information, please visit [Vault Agent with AWS](https://learn.hashicorp.com/vault/identity-access-management/vault-agent-aws).
 
 #### How to Manage Vault Agent with Kubernetes Auth Method
-[Kubernetes auth method](https://www.vaultproject.io/docs/auth/kubernetes) is available an optional auth method in the deployment wizard. The kubernetes auth method can be used to authenticate with Vault using a Kubernetes Service Account Token. For more information, please visit [Vault Agent with Kubernetes](https://learn.hashicorp.com/vault/identity-access-management/vault-agent-k8s).
+[Kubernetes auth method](https://www.vaultproject.io/docs/auth/kubernetes) is available as an optional auth method in the deployment wizard. The kubernetes auth method can be used to authenticate with Vault using a Kubernetes Service Account Token. For more information, please visit [Vault Agent with Kubernetes](https://learn.hashicorp.com/vault/identity-access-management/vault-agent-k8s).
 
 #### How to Manage Vault Auto Unseal with AWS KMS
 [Vault auto unseal](https://www.vaultproject.io/docs/concepts/seal#auto-unseal) was developed to aid in reducing the operational complexity of keeping the master key secure. For more information, please visit [Auto Unseal using AWS KMS](https://learn.hashicorp.com/vault/operations/ops-autounseal-aws-kms).
