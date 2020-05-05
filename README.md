@@ -13,8 +13,9 @@
 ### Overview
 This repo contains a set of CloudFormation templates and modules for deploying an open-source HashiCorp Vault cluster and clients on AWS. HashiCorp Vault is a tool that provides secrets management, encryption as a service, and privileged access management. Vault’s core use cases include:
 
-* Secrets Management, to centrally store, access, and distribute dynamics seecrets;
-* Data Protection, to keep data secure with centralized key management and simple APIs for data encryption.
+* Secrets Management: Simplify and secure managing and deploying secrets across different environments, applications, and services;
+* Encryption & Data Protection: Simplify encryption and key management for developers and operators across different environments, applications, and services;
+* Privileged Access Management: Simplify and secure workloads for application to application and user to application credential management across different environments and services
 
 ### Vault Storage Architectture
 
