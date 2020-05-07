@@ -442,7 +442,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       Certificates:
-      - CertificateArn: !If [ CreateDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", ACMSSLCertificateArn ]
+      - CertificateArn: !If [ CreateDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", !Ref ACMSSLCertificateArn ]
       DefaultActions:
       - Type: forward
         TargetGroupArn: !Ref VaultServerTargetGroup
