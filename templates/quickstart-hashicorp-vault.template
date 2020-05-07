@@ -277,9 +277,11 @@ Parameters:
     Type: String
     Description: The fully qualified domain name for the Hashicorp Vault load balancer. Use with 'HostedZoneID' if you are not using SSL.
     MaxLength: 128
+    Default: ""
   HostedZoneID:
-    Type: AWS::Route53::HostedZone::Id
+    Type: String
     Description: Route 53 Hosted Zone ID of the domain name. Used in conjunction with 'DomainName'.
+    Default: ""
   ACMSSLCertificateArn:
     Description: The Amazon Resource Name (ARN) of the SSL certificate to use for the load balancer. Use 'ACMSSLCertificateArn' if you are not using 'DomainName' and 'HostedZoneID'.
     Type: String
