@@ -42,22 +42,8 @@ install_vault
 
 # Allow local firewall Access (Required to open local FW access for Vault Server on CIS images) 
 # Test if we are on CIS or ubuntu
-CIS=$(systemctl | grep ufw | grep exited)
-if [ "${CIS}X" = "X" ]
-then
-        echo "CIS Instance setting iptables rules"
-        CIS=0
-else
-        echo "Ubuntu no need for iptables rules"
-        CIS=1
-fi
-
-if [ $CIS -eq 0 ]
-then
-
-        iptables -I INPUT 6 -p tcp -m tcp --dport 8200 -j ACCEPT 2>&1 > /dev/null
-        iptables -I INPUT 7 -p tcp -m tcp --dport 8201 -j ACCEPT 2>&1 > /dev/null
-fi
+iptables -I INPUT 6 -p tcp -m tcp --dport 8200 -j ACCEPT 2>&1 > /dev/null || echo Ubuntu
+iptables -I INPUT 7 -p tcp -m tcp --dport 8201 -j ACCEPT 2>&1 > /dev/null || echo Ubuntu
 
 # Create systemd service file for Vault
 vault_systemctl_file
