@@ -222,9 +222,9 @@ then
                 get_kubernetes_jwt
                 
                 vault write auth/kubernetes/config \
-                        token_reviewer_jwt=@/etc/vauld.d/jwt.token \
+                        token_reviewer_jwt="$(base64 -d /etc/vault.d/jwt.token)" \
                         kubernetes_host=${VAULT_KUBERNETES_HOST_URL} \
-                        kubernetes_ca_cert=@/etc/vault.d/ca.crt
+                        kubernetes_ca_cert="$(base64 -d /etc/vault.d/ca.crt)"
                 
                 vault write auth/kubernetes/role/${VAULT_KUBERNETES_ROLE_NAME} \
                         bound_service_account_names=vault-auth \

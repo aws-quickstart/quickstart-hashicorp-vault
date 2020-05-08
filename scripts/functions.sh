@@ -1,6 +1,7 @@
 # Common functions for bootstrap
 get_ssm_param () {
-        local value=$(aws ssm get-parameter --region ${AWS_REGION} --name "$1"| jq -r ".Parameter|.Value" )
+
+        local value=$(aws ssm get-parameter --region ${AWS_REGION} --name "$1" $2| jq -r ".Parameter|.Value" )
         echo $value
 }
 
@@ -109,7 +110,7 @@ EOF
 
 get_kubernetes_jwt () {
 cat <<EOF > /etc/vault.d/jwt.token
-$(get_ssm_param ${VAULT_KUBERNETES_JWT})
+$(get_ssm_param ${VAULT_KUBERNETES_JWT} " --with-decryption")
 EOF
 # # The newlines get lost ... just fix the cert
 # sed -zi 's/IN CE/IN_CE/g' /etc/vault.d/ca.crt
