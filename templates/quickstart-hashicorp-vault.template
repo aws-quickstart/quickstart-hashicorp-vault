@@ -39,6 +39,7 @@ Metadata:
       - VaultKubernetesHostURL
       - VaultKubernetesRoleName
       - VaultKubernetesCertificate
+      - VaultKubernetesJWT
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -115,6 +116,8 @@ Metadata:
         default: "URL of the Kubernetes cluster eg - https://192.168.99.100:8443"
       VaultKubernetesCertificate:
         default: "AWS SSM Parameter containing PEM encoded CA cert of the Kubernetes cluster"
+      VaultKubernetesJWT:
+        default: "AWS SSM Parameter containing JWT Token for the Kubernetes cluster service account"
 Parameters:
   VaultAMIOS:
     AllowedValues:
@@ -301,7 +304,10 @@ Parameters:
     Description: "URL of the Kubernetes cluster eg: - https://192.168.99.100:8443"
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM Parameter containing your Kubernetes PEM encoded CA cert"
+    Description: "AWS SSM Parameter containing your Kubernetes cluster CA cert"
+    Type: String
+  VaultKubernetesJWT:
+    Description: "AWS SSM Parameter containing JWT Token for the Kubernetes cluster service account"
     Type: String
 Mappings:
   LinuxAMINameMap:
@@ -765,6 +771,7 @@ Resources:
             export VAULT_KUBERNETES_ROLE_NAME=${VaultKubernetesRoleName}
             export VAULT_KUBERNETES_HOST_URL=${VaultKubernetesHostURL}
             export VAULT_KUBERNETES_CERTIFICATE=${VaultKubernetesCertificate}
+            export VAULT_KUBERNETES_JWT=${VaultKubernetesJWT}
 
             pip install awscli
             mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
@@ -802,7 +809,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Count: !Ref VaultServerNodes
-        Timeout: PT20M
+        Timeout: PT12M
   LeaderElectionLambda:
     Type: "AWS::Lambda::Function"
     Properties:
@@ -999,7 +1006,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Count: !Ref VaultClientNodes
-        Timeout: PT20M
+        Timeout: PT12M
   VaultClientSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -1093,3 +1100,6 @@ Outputs:
   VaultClientRoleId:
     Value: !Ref VaultClientRoleName
     Description: The Hashicorp Vault identifier of the AWS client role.
+  VaultAuditLogGroup:
+    Value: !Ref VaultLogGroup
+    Description: CloudWatch Log Group where the Hashicorp Vault audit logs are recorded

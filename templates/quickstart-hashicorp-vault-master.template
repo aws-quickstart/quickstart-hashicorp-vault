@@ -37,6 +37,7 @@ Metadata:
       - VaultKubernetesHostURL
       - VaultKubernetesRoleName
       - VaultKubernetesCertificate
+      - VaultKubernetesJWT
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -112,7 +113,9 @@ Metadata:
       VaultKubernetesHostURL:
         default: "URL of the Kubernetes cluster eg - https://192.168.99.100:8443"
       VaultKubernetesCertificate:
-        default: "AWS SSM Parameter containing PEM encoded CA cert of the Kubernetes cluster"
+        default: "AWS SSM Parameter containing CA cert of the Kubernetes cluster"
+      VaultKubernetesJWT:
+        default: "AWS SSM Parameter containing JWT Token for the Kubernetes cluster service account"
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Parameters:
@@ -321,7 +324,10 @@ Parameters:
     Description: "URL of the Kubernetes cluster eg: - https://192.168.99.100:8443"
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM Parameter containing your Kubernetes PEM encoded CA cert"
+    Description: "AWS SSM Parameter containing your Kubernetes API CA certificate"
+    Type: String
+  VaultKubernetesJWT:
+    Description: "AWS SSM Parameter containing JWT Token for the Kubernetes cluster service account"
     Type: String
 Resources:
   VPCStack:
@@ -423,6 +429,7 @@ Resources:
         VaultKubernetesEnable: !Ref VaultKubernetesEnable
         VaultKubernetesRoleName: !Ref VaultKubernetesRoleName
         VaultKubernetesHostURL: !Ref VaultKubernetesHostURL
+        VaultKubernetesJWT: !Ref VaultKubernetesJWT
         VaultKubernetesCertificate: !Ref VaultKubernetesCertificate
 Outputs:
   BastionHost:
@@ -449,3 +456,6 @@ Outputs:
   VaultLoadBalancer:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultLoadBalancer"
     Description: Hashicorp Vault Load Balancer address
+  VaultAuditLogGroup:
+    Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultAuditLogGroup"
+    Description: CloudWatch Log Group where the Hashicorp Vault audit logs are recorded

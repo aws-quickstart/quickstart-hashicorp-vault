@@ -99,12 +99,24 @@ get_kubernetes_ca () {
 cat <<EOF > /etc/vault.d/ca.crt
 $(get_ssm_param ${VAULT_KUBERNETES_CERTIFICATE})
 EOF
-# The newlines get lost ... just fix the cert
-sed -zi 's/IN CE/IN_CE/g' /etc/vault.d/ca.crt
-sed -zi 's/ND CE/ND_CE/g' /etc/vault.d/ca.crt
-sed -zi 's/ /\n/g' /etc/vault.d/ca.crt
-sed -zi 's/IN_CE/IN CE/g' /etc/vault.d/ca.crt
-sed -zi 's/ND_CE/ND CE/g' /etc/vault.d/ca.crt
+# # The newlines get lost ... just fix the cert
+# sed -zi 's/IN CE/IN_CE/g' /etc/vault.d/ca.crt
+# sed -zi 's/ND CE/ND_CE/g' /etc/vault.d/ca.crt
+# sed -zi 's/ /\n/g' /etc/vault.d/ca.crt
+# sed -zi 's/IN_CE/IN CE/g' /etc/vault.d/ca.crt
+# sed -zi 's/ND_CE/ND CE/g' /etc/vault.d/ca.crt
+}
+
+get_kubernetes_jwt () {
+cat <<EOF > /etc/vault.d/jwt.token
+$(get_ssm_param ${VAULT_KUBERNETES_JWT})
+EOF
+# # The newlines get lost ... just fix the cert
+# sed -zi 's/IN CE/IN_CE/g' /etc/vault.d/ca.crt
+# sed -zi 's/ND CE/ND_CE/g' /etc/vault.d/ca.crt
+# sed -zi 's/ /\n/g' /etc/vault.d/ca.crt
+# sed -zi 's/IN_CE/IN CE/g' /etc/vault.d/ca.crt
+# sed -zi 's/ND_CE/ND CE/g' /etc/vault.d/ca.crt
 }
 
 USER="vault"
