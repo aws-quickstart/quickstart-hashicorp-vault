@@ -100,6 +100,8 @@ get_kubernetes_ca () {
 cat <<EOF > /etc/vault.d/ca.crt
 $(get_ssm_param ${VAULT_KUBERNETES_CERTIFICATE})
 EOF
+chown ${USER}.${GROUP} /etc/vault.d/ca.crt
+chmod 600 /etc/vault.d/ca.crt
 # # The newlines get lost ... just fix the cert
 # sed -zi 's/IN CE/IN_CE/g' /etc/vault.d/ca.crt
 # sed -zi 's/ND CE/ND_CE/g' /etc/vault.d/ca.crt
@@ -112,6 +114,8 @@ get_kubernetes_jwt () {
 cat <<EOF > /etc/vault.d/jwt.token
 $(get_ssm_param ${VAULT_KUBERNETES_JWT} " --with-decryption")
 EOF
+chown ${USER}.${GROUP} /etc/vault.d/jwt.token
+chmod 600 /etc/vault.d/jwt.token
 # # The newlines get lost ... just fix the cert
 # sed -zi 's/IN CE/IN_CE/g' /etc/vault.d/ca.crt
 # sed -zi 's/ND CE/ND_CE/g' /etc/vault.d/ca.crt

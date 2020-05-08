@@ -227,9 +227,9 @@ then
                         kubernetes_ca_cert="$(base64 -d /etc/vault.d/ca.crt)"
                 
                 vault write auth/kubernetes/role/${VAULT_KUBERNETES_ROLE_NAME} \
-                        bound_service_account_names=vault-auth \
-                        bound_service_account_namespaces=default \
-                        policies=default \
+                        bound_service_account_names=${VAULT_KUBERNETES_SERVICE_ACCOUNT} \
+                        bound_service_account_namespaces=${VAULT_KUBERNETES_NAME_SPACE} \
+                        policies=${VAULT_KUBERNETES_POLICIES} \
                         ttl=1h
 
         fi

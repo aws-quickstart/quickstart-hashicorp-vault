@@ -38,6 +38,9 @@ Metadata:
       - VaultKubernetesRoleName
       - VaultKubernetesCertificate
       - VaultKubernetesJWT
+      - VaultKubernetesServiceAccount
+      - VaultKubernetesNameSpace
+      - VaultKubernetesPolicies
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -113,9 +116,15 @@ Metadata:
       VaultKubernetesHostURL:
         default: "URL of the Kubernetes cluster eg - https://192.168.99.100:8443"
       VaultKubernetesCertificate:
-        default: "AWS SSM Parameter containing CA cert of the Kubernetes cluster"
+        default: "AWS SSM Parameter containing base64 encoded PEM CA cert of the Kubernetes cluster"
       VaultKubernetesJWT:
-        default: "AWS SSM Parameter containing JWT Token for the Kubernetes cluster service account"
+        default: "AWS SSM Secure Parameter containing base64 encoded JWT Token for the Kubernetes cluster service account"
+      VaultKubernetesServiceAccount:
+        default: "The name of the Kubernetes service account"
+      VaultKubernetesNameSpace:
+        default: "The namespace of the Kubernetes service account"
+      VaultKubernetesPolicies:
+        default: "The policies for the Kubernetes service account"
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Parameters:
@@ -324,11 +333,23 @@ Parameters:
     Description: "URL of the Kubernetes cluster eg: - https://192.168.99.100:8443"
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM Parameter containing your Kubernetes API CA certificate"
+    Description: "AWS SSM Parameter containing base64 encoded PEM CA cert of the Kubernetes cluster"
     Type: String
   VaultKubernetesJWT:
-    Description: "AWS SSM Parameter containing JWT Token for the Kubernetes cluster service account"
+    Description: "AWS SSM Secure Parameter containing base64 encoded JWT Token for the Kubernetes cluster service account"
     Type: String
+  VaultKubernetesServiceAccount:
+    Description: "The name of the Kubernetes service account"
+    Default: vault-auth
+    Type: String 
+  VaultKubernetesNameSpace:
+    Description: "The namespace of the Kubernetes service account"
+    Default: default
+    Type: String 
+  VaultKubernetesPolicies:
+    Description: "The policies for the Kubernetes service account"
+    Default: default
+    Type: String 
 Resources:
   VPCStack:
     Metadata:
@@ -431,6 +452,9 @@ Resources:
         VaultKubernetesHostURL: !Ref VaultKubernetesHostURL
         VaultKubernetesJWT: !Ref VaultKubernetesJWT
         VaultKubernetesCertificate: !Ref VaultKubernetesCertificate
+        VaultKubernetesServiceAccount: !Ref VaultKubernetesServiceAccount
+        VaultKubernetesNameSpace: !Ref VaultKubernetesNameSpace
+        VaultKubernetesPolicies: !Ref VaultKubernetesPolicies
 Outputs:
   BastionHost:
     Value: !GetAtt "LinuxBastionHostStack.Outputs.EIP1"
