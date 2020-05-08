@@ -334,9 +334,11 @@ Parameters:
     Type: String
   VaultKubernetesCertificate:
     Description: "AWS SSM Parameter containing base64 encoded PEM CA cert of the Kubernetes cluster"
+    Default: ""
     Type: String
   VaultKubernetesJWT:
     Description: "AWS SSM Secure Parameter containing base64 encoded JWT Token for the Kubernetes cluster service account"
+    Default: ""
     Type: String
   VaultKubernetesServiceAccount:
     Description: "The name of the Kubernetes service account"
