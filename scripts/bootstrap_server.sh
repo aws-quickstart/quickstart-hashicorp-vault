@@ -219,17 +219,19 @@ then
                 vault auth enable kubernetes
 
                 get_kubernetes_ca
+                get_kubernetes_jwt
                 
                 vault write auth/kubernetes/config \
-                        token_reviewer_jwt="reviewer_service_account_jwt" \
+                        token_reviewer_jwt="$(base64 -d /etc/vault.d/jwt.token)" \
                         kubernetes_host=${VAULT_KUBERNETES_HOST_URL} \
-                        kubernetes_ca_cert=@/etc/vault.d/ca.crt
+                        kubernetes_ca_cert="$(base64 -d /etc/vault.d/ca.crt)"
                 
                 vault write auth/kubernetes/role/${VAULT_KUBERNETES_ROLE_NAME} \
-                        bound_service_account_names=vault-auth \
-                        bound_service_account_namespaces=default \
-                        policies=default \
+                        bound_service_account_names=${VAULT_KUBERNETES_SERVICE_ACCOUNT} \
+                        bound_service_account_namespaces=${VAULT_KUBERNETES_NAME_SPACE} \
+                        policies=${VAULT_KUBERNETES_POLICIES} \
                         ttl=1h
+
         fi
 
         # Take a raft snapshot

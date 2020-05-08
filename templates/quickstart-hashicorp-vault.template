@@ -39,6 +39,10 @@ Metadata:
       - VaultKubernetesHostURL
       - VaultKubernetesRoleName
       - VaultKubernetesCertificate
+      - VaultKubernetesJWT
+      - VaultKubernetesServiceAccount
+      - VaultKubernetesNameSpace
+      - VaultKubernetesPolicies
     - Label:
         default: AWS Quick Start configuration
       Parameters:
@@ -114,7 +118,15 @@ Metadata:
       VaultKubernetesHostURL:
         default: "URL of the Kubernetes cluster eg - https://192.168.99.100:8443"
       VaultKubernetesCertificate:
-        default: "AWS SSM Parameter containing PEM encoded CA cert of the Kubernetes cluster"
+        default: "AWS SSM Parameter containing base64 encoded PEM CA cert of the Kubernetes cluster"
+      VaultKubernetesJWT:
+        default: "AWS SSM Secure Parameter containing base64 encoded JWT Token for the Kubernetes cluster service account"
+      VaultKubernetesServiceAccount:
+        default: "The name of the Kubernetes service account"
+      VaultKubernetesNameSpace:
+        default: "The namespace of the Kubernetes service account"
+      VaultKubernetesPolicies:
+        default: "The policies for the Kubernetes service account"
 Parameters:
   VaultAMIOS:
     AllowedValues:
@@ -301,8 +313,23 @@ Parameters:
     Description: "URL of the Kubernetes cluster eg: - https://192.168.99.100:8443"
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM Parameter containing your Kubernetes PEM encoded CA cert"
+    Description: "AWS SSM Parameter containing base64 encoded PEM CA cert of the Kubernetes cluster"
     Type: String
+  VaultKubernetesJWT:
+    Description: "AWS SSM Secure Parameter containing base64 encoded JWT Token for the Kubernetes cluster service account"
+    Type: String
+  VaultKubernetesServiceAccount:
+    Description: "The name of the Kubernetes service account"
+    Default: vault-auth
+    Type: String 
+  VaultKubernetesNameSpace:
+    Description: "The namespace of the Kubernetes service account"
+    Default: default
+    Type: String 
+  VaultKubernetesPolicies:
+    Description: "The policies for the Kubernetes service account"
+    Default: default
+    Type: String 
 Mappings:
   LinuxAMINameMap:
     Ubuntu-1604-HVM:
@@ -765,6 +792,11 @@ Resources:
             export VAULT_KUBERNETES_ROLE_NAME=${VaultKubernetesRoleName}
             export VAULT_KUBERNETES_HOST_URL=${VaultKubernetesHostURL}
             export VAULT_KUBERNETES_CERTIFICATE=${VaultKubernetesCertificate}
+            export VAULT_KUBERNETES_JWT=${VaultKubernetesJWT}
+            
+            export VAULT_KUBERNETES_SERVICE_ACCOUNT=${VaultKubernetesServiceAccount}
+            export VAULT_KUBERNETES_NAME_SPACE=${VaultKubernetesNameSpace}
+            export VAULT_KUBERNETES_POLICIES=${VaultKubernetesPolicies}
 
             pip install awscli
             mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
@@ -802,7 +834,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Count: !Ref VaultServerNodes
-        Timeout: PT20M
+        Timeout: PT12M
   LeaderElectionLambda:
     Type: "AWS::Lambda::Function"
     Properties:
@@ -999,7 +1031,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Count: !Ref VaultClientNodes
-        Timeout: PT20M
+        Timeout: PT12M
   VaultClientSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -1093,3 +1125,6 @@ Outputs:
   VaultClientRoleId:
     Value: !Ref VaultClientRoleName
     Description: The Hashicorp Vault identifier of the AWS client role.
+  VaultAuditLogGroup:
+    Value: !Ref VaultLogGroup
+    Description: CloudWatch Log Group where the Hashicorp Vault audit logs are recorded
