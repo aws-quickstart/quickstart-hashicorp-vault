@@ -77,7 +77,7 @@ cat << EOF >/etc/awslogs-config-file
 state_file = /var/awslogs/state/agent-state
 
 [/var/log/syslog]
-file = ${VAULT_LOG_PATH}/vault_audit.logs
+file = ${VAULT_LOG_PATH}/vault-audit.log
 log_group_name = ${VAULT_LOG_GROUP}
 log_stream_name = {instance_id}
 datetime_format = %b %d %H:%M:%S
