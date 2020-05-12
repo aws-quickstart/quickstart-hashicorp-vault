@@ -297,5 +297,20 @@ until curl -fs -o /dev/null localhost:8200/v1/sys/init; do
         sleep 2
 done
 
+# Don't signal until we are unsealed
+while true 
+do
+        sealed=$(curl -fs localhost:8200/v1/sys/seal-status | jq -r .sealed)
+        echo -n "Making sure vault is unsealed..."
+        if [ $sealed != "false" ] 
+        then
+                echo " sealed sleep 2"
+                sleep 2
+        else
+                echo " unsealed signal success"        
+                break
+        fi
+done
+
 # Vault has started signal success to Cloudformation
 exit 0
