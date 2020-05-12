@@ -6,10 +6,6 @@
 	path = submodules/quickstart-linux-bastion
 	url = ../../aws-quickstart/quickstart-linux-bastion.git
 	branch = master
-[submodule "submodules/quickstart-hashicorp-consul"]
-	path = submodules/quickstart-hashicorp-consul
-	url = ../../aws-quickstart/quickstart-hashicorp-consul.git
-	branch = freeze-updates
 [submodule "submodules/lambda-copyzips"]
 	path = submodules/lambda-copyzips
 	url = ../../aws-quickstart/lambda-copyzips.git

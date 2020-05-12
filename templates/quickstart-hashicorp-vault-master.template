@@ -23,7 +23,6 @@ Metadata:
     - Label:
         default: Vault configuration
       Parameters:
-      - EmailAddress
       - KeyPairName
       - VaultVersion
       - VaultAMIOS
@@ -81,50 +80,50 @@ Metadata:
         default: Quick Start S3 Bucket Region
       AccessCIDR:
         default: Permitted IP range
-      EmailAddress:
-        default: Email Address
+      VPCID:
+        default: VPC ID
       VPCCIDR:
         default: VPC CIDR
-      VaultAMIOS:
-        default: Which OS AMI should the Vault cluster run
       VaultVersion:
-        default: Which version of Hashicorp Vault to install
+        default: Hashicorp Vault version
+      VaultAMIOS:
+        default: Vault cluster Operating system
       VaultClientNodes:
         default: Number of Vault client nodes
       VaultServerNodes:
         default: Number of Vault server nodes
       VaultInstanceType:
-        default: Hashicorp Vault node instance type
+        default: Instance type
       VaultNumberOfKeys:
-        default: Number of unseal keys created when Hashicorp Vault cluster is initialized
+        default: Total number of unseal keys to create
       VaultNumberOfKeysForUnseal:
-        default: Number of unseal keys required to unseal the Hashicorp Vault cluster
+        default: Number Unseal keys required for un seal
       VaultClientRoleName:
-        default: Internal name of the AWS IAM role authorized to use Vault
+        default: Vault AWS role name
       LoadBalancerType:
-        default: Internval or external load balancer
+        default: "Internal/External load balancer?"
       ACMSSLCertificateArn:
         default: SSL certificate ARN
       HostedZoneID:
-        default: Route 53 hosted zone ID
+        default: Hosted Zone ID
       DomainName:
         default: Load Balancer DNS Domain Name
       VaultKubernetesEnable:
-        default: Enable Kubernetes Authentication and create role
+        default: "Enable Kubernetes Authentication?"
       VaultKubernetesRoleName:
-        default: Internal Hashicorp Vault name for Kubernetes Authentication role
+        default: Kubernetes Vault Role Name
       VaultKubernetesHostURL:
-        default: "URL of the Kubernetes cluster eg - https://192.168.99.100:8443"
+        default: "Kubernetes Host URL"
       VaultKubernetesCertificate:
-        default: "AWS SSM Parameter containing base64 encoded PEM CA cert of the Kubernetes cluster"
+        default: "Kubernetes CA Certificate"
       VaultKubernetesJWT:
-        default: "AWS SSM Secure Parameter containing base64 encoded JWT Token for the Kubernetes cluster service account"
+        default: "Kubernetes JWT Token"
       VaultKubernetesServiceAccount:
-        default: "The name of the Kubernetes service account"
+        default: "Kubernetes Service Account name"
       VaultKubernetesNameSpace:
-        default: "The namespace of the Kubernetes service account"
+        default: "Kubernetes Name space"
       VaultKubernetesPolicies:
-        default: "The policies for the Kubernetes service account"
+        default: "Kubernetes Vault Policies"
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Parameters:
@@ -150,10 +149,6 @@ Parameters:
     - 2
     Type: String
     Default: 1
-  EmailAddress:
-    Type: String
-    Description: Email Address for SNS Topic. Alarms for Vault instance memory utilization
-    Default: none@example.com
   PrivateSubnet1CIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
     Default: 10.0.0.0/19
@@ -437,7 +432,6 @@ Resources:
         VPCID: !GetAtt "VPCStack.Outputs.VPCID"
         VPCCIDR: !Ref VPCCIDR
         KeyPairName: !Ref KeyPairName
-        EmailAddress: !Ref EmailAddress
         VaultVersion: !Ref VaultVersion
         VaultInstanceType: !Ref VaultInstanceType
         VaultClientNodes: !Ref VaultClientNodes
