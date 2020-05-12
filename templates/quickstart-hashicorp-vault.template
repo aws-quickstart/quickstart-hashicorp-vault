@@ -696,7 +696,7 @@ Resources:
             - secretsmanager:PutSecretValue
             - secretsmanager:GetSecretValue
             Resource:
-            - !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:VaultSecret-${VaultSecGroup}"
+            - !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:VaultSecret-${VaultSecGroup}*"
           - Effect: Allow
             Action:
               - iam:GetRole
