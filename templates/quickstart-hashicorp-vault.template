@@ -766,7 +766,7 @@ Resources:
             export CLUSTER_BOOTSTRAP_LAMBDA=${ClusterBootstrapLambda}
             export KMS_KEY=${VaultKmsKey}
             
-            export VAULT_SECRET=${VaultSecret}
+            export VAULT_SECRET=VaultSecret-${VaultSecGroup}
             export VAULT_CLIENT_ROLE=${VaultClientRole.Arn}
             export VAULT_CLIENT_ROLE_NAME=${VaultClientRoleName}
             export VAULT_VERSION=${VaultVersion}
