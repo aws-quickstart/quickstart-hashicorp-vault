@@ -682,8 +682,7 @@ Resources:
             - !Sub "${ClusterBootstrapLambda.Arn}"
           - Effect: Allow
             Action:
-            - autoscaling:DescribeAutoScalingGroups
-            - autoscaline:DescribeAutoScalingInstances
+            - autoscaling:Describe*
             Resource: "*"
           - Effect: Allow
             Action:
