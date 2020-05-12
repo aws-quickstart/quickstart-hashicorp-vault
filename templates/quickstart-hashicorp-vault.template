@@ -676,10 +676,10 @@ Resources:
             - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultKubernetesJWT}"
           - Effect: Allow
             Action:
-            - lambda:*
+            - lambda:InvokeFunction
             Resource:
-            - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${LeaderElectionLambda}"
-            - !Sub "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${ClusterBootstrapLambda}"
+            - !Sub "${LeaderElectionLambda.Arn}"
+            - !Sub "${ClusterBootstrapLambda.Arn}"
           - Effect: Allow
             Action:
             - autoscaling:DescribeAutoScalingGroups
