@@ -85,7 +85,7 @@ Metadata:
       VPCCIDR:
         default: VPC CIDR
       VaultVersion:
-        default: Hashicorp Vault version
+        default: HashiCorp Vault version
       VaultAMIOS:
         default: Vault cluster Operating system
       VaultClientNodes:
@@ -143,7 +143,7 @@ Parameters:
     Type: AWS::EC2::SecurityGroup::Id
   VaultServerNodes:
     Type: String
-    Description: Number of Hashicorp Vault server cluster members.
+    Description: Number of HashiCorp Vault server cluster members.
     Default: '5'
     AllowedValues:
      - '3'
@@ -151,7 +151,7 @@ Parameters:
      - '7'
   VaultClientNodes:
     Type: String
-    Description: Number of Vault nodes to demonstrate client AWS IAM access to Hashicorp Vault.
+    Description: Number of Vault nodes to demonstrate client AWS IAM access to HashiCorp Vault.
     Default: '0'
     AllowedValues:
      - '0'
@@ -161,16 +161,16 @@ Parameters:
     Default: '5'
     AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
     ConstraintDescription: Must be a value between 1 and 99.
-    Description: Number of unseal keys to create for Hashicorp Vault.
+    Description: Number of unseal keys to create for HashiCorp Vault.
   VaultNumberOfKeysForUnseal:
     Type: String
     Default: '3'
     AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
     ConstraintDescription: Must be a value between 1 and 99.
-    Description: Number of keys required for unsealing Hashicorp Vault.
+    Description: Number of keys required for unsealing HashiCorp Vault.
   VaultInstanceType:
     Type: String
-    Description: Hashicorp Vault node instance type.
+    Description: HashiCorp Vault node instance type.
     AllowedValues:
     - 'c5.12xlarge'
     - 'c5.18xlarge'
@@ -249,19 +249,19 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
   AccessCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
-    Description: 'The CIDR IP range that is permitted to access Consul Note: a value
-      of 0.0.0.0/0 will allow access from ANY ip address'
+    Description: 'The CIDR IP range that is permitted to access Vault Note: A value
+      of 0.0.0.0/0 allows access from ANY IP address.'
     Type: String
   VPCID:
     Description: VPC ID
     Type: AWS::EC2::VPC::Id
   VPCCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
-    Description: CIDR Block for the VPC
+    Description: CIDR block for the VPC
     Type: String
   VaultVersion:
     Type: String
-    Description: Which version of Hashicorp Vault to install
+    Description: Which version of HashiCorp Vault to install
     Default: 1.4.0
     AllowedValues:
     - 1.4.0
@@ -270,7 +270,7 @@ Parameters:
     Default: "quickstart-client-role-iam"
     MinLength: "3"
     ConstraintDescription: This identifier should be at least 3 characters in length.
-    Description: The internal Hashicorp Vault identifier for the AWS IAM role.
+    Description: The internal HashiCorp Vault identifier for the AWS IAM role.
   LoadBalancerType:
     Type: String
     Default: "Internal"
@@ -280,7 +280,7 @@ Parameters:
     - "External"
   DomainName:
     Type: String
-    Description: The fully qualified domain name for the Hashicorp Vault load balancer. Use with 'HostedZoneID' if you are not using SSL.
+    Description: The fully qualified domain name for the HashiCorp Vault load balancer. Use with 'HostedZoneID' if you are not using SSL.
     MaxLength: 128
     Default: ""
   HostedZoneID:
@@ -299,7 +299,7 @@ Parameters:
       - 'true'
       - 'false'
   VaultKubernetesRoleName:
-    Description: Internal Hashicorp Vault name for Kubernetes Authentication role
+    Description: Internal HashiCorp Vault name for Kubernetes Authentication role
     Type: String
     Default: 'kube-auth-role'
   VaultKubernetesHostURL:
@@ -418,7 +418,7 @@ Resources:
   VaultServerApplicationLoadBalancerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Hashicorp Vault Server Load Balancer
+      GroupDescription: HashiCorp Vault Server Load Balancer
       VpcId: !Ref VPCID
       SecurityGroupIngress:
         - CidrIp: !Ref AccessCIDR
@@ -1095,22 +1095,22 @@ Outputs:
       - DNSAddress: !If [ CustomDns, !Ref DomainName, !GetAtt "VaultServerApplicationLoadBalancer.DNSName"  ]
   VaultSecret:
     Value: !Ref "VaultSecret"
-    Description: The AWS Secrets Manager Secret containing the ROOT TOKEN and Recovery Secret for Hashicorp Vault.
+    Description: The AWS Secrets Manager Secret containing the ROOT TOKEN and Recovery Secret for HashiCorp Vault.
   VaultClientIAMRoleArn:
     Value: !GetAtt "VaultClientRole.Arn"
-    Description: The ARN of the AWS IAM role linked to Hashicorp Vault.
+    Description: The ARN of the AWS IAM role linked to HashiCorp Vault.
   VaultClientIAMRoleName:
     Value: !Ref "VaultClientRole"
-    Description: The name of the AWS IAM role linked to Hashicorp Vault.
+    Description: The name of the AWS IAM role linked to HashiCorp Vault.
   VaultKMSKeyId:
     Value: !Ref "VaultKmsKey"
-    Description: The AWS KMS Key used to Auto Unseal Hashicorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
+    Description: The AWS KMS Key used to Auto Unseal HashiCorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
   VaultKMSKeyArn:
     Value: !GetAtt "VaultKmsKey.Arn"
-    Description: The AWS KMS Key used to Auto Unseal Hashicorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
+    Description: The AWS KMS Key used to Auto Unseal HashiCorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
   VaultClientRoleId:
     Value: !Ref VaultClientRoleName
-    Description: The Hashicorp Vault identifier of the AWS client role.
+    Description: The HashiCorp Vault identifier of the AWS client role.
   VaultAuditLogGroup:
     Value: !Ref VaultLogGroup
-    Description: CloudWatch Log Group where the Hashicorp Vault audit logs are recorded
+    Description: CloudWatch Log Group where the HashiCorp Vault audit logs are recorded
