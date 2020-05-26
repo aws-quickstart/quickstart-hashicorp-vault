@@ -71,13 +71,13 @@ Metadata:
       PublicSubnet3ID:
         default: Third public subnet ID for Auto Scaling group
       KeyPairName:
-        default: Key Name
+        default: EC2 Key pair
       QSS3BucketName:
-        default: Quick Start S3 Bucket name
+        default: Quick Start S3 bucket name
       QSS3KeyPrefix:
-        default: Quick Start S3 Object Key prefix
+        default: Quick Start S3 object key prefix
       QSS3BucketRegion:
-        default: Quick Start S3 Bucket Region
+        default: Quick Start S3 bucket Region
       AccessCIDR:
         default: Permitted IP range
       VPCID:
@@ -87,29 +87,29 @@ Metadata:
       VaultVersion:
         default: HashiCorp Vault version
       VaultAMIOS:
-        default: Vault cluster Operating system
+        default: Vault cluster operating system
       VaultClientNodes:
-        default: Number of Vault client nodes
+        default: Vault client nodes
       VaultServerNodes:
-        default: Number of Vault server nodes
+        default: Vault server nodes
       VaultInstanceType:
         default: Instance type
       VaultNumberOfKeys:
-        default: Total number of un seal keys to create for Vault
+        default: Unseal keys to create
       VaultNumberOfKeysForUnseal:
-        default: Number of un seal keys required for unsealing Vault
+        default: Required unseal keys
       VaultClientRoleName:
-        default: Vault AWS authentication role name
+        default: Vault AWS role name
       LoadBalancerType:
-        default: "Internal/External load balancer?"
+        default: "Internal/external load balancer?"
       ACMSSLCertificateArn:
         default: SSL certificate ARN
       HostedZoneID:
-        default: Hosted Zone ID
+        default: Hosted-zone ID
       DomainName:
-        default: Load Balancer DNS domain name
+        default: Load balancer DNS domain name
       VaultKubernetesEnable:
-        default: "Enable Kubernetes authentication?"
+        default: "Enable Kubernetes authentication"
       VaultKubernetesRoleName:
         default: Kubernetes Vault role name
       VaultKubernetesHostURL:
@@ -130,10 +130,10 @@ Parameters:
       - Ubuntu-1604-HVM
       - CIS-Ubuntu-1604-HVM
     Default: Ubuntu-1604-HVM
-    Description: The Linux distribution for the AMI to be used for the Vault instances.
+    Description: Linux distribution AMI for the Vault instances.
     Type: String
   KeyPairName:
-    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances.
+    Description: Key pair to securely connect to your instance.
     Type: AWS::EC2::KeyPair::KeyName
     Default: id_rsa_aws
     ConstraintDescription: Must be the name of an existing EC2 KeyPair.
@@ -167,7 +167,7 @@ Parameters:
     Default: '3'
     AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
     ConstraintDescription: Must be a value between 1 and 99.
-    Description: Number of keys required for un sealing HashiCorp Vault.
+    Description: Number of keys required to unseal HashiCorp Vault.
   VaultInstanceType:
     Type: String
     Description: HashiCorp Vault node instance type.
@@ -253,15 +253,15 @@ Parameters:
       of 0.0.0.0/0 allows access from ANY IP address.'
     Type: String
   VPCID:
-    Description: VPC ID
+    Description: VPC ID.
     Type: AWS::EC2::VPC::Id
   VPCCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
-    Description: CIDR block for the VPC
+    Description: CIDR block for the VPC.
     Type: String
   VaultVersion:
     Type: String
-    Description: Which version of HashiCorp Vault to install.
+    Description: Specify which version of HashiCorp Vault to install.
     Default: 1.4.0
     AllowedValues:
     - 1.4.0
@@ -274,21 +274,22 @@ Parameters:
   LoadBalancerType:
     Type: String
     Default: "Internal"
-    Description: Is the Load Balancer for Vault internal or external.
+    Description: Specify if the load balancer for HashiCorp Vault is internal or external.
     AllowedValues:
     - "Internal"
     - "External"
   DomainName:
     Type: String
-    Description: The fully qualified domain name for the HashiCorp Vault load balancer. Use with 'HostedZoneID' if you are not providing 'ACMSSLCertificateArn'.
+    Description: Fully qualified domain name for the HashiCorp Vault load balancer.
+      If you don't provide a value for ACMSSLCertificateArn, use the HostedZoneID.
     MaxLength: 128
     Default: ""
   HostedZoneID:
     Type: String
-    Description: Route 53 Hosted Zone ID of the domain name. Used in conjunction with 'DomainName' if you are not providing 'ACMSSLCertificateArn'.
+    Description: Route 53-hosted zone ID of the domain name. If you don't provide an ACMSSLCertificateArn value, the Quick Start creates the ACM certificate for you using HostedZoneID in conjunction with DomainName.
     Default: ""
   ACMSSLCertificateArn:
-    Description: The Amazon Resource Name (ARN) of the SSL certificate to use for the load balancer. Use 'ACMSSLCertificateArn' if you are not using 'DomainName' and 'HostedZoneID'.
+    Description: Amazon Resource Name (ARN) of the load balancer's SSL certificate. If you don't provide values for DomainName and HostedZoneID, provide a value for ACMSSLCertificateArn.
     Type: String
     Default: ''
   VaultKubernetesEnable:
@@ -299,18 +300,18 @@ Parameters:
       - 'true'
       - 'false'
   VaultKubernetesRoleName:
-    Description: Internal HashiCorp Vault name for Kubernetes authentication role.
+    Description: Internal Vault name for the Kubernetes authentication role.
     Type: String
     Default: 'kube-auth-role'
   VaultKubernetesHostURL:
     Description: "URL of Kubernetes cluster eg: https://192.168.99.100:8443."
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM Parameter containing base64 encoded PEM CA certificate of the Kubernetes cluster service account."
+    Description: "AWS SSM Parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesJWT:
-    Description: "AWS SSM Secure Parameter containing base64 encoded JWT token for the Kubernetes cluster service account."
+    Description: "AWS SSM Secure Parameter containing a base64-encoded JWT token of the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesServiceAccount:

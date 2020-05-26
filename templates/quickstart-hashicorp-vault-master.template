@@ -85,7 +85,7 @@ Metadata:
       VPCCIDR:
         default: VPC CIDR
       VaultVersion:
-        default: Vault version
+        default: HashiCorp Vault version
       VaultAMIOS:
         default: Vault cluster operating system
       VaultClientNodes:
@@ -138,7 +138,7 @@ Parameters:
     Description: Linux distribution AMI for the Vault instances.
     Type: String
   KeyPairName:
-    Description: Key pairs to securely connect to your instance.
+    Description: Key pair to securely connect to your instance.
       after it launches.
     Type: AWS::EC2::KeyPair::KeyName
   NumBastionHosts:
@@ -327,11 +327,11 @@ Parameters:
     Description: "URL of Kubernetes cluster (e.g., https://192.168.99.100:8443)."
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM Parameter containing a base64-encoded PEM CA certificate for the Kubernetes cluster service account."
+    Description: "AWS SSM Parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesJWT:
-    Description: "AWS SSM Secure Parameter containing a base64-encoded JWT token for the Kubernetes cluster service account."
+    Description: "AWS SSM Secure Parameter containing a base64-encoded JWT token of the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesServiceAccount:
