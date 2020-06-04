@@ -9,7 +9,7 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
-        default: Network configuration
+        default: VPC network configuration
       Parameters:
       - AccessCIDR
       - VPCID
@@ -22,7 +22,7 @@ Metadata:
       - PublicSubnet2ID
       - PublicSubnet3ID
     - Label:
-        default: Vault Setup
+        default: Vault configuration
       Parameters:
       - KeyPairName
       - VaultVersion
@@ -49,7 +49,7 @@ Metadata:
       - QSS3KeyPrefix
       - QSS3BucketRegion
     - Label:
-        default: Load Balancer configuration
+        default: Load balancer configuration
       Parameters:
       - LoadBalancerType
       - DomainName
@@ -59,25 +59,25 @@ Metadata:
       BastionSecurityGroupID:
         default: Bastion host security group ID
       PrivateSubnet1ID:
-        default: First subnet ID for autoscaling group
+        default: First subnet ID for auto scaling group
       PrivateSubnet2ID:
-        default: Second subnet ID for autoscaling group
+        default: Second subnet ID for auto scaling group
       PrivateSubnet3ID:
-        default: Third subnet ID for autoscaling group
+        default: Third subnet ID for auto scaling group
       PublicSubnet1ID:
-        default: First public subnet ID for autoscaling group
+        default: First public subnet ID for auto scaling group
       PublicSubnet2ID:
-        default: Second public subnet ID for autoscaling group
+        default: Second public subnet ID for auto scaling group
       PublicSubnet3ID:
-        default: Third public subnet ID for autoscaling group
+        default: Third public subnet ID for auto scaling group
       KeyPairName:
-        default: Key Name
+        default: Key name
       QSS3BucketName:
-        default: Quick Start S3 Bucket Name
+        default: Quick Start S3 bucket name
       QSS3KeyPrefix:
-        default: Quick Start S3 Key Prefix
+        default: Quick Start S3 key prefix
       QSS3BucketRegion:
-        default: Quick Start S3 Bucket Region
+        default: Quick Start S3 bucket Region
       AccessCIDR:
         default: Permitted IP range
       VPCID:
@@ -87,7 +87,7 @@ Metadata:
       VaultVersion:
         default: Hashicorp Vault version
       VaultAMIOS:
-        default: Vault cluster Operating system
+        default: Vault cluster operating system
       VaultClientNodes:
         default: Number of Vault client nodes
       VaultServerNodes:
@@ -95,45 +95,45 @@ Metadata:
       VaultInstanceType:
         default: Instance type
       VaultNumberOfKeys:
-        default: Total number of unseal keys to create
+        default: Number of unseal keys to create
       VaultNumberOfKeysForUnseal:
-        default: Number Unseal keys required for un seal
+        default: Number of unseal keys required
       VaultClientRoleName:
         default: Vault AWS role name
       LoadBalancerType:
-        default: "Internal/External load balancer?"
+        default: "Internal/external load balancer"
       ACMSSLCertificateArn:
         default: SSL certificate ARN
       HostedZoneID:
-        default: Hosted Zone ID
+        default: Hosted-zone ID
       DomainName:
-        default: Load Balancer DNS Domain Name
+        default: Load balancer DNS name
       VaultKubernetesEnable:
-        default: "Enable Kubernetes Authentication?"
+        default: "Enable Kubernetes authentication"
       VaultKubernetesRoleName:
-        default: Kubernetes Vault Role Name
+        default: Kubernetes Vault role name
       VaultKubernetesHostURL:
-        default: "Kubernetes Host URL"
+        default: "Kubernetes host URL"
       VaultKubernetesCertificate:
-        default: "Kubernetes CA Certificate"
+        default: "Kubernetes CA certificate"
       VaultKubernetesJWT:
-        default: "Kubernetes JWT Token"
+        default: "Kubernetes JWT token"
       VaultKubernetesServiceAccount:
-        default: "Kubernetes Service Account name"
+        default: "Kubernetes service account name"
       VaultKubernetesNameSpace:
-        default: "Kubernetes Name space"
+        default: "Kubernetes name space"
       VaultKubernetesPolicies:
-        default: "Kubernetes Vault Policies"
+        default: "Kubernetes Vault policies"
 Parameters:
   VaultAMIOS:
     AllowedValues:
       - Ubuntu-1604-HVM
       - CIS-Ubuntu-1604-HVM
     Default: Ubuntu-1604-HVM
-    Description: The Linux distribution for the AMI to be used for the Vault instances.
+    Description: Linux distribution for the AMI to be used for the Vault instances.
     Type: String
   KeyPairName:
-    Description: Name of an existing EC2 KeyPair to enable SSH access to the instances
+    Description: Name of an existing EC2 key pair to enable SSH access to the instances.
     Type: AWS::EC2::KeyPair::KeyName
     Default: id_rsa_aws
     ConstraintDescription: Must be the name of an existing EC2 KeyPair.
@@ -204,7 +204,7 @@ Parameters:
     - 't3.nano'
     - 't3.small'
     - 't3.xlarge'
-    ConstraintDescription: Choose an instance type. m4.large or larger recommended.
+    ConstraintDescription: Choose an instance type. m4.large or larger is recommended.
     Default: m5.large
   QSS3BucketName:
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
@@ -218,7 +218,7 @@ Parameters:
     Type: String
   QSS3BucketRegion:
     Default: 'us-east-1'
-    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
+    Description: 'AWS Region where the S3 bucket (QSS3BucketName) is hosted. If you use your own bucket, enter that bucket Region.'
     Type: String
   QSS3KeyPrefix:
     AllowedPattern: "^[0-9a-zA-Z-/]*$"
@@ -249,19 +249,19 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
   AccessCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
-    Description: 'The CIDR IP range that is permitted to access Consul Note: a value
-      of 0.0.0.0/0 will allow access from ANY ip address'
+    Description: 'CIDR IP range that is permitted to access Vault. A value
+      of 0.0.0.0/0 will allow access from any IP address'
     Type: String
   VPCID:
     Description: VPC ID
     Type: AWS::EC2::VPC::Id
   VPCCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
-    Description: CIDR Block for the VPC
+    Description: CIDR block for the VPC
     Type: String
   VaultVersion:
     Type: String
-    Description: Which version of Hashicorp Vault to install
+    Description: Specify which version of Hashicorp Vault to install.
     Default: 1.4.0
     AllowedValues:
     - 1.4.0
@@ -269,62 +269,62 @@ Parameters:
     Type: String
     Default: "quickstart-client-role-iam"
     MinLength: "3"
-    ConstraintDescription: This identifier should be at least 3 characters in length.
-    Description: The internal Hashicorp Vault identifier for the AWS IAM role.
+    ConstraintDescription: This identifier should contain at least three characters.
+    Description: Internal Hashicorp Vault identifier for the AWS IAM role.
   LoadBalancerType:
     Type: String
     Default: "Internal"
-    Description: Is the Load Balancer for Vault internal or external.
+    Description: Specify if the load balancer for Vault is internal or external.
     AllowedValues:
     - "Internal"
     - "External"
   DomainName:
     Type: String
-    Description: The fully qualified domain name for the Hashicorp Vault load balancer. Use with 'HostedZoneID' if you are not using SSL.
+    Description: Fully qualified domain name for the Hashicorp Vault load balancer. If you do not use SSL, use this with 'HostedZoneID.'
     MaxLength: 128
     Default: ""
   HostedZoneID:
     Type: String
-    Description: Route 53 Hosted Zone ID of the domain name. Used in conjunction with 'DomainName'.
+    Description: Route 53-hosted zone ID of the domain name. This is used in conjunction with 'DomainName.''
     Default: ""
   ACMSSLCertificateArn:
-    Description: The Amazon Resource Name (ARN) of the SSL certificate to use for the load balancer. Use 'ACMSSLCertificateArn' if you are not using 'DomainName' and 'HostedZoneID'.
+    Description: Amazon Resource Name (ARN) of the SSL certificate to use for the load balancer. If you do not use 'DomainName' and 'HostedZoneID, use 'ACMSSLCertificateArn.'
     Type: String
     Default: ''
   VaultKubernetesEnable:
-    Description: Enable Kubernetes Authentication and create role
+    Description: Enable Kubernetes authentication and create the role.
     Type: String
     Default: 'false'
     AllowedValues:
       - 'true'
       - 'false'
   VaultKubernetesRoleName:
-    Description: Internal Hashicorp Vault name for Kubernetes Authentication role
+    Description: Internal Hashicorp Vault name for Kubernetes authentication role.
     Type: String
     Default: 'kube-auth-role'
   VaultKubernetesHostURL:
-    Description: "URL of the Kubernetes cluster eg: - https://192.168.99.100:8443"
+    Description: "URL of the Kubernetes cluster (e.g., https://192.168.99.100:8443)."
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM Parameter containing base64 encoded PEM CA cert of the Kubernetes cluster"
+    Description: "AWS SSM parameter containing base64-encoded PEM CA of the Kubernetes cluster."
     Default: ""
     Type: String
   VaultKubernetesJWT:
-    Description: "AWS SSM Secure Parameter containing base64 encoded JWT Token for the Kubernetes cluster service account"
+    Description: "AWS SSM secure parameter containing base64-encoded JWT token for the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesServiceAccount:
-    Description: "The name of the Kubernetes service account"
+    Description: "Name of the Kubernetes service account."
     Default: vault-auth
-    Type: String 
+    Type: String
   VaultKubernetesNameSpace:
-    Description: "The namespace of the Kubernetes service account"
+    Description: "Name space of the Kubernetes service account."
     Default: default
-    Type: String 
+    Type: String
   VaultKubernetesPolicies:
-    Description: "The policies for the Kubernetes service account"
+    Description: "Policies for the Kubernetes service account."
     Default: default
-    Type: String 
+    Type: String
 Mappings:
   LinuxAMINameMap:
     Ubuntu-1604-HVM:
@@ -404,7 +404,7 @@ Conditions:
         - !Ref 'DomainName'
         - ''
 Resources:
-  # ALB & ACM 
+  # ALB & ACM
   VaultDNSRecord:
     Condition: CreateDns
     Type: AWS::Route53::RecordSet
@@ -426,11 +426,11 @@ Resources:
   VaultServerApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Subnets: 
+      Subnets:
       - !If [InternalLoadBalancer, !Ref PrivateSubnet1ID, !Ref PublicSubnet1ID]
       - !If [InternalLoadBalancer, !Ref PrivateSubnet2ID, !Ref PublicSubnet2ID]
       - !If [InternalLoadBalancer, !Ref PrivateSubnet3ID, !Ref PublicSubnet3ID]
-      SecurityGroups: 
+      SecurityGroups:
       - !Ref VaultServerApplicationLoadBalancerSecurityGroup
       Scheme: !If [InternalLoadBalancer, "internal", "internet-facing"]
   VaultServerTargetGroup:
@@ -529,7 +529,7 @@ Resources:
     Properties:
       Name: !Sub "VaultSecret-${VaultSecGroup}"
       Description: "Vault Root/Recovery key"
-      KmsKeyId: !Ref VaultKmsKey 
+      KmsKeyId: !Ref VaultKmsKey
       SecretString: "empty"
   VaultKmsKey:
     Type: AWS::KMS::Key
@@ -718,7 +718,7 @@ Resources:
       LaunchConfigurationName: !Sub "VaultLC-${AWS::StackName}"
       InstanceType: !Ref VaultInstanceType
       KeyName: !Ref KeyPairName
-      SecurityGroups: 
+      SecurityGroups:
       - !Ref VaultSecGroup
       ImageId:
         Fn::FindInMap:
@@ -733,12 +733,12 @@ Resources:
         Ebs:
           VolumeSize: 20
           VolumeType: gp2
-      IamInstanceProfile: !Ref "VaultInstanceProfile" 
+      IamInstanceProfile: !Ref "VaultInstanceProfile"
       UserData:
         Fn::Base64: !Sub
           - |
             #!/bin/bash -x
-            
+
             # Install git
             apt-get update
             apt-get install -y git jq zip curl
@@ -746,7 +746,7 @@ Resources:
             #Load Linux utils
             until git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git ; do echo "Retrying"; done
             cd /quickstart-linux-utilities && source quickstart-cfn-tools.source
-            
+
             # Prep operating systems
             qs_update-os || qs_err
             qs_bootstrap_pip || qs_err
@@ -758,13 +758,13 @@ Resources:
             export LEADER_SSM_PARAM=${VaultLeaderSSM}
             export VAULT_CLUSTER_MEMBERS_SSM_PARAMETER=${VaultClusterMembersSSM}
             export VAULT_LOG_GROUP=${VaultLogGroup}
-            
+
             export AWS_REGION=${AWS::Region}
             export CFN_STACK_NAME=${AWS::StackName}
             export LEADER_ELECTION_LAMBDA=${LeaderElectionLambda}
             export CLUSTER_BOOTSTRAP_LAMBDA=${ClusterBootstrapLambda}
             export KMS_KEY=${VaultKmsKey}
-            
+
             export VAULT_SECRET=VaultSecret-${VaultSecGroup}
             export VAULT_CLIENT_ROLE=${VaultClientRole.Arn}
             export VAULT_CLIENT_ROLE_NAME=${VaultClientRoleName}
@@ -777,14 +777,14 @@ Resources:
             export VAULT_KUBERNETES_HOST_URL=${VaultKubernetesHostURL}
             export VAULT_KUBERNETES_CERTIFICATE=${VaultKubernetesCertificate}
             export VAULT_KUBERNETES_JWT=${VaultKubernetesJWT}
-            
+
             export VAULT_KUBERNETES_SERVICE_ACCOUNT=${VaultKubernetesServiceAccount}
             export VAULT_KUBERNETES_NAME_SPACE=${VaultKubernetesNameSpace}
             export VAULT_KUBERNETES_POLICIES=${VaultKubernetesPolicies}
 
             pip install awscli
             mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
-            
+
             aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/functions.sh .
             aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/bootstrap_server.sh .
             chmod +x bootstrap_server.sh
@@ -824,7 +824,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: !GetAtt 'CopyZipsTemplate.Outputs.LambdaZipsBucket'
-        S3Key: 
+        S3Key:
           Fn::Join:
             - ""
             - - !Ref QSS3KeyPrefix
@@ -871,18 +871,18 @@ Resources:
               - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultClusterMembersSSM}"
             Action:
               - ssm:*
-          # TODO: Restrict to only our AutoScaling group
+          # TODO: Restrict to only our Auto Scaling group
           - Effect: Allow
             Resource:
               - '*'
             Action:
-              - autoscaling:DescribeAutoScalingGroups         
+              - autoscaling:DescribeAutoScalingGroups
   ClusterBootstrapLambda:
     Type: "AWS::Lambda::Function"
     Properties:
       Code:
         S3Bucket: !GetAtt 'CopyZipsTemplate.Outputs.LambdaZipsBucket'
-        S3Key: 
+        S3Key:
           Fn::Join:
             - ""
             - - !Ref QSS3KeyPrefix
@@ -921,14 +921,14 @@ Resources:
             Action:
               - logs:CreateLogGroup
               - logs:CreateLogStream
-              - logs:PutLogEvents  
+              - logs:PutLogEvents
           # TODO: Restrict permissions to just the SSM Parameters we create
           - Effect: Allow
             Resource:
               - '*'
             Action:
               - ssm:*
-          # TODO: Restrict to only our AutoScaling group
+          # TODO: Restrict to only our Auto Scaling group
           - Effect: Allow
             Resource:
               - '*'
@@ -957,13 +957,13 @@ Resources:
         Ebs:
           VolumeSize: 20
           VolumeType: gp2
-      IamInstanceProfile: 
-        Ref: "VaultClientInstanceProfile" 
+      IamInstanceProfile:
+        Ref: "VaultClientInstanceProfile"
       UserData:
         Fn::Base64: !Sub
           - |
             #!/bin/bash -x
-            
+
             # Install git
             apt-get update
             apt-get install -y git jq zip curl
@@ -971,7 +971,7 @@ Resources:
             #Load Linux utils
             until git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git ; do echo "Retrying"; done
             cd /quickstart-linux-utilities && source quickstart-cfn-tools.source
-            
+
             # Prep operating systems
             qs_update-os || qs_err
             qs_bootstrap_pip || qs_err
@@ -1089,28 +1089,28 @@ Resources:
             Resource: "*"
 Outputs:
   VaultLoadBalancer:
-    Value: 
-      !Sub 
+    Value:
+      !Sub
       - "https://${DNSAddress}/"
       - DNSAddress: !If [ CustomDns, !Ref DomainName, !GetAtt "VaultServerApplicationLoadBalancer.DNSName"  ]
   VaultSecret:
     Value: !Ref "VaultSecret"
-    Description: The AWS Secrets Manager Secret containing the ROOT TOKEN and Recovery Secret for Hashicorp Vault.
+    Description: AWS Secrets Manager secret that contains the root token and recovery secret for Hashicorp Vault.
   VaultClientIAMRoleArn:
     Value: !GetAtt "VaultClientRole.Arn"
-    Description: The ARN of the AWS IAM role linked to Hashicorp Vault.
+    Description: ARN of the AWS IAM role that is linked to Hashicorp Vault.
   VaultClientIAMRoleName:
     Value: !Ref "VaultClientRole"
-    Description: The name of the AWS IAM role linked to Hashicorp Vault.
+    Description: Name of the AWS IAM role that is linked to Hashicorp Vault.
   VaultKMSKeyId:
     Value: !Ref "VaultKmsKey"
-    Description: The AWS KMS Key used to Auto Unseal Hashicorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
+    Description: AWS KMS key used to auto unseal Hashicorp Vault and encrypt the root token and recovery secret.
   VaultKMSKeyArn:
     Value: !GetAtt "VaultKmsKey.Arn"
-    Description: The AWS KMS Key used to Auto Unseal Hashicorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
+    Description: AWS KMS key used to auto unseal Hashicorp Vault and encrypt the root token and recovery secret.
   VaultClientRoleId:
     Value: !Ref VaultClientRoleName
-    Description: The Hashicorp Vault identifier of the AWS client role.
+    Description: Hashicorp Vault identifier of the AWS client role.
   VaultAuditLogGroup:
     Value: !Ref VaultLogGroup
-    Description: CloudWatch Log Group where the Hashicorp Vault audit logs are recorded
+    Description: CloudWatch Log group where the Hashicorp Vault audit logs are recorded.

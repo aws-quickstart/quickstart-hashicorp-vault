@@ -5,7 +5,7 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
-        default: VPC Network configuration
+        default: VPC network configuration
       Parameters:
       - AvailabilityZones
       - VPCCIDR
@@ -47,7 +47,7 @@ Metadata:
       - QSS3KeyPrefix
       - QSS3BucketRegion
     - Label:
-        default: Load Balancer configuration
+        default: Load balancer configuration
       Parameters:
       - LoadBalancerType
       - DomainName
@@ -57,27 +57,27 @@ Metadata:
       AvailabilityZones:
         default: Availability Zones
       KeyPairName:
-        default: Key Name
+        default: Key name
       NumBastionHosts:
-        default: Number of Bastion Hosts
+        default: Number of bastion Hosts
       PrivateSubnet1CIDR:
-        default: Private Subnet 1 CIDR
+        default: Private subnet 1 CIDR
       PrivateSubnet2CIDR:
-        default: Private Subnet 2 CIDR
+        default: Private subnet 2 CIDR
       PrivateSubnet3CIDR:
-        default: Private Subnet 3 CIDR
+        default: Private subnet 3 CIDR
       PublicSubnet1CIDR:
-        default: Public Subnet 1 CIDR
+        default: Public subnet 1 CIDR
       PublicSubnet2CIDR:
-        default: Public Subnet 2 CIDR
+        default: Public subnet 2 CIDR
       PublicSubnet3CIDR:
-        default: Public Subnet 3 CIDR
+        default: Public subnet 3 CIDR
       QSS3BucketName:
-        default: Quick Start S3 Bucket Name
+        default: Quick Start S3 bucket name
       QSS3KeyPrefix:
-        default: Quick Start S3 Key Prefix
+        default: Quick Start S3 key prefix
       QSS3BucketRegion:
-        default: Quick Start S3 Bucket Region
+        default: Quick Start S3 bucket Region
       AccessCIDR:
         default: Permitted IP range
       VPCID:
@@ -87,7 +87,7 @@ Metadata:
       VaultVersion:
         default: Hashicorp Vault version
       VaultAMIOS:
-        default: Vault cluster Operating system
+        default: Vault cluster operating system
       VaultClientNodes:
         default: Number of Vault client nodes
       VaultServerNodes:
@@ -95,41 +95,40 @@ Metadata:
       VaultInstanceType:
         default: Instance type
       VaultNumberOfKeys:
-        default: Total number of unseal keys to create
+        default: Number of unseal keys to create
       VaultNumberOfKeysForUnseal:
-        default: Number Unseal keys required for un seal
+        default: Number of unseal keys required
       VaultClientRoleName:
         default: Vault AWS role name
       LoadBalancerType:
-        default: "Internal/External load balancer?"
+        default: "Internal/external load balancer"
       ACMSSLCertificateArn:
         default: SSL certificate ARN
       HostedZoneID:
-        default: Hosted Zone ID
+        default: Hosted-zone ID
       DomainName:
-        default: Load Balancer DNS Domain Name
+        default: Load Balancer DNS name
       VaultKubernetesEnable:
-        default: "Enable Kubernetes Authentication?"
+        default: Enable Kubernetes authentication
       VaultKubernetesRoleName:
-        default: Kubernetes Vault Role Name
+        default: Kubernetes Vault role name
       VaultKubernetesHostURL:
-        default: "Kubernetes Host URL"
+        default: "Kubernetes host URL"
       VaultKubernetesCertificate:
-        default: "Kubernetes CA Certificate"
+        default: "Kubernetes CA certificate"
       VaultKubernetesJWT:
-        default: "Kubernetes JWT Token"
+        default: "Kubernetes JWT token"
       VaultKubernetesServiceAccount:
-        default: "Kubernetes Service Account name"
+        default: "Kubernetes service account name"
       VaultKubernetesNameSpace:
-        default: "Kubernetes Name space"
+        default: "Kubernetes name space"
       VaultKubernetesPolicies:
-        default: "Kubernetes Vault Policies"
+        default: "Kubernetes Vault policies"
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Parameters:
   AvailabilityZones:
-    Description: 'List of Availability Zones to use for the subnets in the VPC. Note:
-      The logical order is preserved (3 AZs are used for this deployment)'
+    Description: List of Availability Zones to use for the VPC subnets. Three Availability Zones are used in this deployment.
     Type: List<AWS::EC2::AvailabilityZone::Name>
   VaultAMIOS:
     AllowedValues:
@@ -139,11 +138,10 @@ Parameters:
     Description: The Linux distribution for the AMI to be used for the Vault instances.
     Type: String
   KeyPairName:
-    Description: Public/private key pairs allow you to securely connect to your instance
-      after it launches
+    Description: Key pairs to allow you to securely connect to your instance after it launches.
     Type: AWS::EC2::KeyPair::KeyName
   NumBastionHosts:
-    Description: Enter the number of bastion hosts to create
+    Description: Enter the number of bastion hosts to create.
     AllowedValues:
     - 1
     - 2
@@ -167,20 +165,17 @@ Parameters:
   PublicSubnet1CIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
     Default: 10.0.128.0/20
-    Description: CIDR Block for the public DMZ subnet 1 located in Availability Zone
-      1
+    Description: CIDR block for public DMZ subnet 1 located in Availability Zone 1.
     Type: String
   PublicSubnet2CIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
     Default: 10.0.144.0/20
-    Description: CIDR Block for the public DMZ subnet 2 located in Availability Zone
-      2
+    Description: CIDR block for public DMZ subnet 2 located in Availability Zone 2.
     Type: String
   PublicSubnet3CIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
     Default: 10.0.160.0/20
-    Description: CIDR Block for the public DMZ subnet 3 located in Availability Zone
-      3
+    Description: CIDR Block for public DMZ subnet 3 located in Availability Zone 3.
     Type: String
   QSS3BucketName:
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
@@ -194,7 +189,7 @@ Parameters:
     Type: String
   QSS3BucketRegion:
     Default: 'us-east-1'
-    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
+    Description: 'AWS Region where the S3 bucket (QSS3BucketName) is hosted. If you use your own bucket, enter that bucket Region.'
     Type: String
   QSS3KeyPrefix:
     AllowedPattern: "^[0-9a-zA-Z-/]*$"
@@ -213,12 +208,12 @@ Parameters:
     Type: String
   AccessCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
-    Description: 'The CIDR IP range that is permitted to access Consul Note: a value
-      of 0.0.0.0/0 will allow access from ANY ip address'
+    Description: 'CIDR IP range permitted to access Vault. A value
+      of 0.0.0.0/0 will allow access from any IP address.'
     Type: String
   VaultServerNodes:
     Type: String
-    Description: 'Sets DesiredCapacity and MaxSize'
+    Description: 'Sets DesiredCapacity and MaxSize.'
     AllowedValues:
     - '3'
     - '5'
@@ -226,14 +221,14 @@ Parameters:
     Default: '3'
   VaultClientNodes:
     Type: String
-    Description: 'Sets DesiredCapacity and MaxSize'
+    Description: 'Sets DesiredCapacity and MaxSize.'
     AllowedValues:
     - '0'
     - '1'
     Default: '0'
   VaultInstanceType:
     Type: String
-    Description: Hashicorp Vault node instance type
+    Description: Hashicorp Vault node instance type.
     AllowedValues:
     - 'c5.12xlarge'
     - 'c5.18xlarge'
@@ -267,86 +262,86 @@ Parameters:
     - 't3.nano'
     - 't3.small'
     - 't3.xlarge'
-    ConstraintDescription: Choose an instance type. m4.large or larger recommended.
+    ConstraintDescription: Choose an instance type. m4.large or larger is recommended.
     Default: m5.large
   VaultNumberOfKeys:
     Type: String
     Default: '5'
     AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
     ConstraintDescription: Must be a value between 1 and 99.
-    Description: The number of unseal keys to generate when initializing the Hashicorp Vault cluster.
+    Description: Number of unseal keys to generate when initializing the Hashicorp Vault cluster.
   VaultNumberOfKeysForUnseal:
     Type: String
     Default: '3'
     AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
     ConstraintDescription: Must be a value between 1 and 99.
-    Description: The number of keys required to unseal the Hashicorp Vault cluster.
+    Description: Number of keys required to unseal the Hashicorp Vault cluster.
   VaultClientRoleName:
     Type: String
     Default: client-role-iam
     MinLength: "3"
-    ConstraintDescription: This identifier should be at least 3 characters in length.
-    Description: The internal Hashicorp Vault identifier for the AWS IAM role.
+    ConstraintDescription: This identifier should contain at least three characters.
+    Description: Internal Hashicorp Vault identifier for the AWS IAM role.
   VaultVersion:
     Type: String
-    Description: Which version of Hashicorp Vault to install
+    Description: Specify which version of Hashicorp Vault to install.
     Default: 1.4.0
     AllowedValues:
     - 1.4.0
   LoadBalancerType:
     Type: String
     Default: "Internal"
-    Description: Is the Load Balancer for Vault internal or external.
+    Description: Specify if the load balancer for Vault is internal or external.
     AllowedValues:
     - "Internal"
     - "External"
   DomainName:
     Type: String
-    Description: The fully qualified domain name for the Hashicorp Vault load balancer. Use with 'HostedZoneID' if you are not using SSL.
+    Description: Fully qualified domain name for the Hashicorp Vault load balancer. If you do not use SSL, use this with 'HostedZoneID.'
     MaxLength: 128
     Default: ""
   HostedZoneID:
     Type: String
-    Description: Route 53 Hosted Zone ID of the domain name. Used in conjunction with 'DomainName'.
+    Description: Route 53-hosted zone ID of the domain name. This is used in conjunction with 'DomainName.'
     Default: ""
   ACMSSLCertificateArn:
-    Description: The Amazon Resource Name (ARN) of the SSL certificate to use for the load balancer. Use 'ACMSSLCertificateArn' if you are not using 'DomainName' and 'HostedZoneID'.
+    Description: Amazon Resource Name (ARN) of the SSL certificate to use for the load balancer. If you do not use 'DomainName' and 'HostedZoneID, use 'ACMSSLCertificateArn.'
     Type: String
     Default: ""
   VaultKubernetesEnable:
-    Description: Enable Kubernetes Authentication and create role
+    Description: Enable Kubernetes authentication and create the role.
     Type: String
     Default: 'false'
     AllowedValues:
       - 'true'
       - 'false'
   VaultKubernetesRoleName:
-    Description: Internal Hashicorp Vault name for Kubernetes Authentication role
+    Description: Internal Hashicorp Vault name for Kubernetes authentication role.
     Type: String
     Default: 'kube-auth-role'
   VaultKubernetesHostURL:
-    Description: "URL of the Kubernetes cluster eg: - https://192.168.99.100:8443"
+    Description: "URL of the Kubernetes cluster (e.g., https://192.168.99.100:8443)."
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM Parameter containing base64 encoded PEM CA cert of the Kubernetes cluster"
+    Description: "AWS SSM parameter containing base64-encoded PEM CA of the Kubernetes cluster."
     Default: ""
     Type: String
   VaultKubernetesJWT:
-    Description: "AWS SSM Secure Parameter containing base64 encoded JWT Token for the Kubernetes cluster service account"
+    Description: "AWS SSM secure parameter containing base64-encoded JWT token for the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesServiceAccount:
-    Description: "The name of the Kubernetes service account"
+    Description: "Name of the Kubernetes service account."
     Default: vault-auth
-    Type: String 
+    Type: String
   VaultKubernetesNameSpace:
-    Description: "The namespace of the Kubernetes service account"
+    Description: "Name space of the Kubernetes service account."
     Default: default
-    Type: String 
+    Type: String
   VaultKubernetesPolicies:
-    Description: "The policies for the Kubernetes service account"
+    Description: "Policies for the Kubernetes service account."
     Default: default
-    Type: String 
+    Type: String
 Resources:
   VPCStack:
     Metadata:
@@ -411,7 +406,7 @@ Resources:
   HashiCorpVaultStack:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL:  
+      TemplateURL:
         !Sub
           - "https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/quickstart-hashicorp-vault.template"
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
@@ -441,8 +436,8 @@ Resources:
         VaultClientRoleName: !Ref VaultClientRoleName
         DomainName: !Ref DomainName
         HostedZoneID: !Ref HostedZoneID
-        ACMSSLCertificateArn: !Ref ACMSSLCertificateArn 
-        LoadBalancerType: !Ref LoadBalancerType 
+        ACMSSLCertificateArn: !Ref ACMSSLCertificateArn
+        LoadBalancerType: !Ref LoadBalancerType
         VaultKubernetesEnable: !Ref VaultKubernetesEnable
         VaultKubernetesRoleName: !Ref VaultKubernetesRoleName
         VaultKubernetesHostURL: !Ref VaultKubernetesHostURL
@@ -454,28 +449,28 @@ Resources:
 Outputs:
   BastionHost:
     Value: !GetAtt "LinuxBastionHostStack.Outputs.EIP1"
-    Description: The IP Address of the Bastion host.
+    Description: IP Address of the bastion host.
   VaultClientRoleId:
     Value: !Ref VaultClientRoleName
-    Description: The Hashicorp Vault identifier of the AWS client role.
+    Description: Hashicorp Vault identifier of the AWS client role.
   VaultClientIAMRoleArn:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultClientIAMRoleArn"
-    Description: The ARN of the AWS IAM role linked to Hashicorp Vault.
+    Description: ARN of the AWS IAM role that is linked to Hashicorp Vault.
   VaultClientIAMRoleName:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultClientIAMRoleName"
-    Description: The name of the AWS IAM role linked to Hashicorp Vault.
+    Description: Name of the AWS IAM role that is linked to Hashicorp Vault.
   VaultSecret:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultSecret"
-    Description: The AWS Secrets Manager Secret containing the ROOT TOKEN and Recovery Secret for Hashicorp Vault.
+    Description: AWS Secrets Manager secret that contains the root token and recovery secret for Hashicorp Vault.
   VaultKMSKeyId:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultKMSKeyId"
-    Description: The AWS KMS Key used to Auto Unseal Hashicorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
+    Description: AWS KMS key used to auto unseal Hashicorp Vault and encrypt the root token and recovery secret.
   VaultKMSKeyArn:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultKMSKeyArn"
-    Description: The AWS KMS Key used to Auto Unseal Hashicorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
+    Description: AWS KMS key used to auto unseal Hashicorp Vault and encrypt the root token and recovery secret.
   VaultLoadBalancer:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultLoadBalancer"
-    Description: Hashicorp Vault Load Balancer address
+    Description: Address of Hashicorp Vault load balancer.
   VaultAuditLogGroup:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultAuditLogGroup"
-    Description: CloudWatch Log Group where the Hashicorp Vault audit logs are recorded
+    Description: CloudWatch Log group where the Hashicorp Vault audit logs are recorded.
