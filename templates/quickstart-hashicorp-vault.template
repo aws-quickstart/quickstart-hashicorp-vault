@@ -786,15 +786,15 @@ Resources:
             pip install awscli
             mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
             
-            aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/functions.sh .
-            aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/bootstrap_server.sh .
+            aws s3 cp s3://${S3Bucket}/${QSS3KeyPrefix}scripts/functions.sh .
+            aws s3 cp s3://${S3Bucket}/${QSS3KeyPrefix}scripts/bootstrap_server.sh .
             chmod +x bootstrap_server.sh
             $(which bash) -e ./bootstrap_server.sh
             /usr/local/bin/cfn-signal -e $? --stack ${!CFN_STACK_NAME} --region ${!AWS_REGION} --resource "VaultServerAutoScalingGroup"
 
             # Signalling done from within bootstrap script
             # echo ${SomeValue} # for clean looking !Sub
-          - SomeValue: "SomeValue"
+          - S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
   VaultServerAutoScalingGroup:
     Type: "AWS::AutoScaling::AutoScalingGroup"
     Properties:
@@ -989,13 +989,13 @@ Resources:
 
             pip install awscli
             mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
-            aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/functions.sh .
-            aws s3 cp s3://${QSS3BucketName}/${QSS3KeyPrefix}scripts/bootstrap_client.sh .
+            aws s3 cp s3://${S3Bucket}/${QSS3KeyPrefix}scripts/functions.sh .
+            aws s3 cp s3://${S3Bucket}/${QSS3KeyPrefix}scripts/bootstrap_client.sh .
             chmod +x bootstrap_client.sh
             ./bootstrap_client.sh
             # Signalling done from within bootstrap script
             # echo ${SomeValue} # for clean looking !Sub
-          - SomeValue: "SomeValue"
+          - S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
   VaultClientAutoScalingGroup:
     Type: "AWS::AutoScaling::AutoScalingGroup"
     Properties:
