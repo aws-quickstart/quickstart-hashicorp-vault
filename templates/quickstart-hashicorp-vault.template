@@ -793,7 +793,6 @@ Resources:
             /usr/local/bin/cfn-signal -e $? --stack ${!CFN_STACK_NAME} --region ${!AWS_REGION} --resource "VaultServerAutoScalingGroup"
 
             # Signalling done from within bootstrap script
-            # echo ${SomeValue} # for clean looking !Sub
           - S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
   VaultServerAutoScalingGroup:
     Type: "AWS::AutoScaling::AutoScalingGroup"
@@ -994,7 +993,6 @@ Resources:
             chmod +x bootstrap_client.sh
             ./bootstrap_client.sh
             # Signalling done from within bootstrap script
-            # echo ${SomeValue} # for clean looking !Sub
           - S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
   VaultClientAutoScalingGroup:
     Type: "AWS::AutoScaling::AutoScalingGroup"
