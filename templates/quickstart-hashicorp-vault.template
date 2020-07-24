@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'QS(0039) HashiCorp Vault License: Apache 2.0 (Please do not remove) Oct,18,2019'
+Description: '(qs-1qup6ra90) HashiCorp Vault License: Apache 2.0 (Please do not remove) Oct,18,2019'
 Metadata:
   AWSAMIRegionMap:
     Filters:
