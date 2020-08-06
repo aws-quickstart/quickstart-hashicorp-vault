@@ -391,7 +391,7 @@ Resources:
           - W9198
     Properties:
       Parameters:
-        BastionAMIOS: Ubuntu-Server-16.04-LTS-HVM
+        BastionAMIOS: Ubuntu-Server-20.04-LTS-HVM
         EnableTCPForwarding: 'true'
         KeyPairName: !Ref KeyPairName
         NumBastionHosts: !Ref NumBastionHosts
