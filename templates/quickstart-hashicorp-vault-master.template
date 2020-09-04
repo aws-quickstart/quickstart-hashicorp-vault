@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'HashiCorp Consul+Vault, License: Apache 2.0 (Please do not remove) Oct,18,2019'
+Description: 'HashiCorp Vault, License: Apache 2.0 (Please do not remove) Oct,18,2019'
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -289,9 +289,10 @@ Parameters:
   VaultVersion:
     Type: String
     Description: Specify which version of HashiCorp Vault to install.
-    Default: 1.4.0
+    Default: 1.5.3
     AllowedValues:
-    - 1.4.0
+    - 1.4.6
+    - 1.5.3
   LoadBalancerType:
     Type: String
     Default: "Internal"

@@ -1,4 +1,4 @@
-#/usr/bin/env bash
+#!/bin/bash
 
 SLEEP=30
 SPLAY=$(shuf -i 1-10 -n 1)

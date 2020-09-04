@@ -262,9 +262,10 @@ Parameters:
   VaultVersion:
     Type: String
     Description: Specify which version of HashiCorp Vault to install.
-    Default: 1.4.0
+    Default: 1.5.3
     AllowedValues:
-    - 1.4.0
+    - 1.4.6
+    - 1.5.3
   VaultClientRoleName:
     Type: String
     Default: "quickstart-client-role-iam"
