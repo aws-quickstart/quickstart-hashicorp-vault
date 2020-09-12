@@ -1,6 +1,5 @@
 # quickstart-hashicorp-vault
 ## HashiCorp Vault on the AWS Cloud
-Vault version: 1.4
 
 HashiCorp Vault is a product that centrally secures, stores and controls access to tokens, passwords, certificates, and encryption keys through a UI, CLI, or an HTTP API. Vault’s core use cases include:
 
@@ -18,6 +17,9 @@ Each stack in this deployment takes approximately 20 minutes to create. For more
 
 ### Architecture
 ![quickstart-hashicorp-consul](https://d0.awsstatic.com/partner-network/QuickStart/datasheets/hashicorp-vault-on-aws-architecture.png)
+
+### Change log (September 2020)
+* Added support for HashiCorp Vault 1.5.3 and 1.4.6
 
 ### Change log (June 2020)
 * Upgraded to HashiCorp Vault 1.4 using best practices
