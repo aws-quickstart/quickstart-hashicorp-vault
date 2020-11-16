@@ -6,124 +6,6 @@ Metadata:
     Filters:
       CISUBUNTU1604:
         product-code: 2l0khimiqztu90zd64xu99tz5
-  AWS::CloudFormation::Interface:
-    ParameterGroups:
-    - Label:
-        default: Network configuration
-      Parameters:
-      - AccessCIDR
-      - VPCID
-      - VPCCIDR
-      - BastionSecurityGroupID
-      - PrivateSubnet1ID
-      - PrivateSubnet2ID
-      - PrivateSubnet3ID
-      - PublicSubnet1ID
-      - PublicSubnet2ID
-      - PublicSubnet3ID
-    - Label:
-        default: Vault Setup
-      Parameters:
-      - KeyPairName
-      - VaultVersion
-      - VaultAMIOS
-      - VaultServerNodes
-      - VaultInstanceType
-      - VaultDownloadURL
-      - VaultNumberOfKeys
-      - VaultNumberOfKeysForUnseal
-      - VaultClientRoleName
-      - VaultClientNodes
-      - VaultKubernetesEnable
-      - VaultKubernetesHostURL
-      - VaultKubernetesRoleName
-      - VaultKubernetesCertificate
-      - VaultKubernetesJWT
-      - VaultKubernetesServiceAccount
-      - VaultKubernetesNameSpace
-      - VaultKubernetesPolicies
-    - Label:
-        default: AWS Quick Start configuration
-      Parameters:
-      - QSS3BucketName
-      - QSS3KeyPrefix
-      - QSS3BucketRegion
-    - Label:
-        default: Load Balancer configuration
-      Parameters:
-      - LoadBalancerType
-      - DomainName
-      - HostedZoneID
-      - ACMSSLCertificateArn
-    ParameterLabels:
-      BastionSecurityGroupID:
-        default: Bastion host security group ID
-      PrivateSubnet1ID:
-        default: First subnet ID for Auto Scaling group
-      PrivateSubnet2ID:
-        default: Second subnet ID for Auto Scaling group
-      PrivateSubnet3ID:
-        default: Third subnet ID for Auto Scaling group
-      PublicSubnet1ID:
-        default: First public subnet ID for Auto Scaling group
-      PublicSubnet2ID:
-        default: Second public subnet ID for Auto Scaling group
-      PublicSubnet3ID:
-        default: Third public subnet ID for Auto Scaling group
-      KeyPairName:
-        default: EC2 Key pair
-      QSS3BucketName:
-        default: Quick Start S3 bucket name
-      QSS3KeyPrefix:
-        default: Quick Start S3 object key prefix
-      QSS3BucketRegion:
-        default: Quick Start S3 bucket Region
-      AccessCIDR:
-        default: Permitted IP range
-      VPCID:
-        default: VPC ID
-      VPCCIDR:
-        default: VPC CIDR
-      VaultVersion:
-        default: HashiCorp Vault version
-      VaultAMIOS:
-        default: Vault cluster operating system
-      VaultClientNodes:
-        default: Vault client nodes
-      VaultServerNodes:
-        default: Vault server nodes
-      VaultInstanceType:
-        default: Instance type
-      VaultNumberOfKeys:
-        default: Unseal keys to create
-      VaultNumberOfKeysForUnseal:
-        default: Required unseal keys
-      VaultClientRoleName:
-        default: Vault AWS role name
-      LoadBalancerType:
-        default: "Internal/external load balancer?"
-      ACMSSLCertificateArn:
-        default: SSL certificate ARN
-      HostedZoneID:
-        default: Hosted-zone ID
-      DomainName:
-        default: Load balancer DNS domain name
-      VaultKubernetesEnable:
-        default: "Enable Kubernetes authentication"
-      VaultKubernetesRoleName:
-        default: Kubernetes Vault role name
-      VaultKubernetesHostURL:
-        default: "Kubernetes host URL"
-      VaultKubernetesCertificate:
-        default: "Kubernetes CA certificate"
-      VaultKubernetesJWT:
-        default: "Kubernetes JWT token"
-      VaultKubernetesServiceAccount:
-        default: "Kubernetes service account name"
-      VaultKubernetesNameSpace:
-        default: "Kubernetes name space"
-      VaultKubernetesPolicies:
-        default: "Kubernetes Vault policies"
 Parameters:
   VaultAMIOS:
     AllowedValues:
@@ -262,10 +144,10 @@ Parameters:
   VaultVersion:
     Type: String
     Description: Specify which version of HashiCorp Vault to install.
-    Default: 1.5.3
+    Default: 1.6.0
     AllowedValues:
-    - 1.4.6
-    - 1.5.3
+    - 1.5.5
+    - 1.6.0
   VaultClientRoleName:
     Type: String
     Default: "quickstart-client-role-iam"
@@ -790,7 +672,7 @@ Resources:
             aws s3 cp s3://${S3Bucket}/${QSS3KeyPrefix}scripts/functions.sh .
             aws s3 cp s3://${S3Bucket}/${QSS3KeyPrefix}scripts/bootstrap_server.sh .
             chmod +x bootstrap_server.sh
-            $(which bash) -e ./bootstrap_server.sh
+            $(which bash) -xe ./bootstrap_server.sh
             /usr/local/bin/cfn-signal -e $? --stack ${!CFN_STACK_NAME} --region ${!AWS_REGION} --resource "VaultServerAutoScalingGroup"
 
             # Signalling done from within bootstrap script
@@ -859,7 +741,7 @@ Resources:
           Statement:
           - Effect: Allow
             Resource:
-              - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+              - !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*'
             Action:
               - logs:CreateLogGroup
               - logs:CreateLogStream
@@ -918,7 +800,7 @@ Resources:
           Statement:
           - Effect: Allow
             Resource:
-              - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+              - !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*'
             Action:
               - logs:CreateLogGroup
               - logs:CreateLogStream
