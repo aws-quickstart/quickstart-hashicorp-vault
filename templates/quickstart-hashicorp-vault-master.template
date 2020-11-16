@@ -289,10 +289,10 @@ Parameters:
   VaultVersion:
     Type: String
     Description: Specify which version of HashiCorp Vault to install.
-    Default: 1.5.3
+    Default: 1.6.0
     AllowedValues:
-    - 1.4.6
-    - 1.5.3
+    - 1.5.5
+    - 1.6.0
   LoadBalancerType:
     Type: String
     Default: "Internal"
