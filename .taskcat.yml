@@ -56,7 +56,7 @@ tests:
     # - ap-east-1
     # No SSM Support
     # - me-south-1
-    template: templates/quickstart-hashicorp-vault-master.template
+    template: templates/quickstart-hashicorp-vault-main.template
   cis-level-1:
     parameters:
       VaultAMIOS: CIS-Ubuntu-1604-HVM
@@ -83,16 +83,16 @@ tests:
     # - ap-east-1
     # No SSM Support
     # - me-south-1
-    template: templates/quickstart-hashicorp-vault-master.template
+    template: templates/quickstart-hashicorp-vault-main.template
   # cis-level-1-single:
   #   parameters:
   #     VaultAMIOS: CIS-Ubuntu-1604-HVM
   #   regions:
   #    - us-west-2
-  #   template: templates/quickstart-hashicorp-vault-master.template
+  #   template: templates/quickstart-hashicorp-vault-main.template
   # ubuntu-single:
   #   parameters:
   #     VaultAMIOS: Ubuntu-1604-HVM
   #   regions:
   #    - us-west-2
-  #   template: templates/quickstart-hashicorp-vault-master.template
+  #   template: templates/quickstart-hashicorp-vault-main.template
