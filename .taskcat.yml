@@ -90,9 +90,9 @@ tests:
   #   regions:
   #    - us-west-2
   #   template: templates/quickstart-hashicorp-vault-main.template
-  # ubuntu-single:
-  #   parameters:
-  #     VaultAMIOS: Ubuntu-1604-HVM
-  #   regions:
+  #ubuntu-single:
+  #  parameters:
+  #    VaultAMIOS: Ubuntu-1604-HVM
+  #  regions:
   #    - us-west-2
-  #   template: templates/quickstart-hashicorp-vault-main.template
+  #  template: templates/quickstart-hashicorp-vault-main.template

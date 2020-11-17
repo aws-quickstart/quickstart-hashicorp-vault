@@ -1,11 +1,155 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: '(qs-1qup6ra90) HashiCorp Vault License: Apache 2.0 (Please do not remove) Oct,18,2019'
+Description: '(qs-1qup6ra90) HashiCorp Vault License: Apache 2.0 (Please do not remove)'
 Metadata:
   AWSAMIRegionMap:
     Filters:
       CISUBUNTU1604:
         product-code: 2l0khimiqztu90zd64xu99tz5
+  QuickStartDocumentation:
+    EntrypointName: "Launch into an existing VPC"
+    Order: 2
+  LintSpellExclude:
+    - Kubernetes
+    - namespace
+    - HashiCorp
+    - Vault
+    - balancer
+    - vault-ui
+    - Auto Scaling
+    - Hosted
+    - Domain
+    - Unseal
+    - unseal
+    - Linux
+    - xxxxxxxx
+    - ACMSSLCertificateArn
+    - DomainName
+    - Amazon Resource Name
+    - HostedZoneID
+    - Name
+    - Region
+    - bucket
+    - Bucket
+#  QSLint:
+#    Exclusions: [W9002, W9003, W9004, W9006]
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Network configuration
+        Parameters:
+          - AccessCIDR
+          - VPCID
+          - VPCCIDR
+          - BastionSecurityGroupID
+          - PrivateSubnet1ID
+          - PrivateSubnet2ID
+          - PrivateSubnet3ID
+          - PublicSubnet1ID
+          - PublicSubnet2ID
+          - PublicSubnet3ID
+      - Label:
+          default: Vault setup
+        Parameters:
+          - KeyPairName
+          - VaultVersion
+          - VaultAMIOS
+          - VaultServerNodes
+          - VaultInstanceType
+          - VaultNumberOfKeys
+          - VaultNumberOfKeysForUnseal
+          - VaultClientRoleName
+          - VaultClientNodes
+          - VaultKubernetesEnable
+          - VaultKubernetesHostURL
+          - VaultKubernetesRoleName
+          - VaultKubernetesCertificate
+          - VaultKubernetesJWT
+          - VaultKubernetesServiceAccount
+          - VaultKubernetesNameSpace
+          - VaultKubernetesPolicies
+      - Label:
+          default: AWS Quick Start configuration
+        Parameters:
+          - QSS3BucketName
+          - QSS3KeyPrefix
+          - QSS3BucketRegion
+      - Label:
+          default: Load balancer configuration
+        Parameters:
+          - LoadBalancerType
+          - DomainName
+          - HostedZoneID
+          - ACMSSLCertificateArn
+    ParameterLabels:
+      BastionSecurityGroupID:
+        default: Bastion host security group ID
+      PrivateSubnet1ID:
+        default: First subnet ID for Auto Scaling group
+      PrivateSubnet2ID:
+        default: Second subnet ID for Auto Scaling group
+      PrivateSubnet3ID:
+        default: Third subnet ID for Auto Scaling group
+      PublicSubnet1ID:
+        default: First public subnet ID for Auto Scaling group
+      PublicSubnet2ID:
+        default: Second public subnet ID for Auto Scaling group
+      PublicSubnet3ID:
+        default: Third public subnet ID for Auto Scaling group
+      KeyPairName:
+        default: EC2 key pair
+      QSS3BucketName:
+        default: Quick Start S3 bucket name
+      QSS3KeyPrefix:
+        default: Quick Start S3 object key prefix
+      QSS3BucketRegion:
+        default: Quick Start S3 bucket Region
+      AccessCIDR:
+        default: Permitted IP range
+      VPCID:
+        default: VPC ID
+      VPCCIDR:
+        default: VPC CIDR
+      VaultVersion:
+        default: HashiCorp Vault version
+      VaultAMIOS:
+        default: Vault cluster operating system
+      VaultClientNodes:
+        default: Vault client nodes
+      VaultServerNodes:
+        default: Vault server nodes
+      VaultInstanceType:
+        default: Instance type
+      VaultNumberOfKeys:
+        default: Unseal keys to create
+      VaultNumberOfKeysForUnseal:
+        default: Required unseal keys
+      VaultClientRoleName:
+        default: Vault AWS role name
+      LoadBalancerType:
+        default: "Internal/external load balancer?"
+      ACMSSLCertificateArn:
+        default: SSL certificate ARN
+      HostedZoneID:
+        default: Hosted-zone ID
+      DomainName:
+        default: Load balancer DNS domain name
+      VaultKubernetesEnable:
+        default: "Enable Kubernetes authentication"
+      VaultKubernetesRoleName:
+        default: Kubernetes Vault role name
+      VaultKubernetesHostURL:
+        default: "Kubernetes host URL"
+      VaultKubernetesCertificate:
+        default: "Kubernetes CA certificate"
+      VaultKubernetesJWT:
+        default: "Kubernetes JWT token"
+      VaultKubernetesServiceAccount:
+        default: "Kubernetes service account name"
+      VaultKubernetesNameSpace:
+        default: "Kubernetes name space"
+      VaultKubernetesPolicies:
+        default: "Kubernetes Vault policies"
 Parameters:
   VaultAMIOS:
     AllowedValues:
@@ -100,7 +244,7 @@ Parameters:
     Type: String
   QSS3BucketRegion:
     Default: 'us-east-1'
-    Description: 'The AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
+    Description: 'AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
     Type: String
   QSS3KeyPrefix:
     AllowedPattern: "^[0-9a-zA-Z-/]*$"
@@ -131,7 +275,7 @@ Parameters:
     Type: AWS::EC2::Subnet::Id
   AccessCIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
-    Description: 'The CIDR IP range that is permitted to access Vault Note: A value
+    Description: 'The CIDR IP range that is permitted to access Vault. Note: A value
       of 0.0.0.0/0 allows access from ANY IP address.'
     Type: String
   VPCID:
@@ -153,7 +297,7 @@ Parameters:
     Default: "quickstart-client-role-iam"
     MinLength: "3"
     ConstraintDescription: This identifier should be at least 3 characters in length.
-    Description: The HashiCorp Vault name for the AWS IAM Role.
+    Description: The HashiCorp Vault name for the AWS IAM role.
   LoadBalancerType:
     Type: String
     Default: "Internal"
@@ -190,11 +334,11 @@ Parameters:
     Description: "URL of Kubernetes cluster eg: https://192.168.99.100:8443."
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM Parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service account."
+    Description: "AWS SSM parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesJWT:
-    Description: "AWS SSM Secure Parameter containing a base64-encoded JWT token of the Kubernetes cluster service account."
+    Description: "AWS SSM secure parameter containing a base64-encoded JWT token of the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesServiceAccount:
@@ -277,7 +421,6 @@ Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   InternalLoadBalancer: !Equals [!Ref LoadBalancerType, 'Internal']
   CustomDns: !Not [!Equals [!Ref DomainName, '']]
-  HostedZoneExists: !Not [!Equals [!Ref HostedZoneID, '']]
   CreateDns: !And
     - !Not
       - !Equals
@@ -391,10 +534,7 @@ Resources:
         HostedZoneID: !Ref HostedZoneID
   CopyZipsTemplate:
     Metadata:
-      cfn-lint:
-        config:
-          ignore_checks:
-          - W9198
+      cfn-lint: { config: { ignore_checks: [ W9198, W9901 ]}}
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL:
