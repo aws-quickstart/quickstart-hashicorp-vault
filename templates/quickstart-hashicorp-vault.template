@@ -6,6 +6,8 @@ Metadata:
     Filters:
       CISUBUNTU1604:
         product-code: 2l0khimiqztu90zd64xu99tz5
+      CISUBUNTU2004:
+        product-code: 8wt6moitlqquyt3sdfbsorz2d
   QuickStartDocumentation:
     EntrypointName: "Launch into an existing VPC"
     Order: 2
@@ -153,9 +155,11 @@ Metadata:
 Parameters:
   VaultAMIOS:
     AllowedValues:
+      - Ubuntu-2004-HVM
       - Ubuntu-1604-HVM
       - CIS-Ubuntu-1604-HVM
-    Default: Ubuntu-1604-HVM
+      - CIS-Ubuntu-2004-HVM
+    Default: Ubuntu-2004-HVM
     Description: Linux distribution AMI for the Vault instances.
     Type: String
   KeyPairName:
@@ -288,10 +292,10 @@ Parameters:
   VaultVersion:
     Type: String
     Description: Specify which version of HashiCorp Vault to install.
-    Default: 1.6.0
+    Default: 1.6.1
     AllowedValues:
     - 1.5.5
-    - 1.6.0
+    - 1.6.1
   VaultClientRoleName:
     Type: String
     Default: "quickstart-client-role-iam"
@@ -313,10 +317,12 @@ Parameters:
     Default: ""
   HostedZoneID:
     Type: String
-    Description: Route 53-hosted zone ID of the domain name. If you don't provide an ACMSSLCertificateArn value, the Quick Start creates the ACM certificate for you using HostedZoneID in conjunction with DomainName.
+    Description: Route 53-hosted zone ID of the domain name. If you don't provide an ACMSSLCertificateArn value,
+      the Quick Start creates the ACM certificate for you using HostedZoneID in conjunction with DomainName.
     Default: ""
   ACMSSLCertificateArn:
-    Description: Amazon Resource Name (ARN) of the load balancer's SSL certificate. If you don't provide values for DomainName and HostedZoneID, provide a value for ACMSSLCertificateArn.
+    Description: Amazon Resource Name (ARN) of the load balancer's SSL certificate. If you don't provide values for
+      DomainName and HostedZoneID, provide a value for ACMSSLCertificateArn.
     Type: String
     Default: ''
   VaultKubernetesEnable:
@@ -334,7 +340,8 @@ Parameters:
     Description: "URL of Kubernetes cluster eg: https://192.168.99.100:8443."
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service account."
+    Description: "AWS SSM parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service
+      account."
     Default: ""
     Type: String
   VaultKubernetesJWT:
@@ -357,66 +364,109 @@ Mappings:
   LinuxAMINameMap:
     Ubuntu-1604-HVM:
       Code: US1604HVM
+    Ubuntu-2004-HVM:
+      Code: US2004HVM
     CIS-Ubuntu-1604-HVM:
       Code: CISUBUNTU1604
+    CIS-Ubuntu-2004-HVM:
+      Code: CISUBUNTU2004
   AWSAMIRegionMap:
     AMI:
       CISUBUNTU1604: "CIS 1 Ubuntu 16.04"
+      CISUBUNTU2004: "CIS 1 Ubuntu 20.04"
       US1604HVM: "Ubuntu 16.04 LTS"
+      US2004HVM: "Ubuntu 20.04 LTS"
     eu-north-1:
-      CISUBUNTU1604: ami-0aac33a0d5fbb7783 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-0eb04b36ce3c3b0ac #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-000159fca5406ecf3 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-08aa610c4becc7c3c #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-0fec69b5d800dbc52 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-06a87e44ba65501d1 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     ap-south-1:
-      CISUBUNTU1604: ami-0276232e1f03bc046 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-011c09ac5e09ba22f #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-022dd51db6f542b34 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-09bd4b035a3724cda #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-081c93e64252e1b27 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-0860c9429baba6ad2 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     eu-west-3:
-      CISUBUNTU1604: ami-01028ca386421bffa #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-0a3fd389b49c645bf #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-0349a92da79fb7b92 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-0b0d60ae3a29fae0a #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-074b55365a6e960bb #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-08be160f24365b105 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     eu-west-2:
-      CISUBUNTU1604: ami-0addd243b556771dd #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-014ae7e330e2651dc #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-0bb10fef579094bc6 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-053fedbfa04ad5a08 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-0983862b6bc91d9f1 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-066ca69d74f59fe1d #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     eu-west-1:
-      CISUBUNTU1604: ami-07704fc9abcc6c8f9 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-01793b684af7a3e2c #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-061a0f7e7d6acadde #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-0a12f2d31f8c27fd4 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-09c60c18b634a5e00 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-038d7b856fe7557b3 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     ap-northeast-2:
-      CISUBUNTU1604: ami-0d494ee4c6e9ba2b9 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-0582405a4f3bf27c9 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-06108768053f6a652 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-0ed0824563279f80b #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-03ef1067294324114 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-08508144e576d5b64 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     ap-northeast-1:
-      CISUBUNTU1604: ami-05b4fcf6c27799ec7 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-003c6ed5c5176db19 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-02ee5face26618390 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-032e316c14c1ce0a7 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-08b73b6a3bb95a35a #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-0d53808c8c345ed07 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     sa-east-1:
-      CISUBUNTU1604: ami-0362ea71f01b65019 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-017555a9eb5076e5f #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-0d220576fa7225fa5 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-0af22adef0dde99d3 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-09eec57d370f3c96c #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-08c8994979459a12a #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     ca-central-1:
-      CISUBUNTU1604: ami-0a228636cea8a2698 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-02da4c4d67205fcc8 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-014b45c3d59120ac2 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-06cd49599cbbc67bb #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-032b9a20cf04d8420 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-0d833a36f4aa82e6b #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     ap-southeast-1:
-      CISUBUNTU1604: ami-00d4a1e80203512e5 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-0b21b3ea2cb8660a5 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-0ab480321c8d20568 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-0b2f3eb866000f580 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-0f0caede1391d497a #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-0f9d733050c9f5365 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     ap-southeast-2:
-      CISUBUNTU1604: ami-048ff64b3f4bc163d #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-09d19bae4dbb07062 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-0c172454004e3883b #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-0a38bf68a80847cfe #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-0e4860495dabaa5a0 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-09b1eb4f62e1813d0 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     eu-central-1:
-      CISUBUNTU1604: ami-0e435fddb305d6f9c #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-0257508f40836e6cf #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-01bdf92c2696d4473 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-0e2ff5255d49d1efb #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-0848da720bb07de35 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-0a86f18b52e547759 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     us-east-1:
-      CISUBUNTU1604: ami-08dee8ccd705ca825 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-04ac550b78324f651 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-054b808599b10ade6 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-0de8ae0e6d86b93c8 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-0ddbdea833a8d2f0d #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-0ee02acd56a52998e #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     us-east-2:
-      CISUBUNTU1604: ami-08ea22e68c0de3e0d #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-0009e532719fe9bff #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-08d6366a5e8aa634d #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-0aa02ef26b72355e3 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-0fb1e27304d83032f #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-0d563aeddd4be7fff #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     us-west-2:
-      CISUBUNTU1604: ami-04c0bc30b93eb5a25 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
-      US1604HVM: ami-02e30ba14d8ffa6e6 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
+      CISUBUNTU1604: ami-08735708681655445 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      CISUBUNTU2004: ami-00623c5f9bb8f0192 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-0554443e7f55d3eeb #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-0dd273d94ed0540c0 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200317
     me-south-1:
-      CISUBUNTU1604: ami-0fc34e7761742a76d #null
-      US1604HVM: ami-0fc34e7761742a76d #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      CISUBUNTU1604: ami-0bc7b1b5dad078ab5 #null
+      CISUBUNTU2004: ami-0d363735ad8d88253 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-09ec8e05ebadc13b0 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-091a3b1243690debd #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
     ap-east-1:
-      CISUBUNTU1604: ami-5493d525 #null
-      US1604HVM: ami-5493d525 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      CISUBUNTU1604: ami-0d8fee6f132c59ae7 #null
+      CISUBUNTU2004: ami-05c6467bab4a2e61c #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-06c17cdfb7a0bc93d #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-013f864ad81b818d1 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
     ap-northeast-3:
-      CISUBUNTU1604: ami-0da6a3ae32f8f6730 #null
-      US1604HVM: ami-0da6a3ae32f8f6730 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      CISUBUNTU1604: ami-0a46aad3d06a8e88f #null
+      CISUBUNTU2004: ami-0707e78efb47e46e0 #CIS Ubuntu Linux 16.04 LTS Benchmark v1.0.0.18 - Level 1-2ba49cfb-babd-43d3-81f6-3657aeb0f101-ami-0555da345a6355b23.4
+      US2004HVM: ami-0b9aa56f9bf2cd990 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+      US1604HVM: ami-0eab055d8530dd456 #ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-20200407
+
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
   InternalLoadBalancer: !Equals [!Ref LoadBalancerType, 'Internal']

@@ -133,8 +133,10 @@ Parameters:
   VaultAMIOS:
     AllowedValues:
       - Ubuntu-1604-HVM
+      - Ubuntu-2004-HVM
       - CIS-Ubuntu-1604-HVM
-    Default: Ubuntu-1604-HVM
+      - CIS-Ubuntu-2004-HVM
+    Default: Ubuntu-2004-HVM
     Description: Linux distribution AMI for the Vault instances.
     Type: String
   KeyPairName:
@@ -289,10 +291,10 @@ Parameters:
   VaultVersion:
     Type: String
     Description: Specify which version of HashiCorp Vault to install.
-    Default: 1.6.0
+    Default: 1.6.1
     AllowedValues:
     - 1.5.5
-    - 1.6.0
+    - 1.6.1
   LoadBalancerType:
     Type: String
     Default: "Internal"
@@ -360,6 +362,8 @@ Resources:
           Fn::Join:
           - ","
           - Ref: AvailabilityZones
+        KeyPairName:
+          Ref: KeyPairName
         NumberOfAZs: '3'
         PrivateSubnet1ACIDR:
           Ref: PrivateSubnet1CIDR
@@ -377,7 +381,7 @@ Resources:
           Ref: VPCCIDR
       TemplateURL:
         !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml'
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
     Type: AWS::CloudFormation::Stack

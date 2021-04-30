@@ -32,7 +32,7 @@ project:
 tests:
   ubuntu-base:
     parameters:
-      VaultAMIOS: Ubuntu-1604-HVM
+      VaultAMIOS: Ubuntu-2004-HVM
     regions:
     # No SSM Support
     # - eu-north-1 # StockHolm
@@ -59,7 +59,7 @@ tests:
     template: templates/quickstart-hashicorp-vault-main.template
   cis-level-1:
     parameters:
-      VaultAMIOS: CIS-Ubuntu-1604-HVM
+      VaultAMIOS: CIS-Ubuntu-2004-HVM
     regions:
     # No SSM Support
     # - eu-north-1
@@ -84,15 +84,15 @@ tests:
     # No SSM Support
     # - me-south-1
     template: templates/quickstart-hashicorp-vault-main.template
-  # cis-level-1-single:
-  #   parameters:
-  #     VaultAMIOS: CIS-Ubuntu-1604-HVM
-  #   regions:
-  #    - us-west-2
-  #   template: templates/quickstart-hashicorp-vault-main.template
-  #ubuntu-single:
-  #  parameters:
-  #    VaultAMIOS: Ubuntu-1604-HVM
-  #  regions:
-  #    - us-west-2
-  #  template: templates/quickstart-hashicorp-vault-main.template
+#  cis-level-1-single:
+#     parameters:
+#       VaultAMIOS: CIS-Ubuntu-2004-HVM
+#     regions:
+#      - us-west-2
+#     template: templates/quickstart-hashicorp-vault-main.template
+#  ubuntu-single:
+#    parameters:
+#      VaultAMIOS: Ubuntu-2004-HVM
+#    regions:
+#      - us-west-2
+#    template: templates/quickstart-hashicorp-vault-main.template
