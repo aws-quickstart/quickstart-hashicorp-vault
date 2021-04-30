@@ -229,14 +229,26 @@ EOF
 
 cloud_watch_logs () {
   cloud_watch_log_config
-  curl -s https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py --output /usr/local/awslogs-agent-setup.py
+  # curl -s https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py --output /usr/local/awslogs-agent-setup.py
   # CIS ubuntu tries to hide OS details breaking the installer 
   cp /etc/issue /etc/issue.old && echo Ubuntu | cat - /etc/issue > /etc/issue.temp && mv /etc/issue.temp /etc/issue
-  python /usr/local/awslogs-agent-setup.py -n -r ${AWS_REGION} -c /etc/awslogs-config-file
+
+  # python /usr/local/awslogs-agent-setup.py -n -r ${AWS_REGION} -c /etc/awslogs-config-file
+
+  # Specifically Ubuntu OS - see here for other OS: https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-commandline-fleet.html
+  curl -s https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb --output ./amazon-cloudwatch-agent.deb
+  sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+
   # CIS ubuntu tries to hide OS details breaking the installer remove
   mv /etc/issue.old /etc/issue
-  systemctl enable awslogs
-  systemctl start awslogs
+
+  # Enable and start service via systemd
+  #systemctl enable awslogs
+  #systemctl start awslogs
+
+  systemctl list-unit-files
+
+  sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:/etc/awslogs-config-file
 }
 
 get_kubernetes_ca () {

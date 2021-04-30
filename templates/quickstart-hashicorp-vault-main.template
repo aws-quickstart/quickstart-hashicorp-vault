@@ -1,32 +1,7 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'HashiCorp Vault, License: Apache 2.0 (Please do not remove) (qs-1rb2p0222)'
+Description: 'HashiCorp Vault, License: Apache 2.0 (Please do not remove) Oct,18,2019'
 Metadata:
-  QuickStartDocumentation:
-    EntrypointName: "Launch into a new VPC"
-    Order: 1
-  LintSpellExclude:
-    - Kubernetes
-    - namespace
-    - HashiCorp
-    - Vault
-    - balancer
-    - vault-ui
-    - Auto Scaling
-    - Hosted
-    - Domain
-    - Unseal
-    - unseal
-    - Linux
-    - xxxxxxxx
-    - ACMSSLCertificateArn
-    - DomainName
-    - Amazon Resource Name
-    - HostedZoneID
-    - Name
-    - Region
-    - Bucket
-    - bucket
   AWS::CloudFormation::Interface:
     ParameterGroups:
     - Label:
@@ -72,7 +47,7 @@ Metadata:
       - QSS3KeyPrefix
       - QSS3BucketRegion
     - Label:
-        default: Load balancer configuration
+        default: Load Balancer configuration
       Parameters:
       - LoadBalancerType
       - DomainName
@@ -105,6 +80,8 @@ Metadata:
         default: Quick Start S3 bucket Region
       AccessCIDR:
         default: Permitted IP range
+      VPCID:
+        default: VPC ID
       VPCCIDR:
         default: VPC CIDR
       VaultVersion:
@@ -156,8 +133,10 @@ Parameters:
   VaultAMIOS:
     AllowedValues:
       - Ubuntu-1604-HVM
+      - Ubuntu-2004-HVM
       - CIS-Ubuntu-1604-HVM
-    Default: Ubuntu-1604-HVM
+      - CIS-Ubuntu-2004-HVM
+    Default: Ubuntu-2004-HVM
     Description: Linux distribution AMI for the Vault instances.
     Type: String
   KeyPairName:
@@ -190,16 +169,19 @@ Parameters:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
     Default: 10.0.128.0/20
     Description: CIDR block for public DMZ subnet 1 located in Availability Zone 1.
+      1
     Type: String
   PublicSubnet2CIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
     Default: 10.0.144.0/20
     Description: CIDR block for public DMZ subnet 2 located in Availability Zone 2.
+      2
     Type: String
   PublicSubnet3CIDR:
     AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
     Default: 10.0.160.0/20
     Description: CIDR block for public DMZ subnet 3 located in Availability Zone 3.
+      3
     Type: String
   QSS3BucketName:
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
@@ -213,7 +195,7 @@ Parameters:
     Type: String
   QSS3BucketRegion:
     Default: 'us-east-1'
-    Description: 'AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
+    Description: "Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. If you use your own bucket, specify the applicable Region."
     Type: String
   QSS3KeyPrefix:
     AllowedPattern: "^[0-9a-zA-Z-/]*$"
@@ -305,14 +287,14 @@ Parameters:
     Default: client-role-iam
     MinLength: "3"
     ConstraintDescription: This identifier should be at least 3 characters in length.
-    Description: The HashiCorp Vault name for the AWS IAM role.
+    Description: The HashiCorp Vault name for the AWS IAM Role.
   VaultVersion:
     Type: String
     Description: Specify which version of HashiCorp Vault to install.
-    Default: 1.6.0
+    Default: 1.6.1
     AllowedValues:
     - 1.5.5
-    - 1.6.0
+    - 1.6.1
   LoadBalancerType:
     Type: String
     Default: "Internal"
@@ -348,11 +330,11 @@ Parameters:
     Description: "URL of Kubernetes cluster (e.g., https://192.168.99.100:8443)."
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service account."
+    Description: "AWS SSM Parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesJWT:
-    Description: "AWS SSM secure parameter containing a base64-encoded JWT token of the Kubernetes cluster service account."
+    Description: "AWS SSM Secure Parameter containing a base64-encoded JWT token of the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesServiceAccount:
@@ -374,13 +356,14 @@ Resources:
         config:
           ignore_checks:
           - W9198
-          - W9901
     Properties:
       Parameters:
         AvailabilityZones:
           Fn::Join:
           - ","
           - Ref: AvailabilityZones
+        KeyPairName:
+          Ref: KeyPairName
         NumberOfAZs: '3'
         PrivateSubnet1ACIDR:
           Ref: PrivateSubnet1CIDR
@@ -398,7 +381,7 @@ Resources:
           Ref: VPCCIDR
       TemplateURL:
         !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml'
+          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template'
           - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
     Type: AWS::CloudFormation::Stack
@@ -408,7 +391,6 @@ Resources:
         config:
           ignore_checks:
           - W9198
-          - W9901
     Properties:
       Parameters:
         BastionAMIOS: Ubuntu-Server-20.04-LTS-HVM
