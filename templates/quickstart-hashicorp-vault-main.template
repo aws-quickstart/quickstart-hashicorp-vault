@@ -481,3 +481,30 @@ Outputs:
   VaultAuditLogGroup:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultAuditLogGroup"
     Description: CloudWatch Log Group where the HashiCorp Vault audit logs are recorded
+Rules:
+  DomainNamePresentWithHostedID:
+    RuleCondition:
+      !Equals [ !Ref HostedZoneID, '' ]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref DomainName, '']]
+        AssertDescription: "Please specify a 'Domain Name' if you specify 'Route 53 Hosted Zone ID'"
+  HostedIDPresentWithDomainName:
+    RuleCondition:
+      !Equals [ !Ref DomainName, '' ]
+    Assertions:
+      - Assert: !Not [!Equals [!Ref HostedZoneID, '']]
+        AssertDescription: "Please specify a 'Route 53 Hosted Zone ID' if you specify 'Domain Name'"
+  GenerateOrProvideSSL:
+    RuleCondition: !Not [!Equals [!Ref ACMSSLCertificateArn, '']]
+    Assertions:
+      - Assert: !And
+          - !Equals [!Ref HostedZoneID, '']
+          - !Equals [!Ref DomainName, '']
+        AssertDescription: "Using an SSL certificate is enforced. A CertificateArn or a HostedZoneID and Domain Name must be provided."
+  NoLoadBalancerInfoSupplied:
+    Assertions:
+      - Assert: !Or
+          - !Not [!Equals [!Ref HostedZoneID, '']]
+          - !Not [!Equals [!Ref ACMSSLCertificateArn, '']]
+          - !Not [!Equals [!Ref DomainName, '']]
+        AssertDescription: "Using an SSL certificate is enforced. A CertificateArn or a HostedZoneID and Domain Name must be provided."

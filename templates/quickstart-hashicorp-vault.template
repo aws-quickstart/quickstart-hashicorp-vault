@@ -891,7 +891,7 @@ Resources:
     CreationPolicy:
       ResourceSignal:
         Count: !Ref VaultServerNodes
-        Timeout: PT12M
+        Timeout: PT20M
   LeaderElectionLambda:
     Type: "AWS::Lambda::Function"
     Properties:
