@@ -237,7 +237,17 @@ cloud_watch_logs () {
 
   # Specifically Ubuntu OS - see here for other OS: https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-commandline-fleet.html
   curl -s https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb --output ./amazon-cloudwatch-agent.deb
-  sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+
+  # Retry logic for a race condition where something else is lock dpkg
+  TRY=1
+  while [ $TRY -lt 6 ]
+  do
+    SLEEP_SECONDS=$(echo "5 * $TRY" | bc)
+    echo "sleeping $SLEEP_SECONDS"
+    sleep $SLEEP_SECONDS
+    TRY=$(echo "$TRY + 1"| bc)
+    sudo dpkg -i -E ./amazon-cloudwatch-agent.deb || echo " "
+  done
 
   # CIS ubuntu tries to hide OS details breaking the installer remove
   mv /etc/issue.old /etc/issue
