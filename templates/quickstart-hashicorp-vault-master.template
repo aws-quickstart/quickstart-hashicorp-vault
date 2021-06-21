@@ -484,13 +484,13 @@ Outputs:
 Rules:
   DomainNamePresentWithHostedID:
     RuleCondition:
-      !Equals [ !Ref HostedZoneID, '' ]
+      !Not [!Equals [ !Ref HostedZoneID, '' ]]
     Assertions:
       - Assert: !Not [!Equals [!Ref DomainName, '']]
         AssertDescription: "Please specify a 'Domain Name' if you specify 'Route 53 Hosted Zone ID'"
   HostedIDPresentWithDomainName:
     RuleCondition:
-      !Equals [ !Ref DomainName, '' ]
+      !Not [!Equals [ !Ref DomainName, '' ]]
     Assertions:
       - Assert: !Not [!Equals [!Ref HostedZoneID, '']]
         AssertDescription: "Please specify a 'Route 53 Hosted Zone ID' if you specify 'Domain Name'"
