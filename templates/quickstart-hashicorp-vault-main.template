@@ -132,9 +132,7 @@ Parameters:
     Type: List<AWS::EC2::AvailabilityZone::Name>
   VaultAMIOS:
     AllowedValues:
-      - Ubuntu-1604-HVM
       - Ubuntu-2004-HVM
-      - CIS-Ubuntu-1604-HVM
       - CIS-Ubuntu-2004-HVM
     Default: Ubuntu-2004-HVM
     Description: Linux distribution AMI for the Vault instances.
