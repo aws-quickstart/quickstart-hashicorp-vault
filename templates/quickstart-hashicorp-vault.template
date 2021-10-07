@@ -367,59 +367,59 @@ Mappings:
       CISUBUNTU2004: "CIS 1 Ubuntu 20.04"
       US2004HVM: "Ubuntu 20.04 LTS"
     eu-north-1:
-      CISUBUNTU2004: ami-03b0c9e75c02d1885
-      US2004HVM: ami-00a8ab5e0a29e8173
+      CISUBUNTU2004: ami-057614a40c691ad25
+      US2004HVM: ami-0ac289f307b3e90d1
     ap-south-1:
-      CISUBUNTU2004: ami-061199dae217e2395
-      US2004HVM: ami-0b9e641f013a385af
+      CISUBUNTU2004: ami-0812d50039dc44803
+      US2004HVM: ami-089fdf62e986e93ea
     eu-west-3:
-      CISUBUNTU2004: ami-0dd2ab415739e2d36
-      US2004HVM: ami-03569f6d482517724
+      CISUBUNTU2004: ami-0c3991c399720ce4e
+      US2004HVM: ami-04c512eb02ad15697
     eu-west-2:
-      CISUBUNTU2004: ami-05eaea5275a2bdc2e
-      US2004HVM: ami-093d303510c432519
+      CISUBUNTU2004: ami-0a0aef4eddab42e03
+      US2004HVM: ami-0c109f697ab7fc6f4
     eu-west-1:
-      CISUBUNTU2004: ami-03a05155ac4202521
-      US2004HVM: ami-03caf24deed650e2c
+      CISUBUNTU2004: ami-066a2b721a2c8baea
+      US2004HVM: ami-020fc399c31009b50
     ap-northeast-2:
-      CISUBUNTU2004: ami-0b8dde3e39d5cde52
-      US2004HVM: ami-00bbba67d13faed04
+      CISUBUNTU2004: ami-020f35e96daeeb0dd
+      US2004HVM: ami-0a0ac042031ba59d1
     ap-northeast-1:
-      CISUBUNTU2004: ami-012ab27845302c507
-      US2004HVM: ami-0827d8ed0295e3feb
+      CISUBUNTU2004: ami-0b8ceb50bcc3f1a32
+      US2004HVM: ami-074d4d6a02df638da
     sa-east-1:
-      CISUBUNTU2004: ami-0ed8233d2f878f52e
-      US2004HVM: ami-0a44655c0244677b4
+      CISUBUNTU2004: ami-0bba6e05a0a858fbb
+      US2004HVM: ami-0644c2c26649aac62
     ca-central-1:
-      CISUBUNTU2004: ami-0cc10ab2ee8d56dac
-      US2004HVM: ami-043d0311364b93890
+      CISUBUNTU2004: ami-0b2e07efafe24207e
+      US2004HVM: ami-0efe80e01e2162d9c
     ap-southeast-1:
-      CISUBUNTU2004: ami-0d3baa17caedd0c3a
-      US2004HVM: ami-0f6565c3d5328c913
+      CISUBUNTU2004: ami-068667925ee812eaa
+      US2004HVM: ami-0c07cd0ceb5369def
     ap-southeast-2:
-      CISUBUNTU2004: ami-0d9897677fbd82ead
-      US2004HVM: ami-0a1002150df471b2b
+      CISUBUNTU2004: ami-0a94209c1fdf15321
+      US2004HVM: ami-02e45c427cc633602
     eu-central-1:
-      CISUBUNTU2004: ami-0a65de1a30605b4a8
-      US2004HVM: ami-0bdbe51a2e8070ff2
+      CISUBUNTU2004: ami-016a71be939167dae
+      US2004HVM: ami-0215371f3ea49a91b
     us-east-1:
-      CISUBUNTU2004: ami-0af72b21de0ee0aa2
-      US2004HVM: ami-0dd76f917833aac4b
+      CISUBUNTU2004: ami-06594bbf095104679
+      US2004HVM: ami-036490d46656c4818
     us-east-2:
-      CISUBUNTU2004: ami-07b5a647eb0f44849
-      US2004HVM: ami-0b29b6e62f2343b46
+      CISUBUNTU2004: ami-0272d8d921b67573d
+      US2004HVM: ami-044696ab785e77725
     us-west-2:
-      CISUBUNTU2004: ami-0050ca8a652e205b2
-      US2004HVM: ami-01773ce53581acf22
+      CISUBUNTU2004: ami-02d086f8cc9c67825
+      US2004HVM: ami-0964546d3da97e3ab
     me-south-1:
-      CISUBUNTU2004: ami-0c4c5f4a4b6fae189
-      US2004HVM: ami-04fe8aa2b91952fb9
+      CISUBUNTU2004: ami-06c6282b68b2271ba
+      US2004HVM: ami-01fafec635e66681c
     ap-east-1:
-      CISUBUNTU2004: ami-003056921787e4d02
-      US2004HVM: ami-05c4aac08aa7b2a85
+      CISUBUNTU2004: ami-05222f0293e7c7679
+      US2004HVM: ami-0c98e8b4754246f6b
     ap-northeast-3:
-      CISUBUNTU2004: ami-01e57fcb0dfb22255
-      US2004HVM: ami-01cb3e73f8ef13fdc
+      CISUBUNTU2004: ami-0aa2d74a8df8d5037
+      US2004HVM: ami-067573cd8d4480518
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
