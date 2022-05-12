@@ -18,6 +18,9 @@ Each stack in this deployment takes approximately 20 minutes to create. For more
 ### Architecture
 ![quickstart-hashicorp-consul](https://d0.awsstatic.com/partner-network/QuickStart/datasheets/hashicorp-vault-on-aws-architecture.png)
 
+### Change log (May 2022)
+* Added support for HashiCorp Vault 1.10.3
+
 ### Change log (November 2020)
 * Added support for HashiCorp Vault 1.5.5 and 1.6.0
 
