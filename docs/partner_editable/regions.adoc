@@ -1,0 +1,5 @@
+// KEEP THIS FILE BLANK normally. By default, this file's content is excluded from the generated guide. The content about supported Regions now comes from the boilerplate (non-partner-editable) file regions_default.adoc.
+
+// If your Quick Start requires custom info (e.g., the product is limited to a specific Region and that will not change), uncomment the custom_supported_regions attribute in the _settings.adoc file. Add the custom info here. It then appears in the generated guide instead of the boilerplate.
+
+// Do not list all the supported Regions or provide any other info that will go out of date when new Regions are released or when services add support for more Regions.
