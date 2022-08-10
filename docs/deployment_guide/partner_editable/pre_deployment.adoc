@@ -1,3 +1,39 @@
 //Include any predeployment steps here, such as signing up for a Marketplace AMI or making any changes to a partner account. If there are no predeployment steps, leave this file empty.
 
 == Predeployment steps
+
+=== Specialized knowledge
+
+Before you deploy this Quick Start, we recommend that you become familiar with the
+following AWS services. If you are new to AWS, see http://docs.aws.amazon.com/gettingstarted/latest/awsgsg-intro/intro.html[Getting Started with AWS].
+
+* http://aws.amazon.com/documentation/vpc/[Amazon VPC]
+* http://aws.amazon.com/documentation/ec2/[Amazon EC2]
+* http://aws.amazon.com/elasticloadbalancing[Elastic Load Balancing]
+* https://aws.amazon.com/ec2/autoscaling/[Amazon EC2 Auto Scaling]
+
+Note: The Center for Internet Security (CIS) AMI for Ubuntu Linux 16.04 LTS is available as an optional, hardened AMI type. The image of Ubuntu Linux 16.04 LTS is preconfigured by CIS according to their benchmark recommendations. For more information, see https://aws.amazon.com/marketplace/pp/B078TPPXV2?qid=1588650469654[CIS Ubuntu Linux 16.04 LTS Benchmark — Level 1].
+
+=== Prepare an AWS account
+
+1. If you don’t already have an AWS account, create one at http://aws.amazon.com by following the on-screen instructions.
+
+2. Use the region selector in the navigation bar to choose the AWS Region where you want to deploy HashiCorp Consul on AWS.
+
+3. Create a http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html[key pair] in your preferred region. If necessary, request a service quota increase for the Amazon EC2 *t3.medium* and *m5.large* instance types. You might need to do this if you already have an existing deployment that uses this instance type, and you think you might exceed the http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html[default quota] with this reference deployment.
+
+=== Subscribe to CIS Ubuntu Linux 16.04 LTS
+
+This Quick Start recommends subscribing to the AMI for “CIS Ubuntu Linux 16.04 LTS Benchmark — Level 1” in AWS Marketplace.
+
+1. Sign in to your AWS account.
+
+2. Open the page for the *CIS Ubuntu Linux 16.04 LTS Benchmark — Level 1* AMI in AWS Marketplace, and then choose *Continue to Subscribe*.
+
+3. Review the terms and conditions for software usage, and then choose *Accept Terms*. 
+A confirmation page loads, and an email confirmation is sent to the account owner. For
+detailed subscription instructions, see the https://aws.amazon.com/marketplace/help/200799470[AWS Marketplace documentation].
+
+4. When the subscription process is complete, exit AWS Marketplace without further action.
+
+Warning: Do not provision the software from AWS Marketplace—the Quick Start deploys the AMI for you.

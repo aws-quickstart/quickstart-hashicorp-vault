@@ -1,3 +1,7 @@
 // Include details about any licenses and how to sign up. Provide links as appropriate.
 
 There is no cost to use this Quick Start, but you will be billed for any AWS services or resources that this Quick Start deploys. For more information, refer to the https://fwd.aws/rA69w?[AWS Quick Start General Information Guide^].
+
+The AWS CloudFormation template for this Quick Start includes configuration parameters that you can customize. Some of these settings, such as instance type, affects the cost of deployment. See the pricing pages for each AWS service you use.
+
+This Quick Start uses the open-source version of {partner-product-name}, which does not require a license.
