@@ -1,3 +1,89 @@
 // Include any postdeployment steps here, such as steps necessary to test that the deployment was successful. If there are no postdeployment steps, leave this file empty.
 
 == Postdeployment steps
+
+=== Verify successful deployment
+
+You can use the URL displayed in the *Outputs* tab for the stack to view the resources that were created.
+
+[#output1]
+.{partner-product-name} outputs after successful deployment
+image::../docs/deployment_guide/images/output-1.png[output1]
+
+=== Review audit logs 
+
+This Quick Start is configured to ship {partner-product-short-name} audit logs to Amazon CloudWatch. To see your logs, open the https://console.aws.amazon.com/cloudwatch/[Amazon CloudWatch console]. In the navigation pane, choose *Logs*, and then select *{partner-product-short-name}-Audit-Logs-XXXX* value from the *Outputs*. You will see a screen that is similar to <<auditlogs>>.
+
+[#auditlogs]
+.Viewing {partner-product-short-name} audit logs
+image::../docs/deployment_guide/images/audit-logs.png[auditlogs]
+
+=== Test the deployment
+
+To access the {partner-product-short-name} server cluster environment, access the Application Load Balancer (ALB) endpoint that was created during the deployment.
+
+[start=1]
+. Locate the AWS Secrets Manager secret from the *Outputs* tab containing the {partner-product-short-name} root token and recovery secrets for {partner-product-short-name}.
+
+[#output2]
+.AWS Secrets Manager secret from the CloudFormation stack outputs
+image::../docs/deployment_guide/images/output-2.png[output2]
+
+[start=2]
+. Locate the Application Load Balancer endpoint address from the *Outputs* tab of the AWS CloudFormation console.
+
+[#output3]
+.{partner-product-short-name} load balancer from CloudFormation stack outputs
+image::../docs/deployment_guide/images/output-3.png[output3]
+
+[start=3]
+. Use your preferred web browser to open the URL. On the Vault server login screen, use the root token from AWS Secrets Manager to log in to the Vault server cluster.
+
+
+[#vaultlogin]
+.{partner-product-name} cluster login screen
+image::../docs/deployment_guide/images/vault-login.png[vaultlogin]
+
+Note: Ensure that you have network access to this address. Specifically, for internal load balancers, you must configure the VPC to allow this.
+
+=== Get started with {partner-product-name}
+
+To integrate Vault with your environment and get started, see the https://www.vaultproject.io/intro/getting-started[Getting Started] section of the {partner-product-name} website.
+
+*_How to deploy Vault with a CIS Ubuntu Linux 16.04 LTS–hardened AMI_*
+
+The CIS AMI for Ubuntu Linux 16.04 LTS is available as an optional, hardened AMI type. The image of Ubuntu Linux 16.04 LTS is preconfigured by CIS according to their benchmark recommendations. For more information, see https://aws.amazon.com/marketplace/pp/B078TPPXV2?qid=1588650469654[CIS Ubuntu Linux 16.04 LTS Benchmark — Level 1].
+
+*_How to deploy Vault with Raft-integrated storage_*
+
+https://www.vaultproject.io/docs/internals/integrated-storage[Raft consensus algorithm] is enabled by default. Using Raft as a storage backend eliminates reliance on any third-party systems, it implements high availability, supports enterprisereplication features, and provides backup/restore workflows. For more information, see the following HashiCorp pages.
+
+* https://learn.hashicorp.com/vault/operations/raft-reference-architecture[{partner-product-short-name} with Integrated Storage Reference Architecture]
+* https://learn.hashicorp.com/vault/operations/raft-storage-aws[{partner-product-short-name} HA Cluster with Integrated Storage on AWS]
+* https://learn.hashicorp.com/vault/operations/storage-migration-checklist[Migrating to Integrated Storage]
+
+*_How to manage Vault Agent using AWS Auth method_*
+
+https://www.vaultproject.io/docs/auth/aws[AWS Auth method] is available as an optional Auth method in the deployment wizard. The AWS Auth method provides an automated mechanism to retrieve a Vault token for IAM principals and Amazon EC2 instances. For more information, see https://learn.hashicorp.com/vault/identity-access-management/vault-agent-aws[Vault Agent with AWS].
+
+*_How to manage Vault Agent using Kubernetes Auth method_*
+
+https://www.vaultproject.io/docs/auth/kubernetes[Kubernetes Auth method] is an option in the deployment wizard. The Kubernetes Auth method can be used to authenticate with Vault using a Kubernetes service account token. For more information, see https://learn.hashicorp.com/vault/identity-access-management/vault-agent-k8s[Vault Agent with Kubernetes].
+
+*_How to manage Vault Auto Unseal using AWS KMS_*
+
+https://www.vaultproject.io/docs/concepts/seal#auto-unseal[Vault Auto Unseal] was developed to aid in reducing the operational complexity of keeping the master key secure. For more information, see https://learn.hashicorp.com/vault/operations/ops-autounseal-aws-kms[Auto Unseal using AWS KMS].
+
+=== Other useful information
+
+* AWS Services
+    ** http://docs.aws.amazon.com/AWSEC2/latest/WindowsGuide/[Amazon EC2]
+    ** http://aws.amazon.com/documentation/vpc/[Amazon VPC]
+
+* {partner-product-name}
+    ** https://www.hashicorp.com/[HashiCorp]
+    ** https://www.vault.io/[{partner-product-short-name}]
+    ** https://www.hashicorp.com/products/vault/[{partner-product-short-name} Enterprise]
+
+* Quick Start reference deployments
+    ** https://aws.amazon.com/quickstart/[AWS Quick Start home page]

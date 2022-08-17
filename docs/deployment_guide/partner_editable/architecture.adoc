@@ -11,18 +11,28 @@ image::../docs/deployment_guide/images/architecture_diagram.png[Architecture]
 
 As shown in <<architecture1>>, this Quick Start sets up the following:
 
-* A highly available architecture that spans two Availability Zones.*
-* A virtual private cloud (VPC) configured with public and private subnets, according to AWS
-best practices, to provide you with your own virtual network on AWS.*
+* A VPC with public and private subnets across three Availability Zones.
+
+* An internet gateway to provide access to the internet.*
+
+* A certificate from the AWS Certificate Manager (ACM) Secure Sockets Layer (SSL), assuming that the supplied hosted-zone ID and DNS name are associated with the Application Load Balancer.
+
+* An Application Load Balancer that can either be internal or external facing.
+
 * In the public subnets:
-** Managed network address translation (NAT) gateways to allow outbound
-internet access for resources in the private subnets.*
-** A Linux bastion host in an Auto Scaling group to allow inbound Secure
-Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) instances in public and private subnets.*
+
+    ** Managed network address translation (NAT) gateways to allow outbound internet access for resources.
+    
+    ** A Linux bastion host to allow inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) instances.
+
 * In the private subnets:
-** <item>.
-** <item>.
-// Add bullet points for any additional components that are included in the deployment. Ensure that the additional components are shown in the architecture diagram. End each bullet with a period.
-* <describe any additional components>.
+    
+    ** Auto Scaling groups that contain three, five, or seven {partner-product-name} server instances across three Availability Zones.
+    
+    ** A {partner-product-name} environment with a Raft storage backend. {partner-product-short-name} uses the Raft consensus algorithm to replicate data across the cluster.
+
+* An AWS Secrets Manager secret that contains the root token and unseal keys created during the {partner-product-name} cluster initialization.
+
+* An AWS Key Management Service (AWS KMS) key that is used to auto-unseal {partner-product-name} as well as encrypt the AWS Secrets Manager secret.
 
 [.small]#* The template that deploys this Quick Start into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#
