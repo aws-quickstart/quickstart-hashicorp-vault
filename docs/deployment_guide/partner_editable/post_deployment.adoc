@@ -62,11 +62,11 @@ https://www.vaultproject.io/docs/internals/integrated-storage[Raft consensus alg
 * https://learn.hashicorp.com/vault/operations/raft-storage-aws[{partner-product-short-name} HA Cluster with Integrated Storage on AWS^]
 * https://learn.hashicorp.com/vault/operations/storage-migration-checklist[Migrating to Integrated Storage^]
 
-==== Manage {partner-product-short-name} Agent using AWS Auth method
+===== Manage {partner-product-short-name} Agent using AWS Auth method
 
 https://www.vaultproject.io/docs/auth/aws[AWS Auth method^] is available as an optional Auth method in the deployment wizard. The AWS Auth method provides an automated mechanism to retrieve a Vault token for IAM principals and Amazon EC2 instances. For more information, see https://learn.hashicorp.com/vault/identity-access-management/vault-agent-aws[Vault Agent with AWS^].
 
-==== Manage {partner-product-short-name} Agent using Kubernetes Auth method
+===== Manage {partner-product-short-name} Agent using Kubernetes Auth method
 
 https://www.vaultproject.io/docs/auth/kubernetes[Kubernetes Auth method^] is an option in the deployment wizard. The Kubernetes Auth method can be used to authenticate with {partner-product-short-name} using a Kubernetes service account token. For more information, see https://learn.hashicorp.com/vault/identity-access-management/vault-agent-k8s[Vault Agent with Kubernetes^].
 
