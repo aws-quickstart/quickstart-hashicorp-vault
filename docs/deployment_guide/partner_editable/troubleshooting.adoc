@@ -5,7 +5,7 @@ For troubleshooting common Quick Start issues, refer to the https://fwd.aws/rA69
 // == Resources
 // Uncomment section and add links to any external resources that are specified by the partner.
 
-=== Encountering a *CREATE_FAILED* error when launching the Quick Start
+==== Encountering a *CREATE_FAILED* error when launching the Quick Start
 
 If AWS CloudFormation fails to create the stack, relaunch the template with *Rollback on failure* set to *No*. This setting is under *Advanced* in the AWS CloudFormation console on the *Options* page. With this setting, the stack’s state is retained and the instance is left running, so you can troubleshoot the issue. (For Windows, look at the log files in %ProgramFiles%\Amazon\EC2ConfigService and C:\cfn\log.)
 // If you’re deploying on Linux instances, provide the location for log files on Linux, or omit this sentence.
@@ -14,7 +14,7 @@ WARNING: When you set *Rollback on failure* to *Disabled*, you continue to incur
 
 For additional information, see https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/troubleshooting.html[Troubleshooting AWS CloudFormation^] on the AWS website.
 
-=== Encountering a size limitation error when deploying the AWS CloudFormation templates
+==== Encountering a size limitation error when deploying the AWS CloudFormation templates
 
 Launch the Quick Start templates from the links in this guide or from another S3 bucket. If you deploy the templates from a local copy on your computer or from a location other than an S3 bucket, you might encounter template size limitations. For more information, refer to https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cloudformation-limits.html[AWS CloudFormation quotas^].
 
