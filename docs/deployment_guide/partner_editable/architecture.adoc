@@ -22,13 +22,13 @@ As shown in <<architecture1>>, this Quick Start sets up the following:
 * In the public subnets:
 
     ** Managed network address translation (NAT) gateways to allow outbound internet access for resources.
-    
+
     ** A Linux bastion host to allow inbound Secure Shell (SSH) access to Amazon Elastic Compute Cloud (Amazon EC2) instances.
 
 * In the private subnets:
-    
+
     ** Auto Scaling groups that contain three, five, or seven {partner-product-name} server instances across three Availability Zones.
-    
+
     ** A {partner-product-name} environment with a Raft storage backend. {partner-product-short-name} uses the Raft consensus algorithm to replicate data across the cluster.
 
 * An AWS Secrets Manager secret that contains the root token and unseal keys created during the {partner-product-name} cluster initialization.
