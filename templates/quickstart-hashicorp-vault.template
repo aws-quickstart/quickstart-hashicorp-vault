@@ -858,7 +858,7 @@ Resources:
             - - !Ref QSS3KeyPrefix
               - "functions/packages/LeaderElection/lambda.zip"
       Handler: "lambda_function.lambda_handler"
-      Runtime: python3.6
+      Runtime: python3.9
       Environment:
         Variables:
           LeaderElectedSSM: !Ref VaultLeaderElectedSSM
@@ -922,7 +922,7 @@ Resources:
           LeaderSSM: !Ref VaultLeaderElectedSSM
           ClusterMembersSSM: !Ref VaultClusterMembersSSM
           AutoScalingGroup: !Sub "VaultServerAutoScalingGroup-${AWS::StackName}"
-      Runtime: python3.6
+      Runtime: python3.9
       Timeout: 300
       Role: !GetAtt ClusterBootstrapLambdaExecutionRole.Arn
   ClusterBootstrapLambdaExecutionRole:
