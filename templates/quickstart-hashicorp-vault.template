@@ -162,7 +162,7 @@ Parameters:
     Description: Key pair to securely connect to your instance.
     Type: AWS::EC2::KeyPair::KeyName
     Default: id_rsa_aws
-    ConstraintDescription: Must be the name of an existing EC2 KeyPair.
+    ConstraintDescription: Must be the name of an existing EC2 key pair.
   BastionSecurityGroupID:
     Description: ID of the bastion host security group to enable SSH connections (e.g.,
       sg-7f16e910).
@@ -187,7 +187,7 @@ Parameters:
     Default: '5'
     AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
     ConstraintDescription: Must be a value between 1 and 99.
-    Description: Number of un seal keys to create for HashiCorp Vault.
+    Description: Number of unseal keys to create for HashiCorp Vault.
   VaultNumberOfKeysForUnseal:
     Type: String
     Default: '3'
@@ -230,7 +230,7 @@ Parameters:
     - 't3.nano'
     - 't3.small'
     - 't3.xlarge'
-    ConstraintDescription: Choose an instance type. m5.large or larger recommended.
+    ConstraintDescription: Choose an instance type (m5.large or larger recommended).
     Default: m5.large
   QSS3BucketName:
     AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
@@ -297,7 +297,7 @@ Parameters:
     Type: String
     Default: "quickstart-client-role-iam"
     MinLength: "3"
-    ConstraintDescription: This identifier should be at least 3 characters in length.
+    ConstraintDescription: This identifier should be at least three characters in length.
     Description: The HashiCorp Vault name for the AWS IAM role.
   LoadBalancerType:
     Type: String
@@ -334,10 +334,10 @@ Parameters:
     Type: String
     Default: 'kube-auth-role'
   VaultKubernetesHostURL:
-    Description: "URL of Kubernetes cluster eg: https://192.168.99.100:8443."
+    Description: "URL of Kubernetes cluster, eg: https://192.168.99.100:8443."
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service
+    Description: "AWS SSM parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service.
       account."
     Default: ""
     Type: String
@@ -1131,13 +1131,13 @@ Outputs:
     Description: The name of the AWS IAM role linked to HashiCorp Vault.
   VaultKMSKeyId:
     Value: !Ref "VaultKmsKey"
-    Description: The AWS KMS Key used to Auto Unseal HashiCorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
+    Description: The AWS KMS key used to auto unseal HashiCorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
   VaultKMSKeyArn:
     Value: !GetAtt "VaultKmsKey.Arn"
-    Description: The AWS KMS Key used to Auto Unseal HashiCorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
+    Description: The AWS KMS key used to auto unseal HashiCorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
   VaultClientRoleId:
     Value: !Ref VaultClientRoleName
     Description: The HashiCorp Vault identifier of the AWS client role.
   VaultAuditLogGroup:
     Value: !Ref VaultLogGroup
-    Description: CloudWatch Log Group where the HashiCorp Vault audit logs are recorded
+    Description: CloudWatch Log Group where the HashiCorp Vault audit logs are recorded.
