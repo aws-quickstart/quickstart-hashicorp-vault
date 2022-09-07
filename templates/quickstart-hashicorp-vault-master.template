@@ -138,8 +138,7 @@ Parameters:
     Description: Linux distribution AMI for the Vault instances.
     Type: String
   KeyPairName:
-    Description: Key pair to securely connect to your instance.
-      after it launches.
+    Description: Key pair to securely connect to your instance after it launches.
     Type: AWS::EC2::KeyPair::KeyName
   NumBastionHosts:
     Description: Enter the number of bastion hosts to create.
@@ -284,8 +283,8 @@ Parameters:
     Type: String
     Default: client-role-iam
     MinLength: "3"
-    ConstraintDescription: This identifier should be at least 3 characters in length.
-    Description: The HashiCorp Vault name for the AWS IAM Role.
+    ConstraintDescription: This identifier should be at least three characters in length.
+    Description: The HashiCorp Vault name for the AWS IAM role.
   VaultVersion:
     Type: String
     Description: Specify which version of HashiCorp Vault to install.
@@ -329,11 +328,11 @@ Parameters:
     Description: "URL of Kubernetes cluster (e.g., https://192.168.99.100:8443)."
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM Parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service account."
+    Description: "AWS SSM parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesJWT:
-    Description: "AWS SSM Secure Parameter containing a base64-encoded JWT token of the Kubernetes cluster service account."
+    Description: "AWS SSM secure parameter containing a base64-encoded JWT token of the Kubernetes cluster service account."
     Default: ""
     Type: String
   VaultKubernetesServiceAccount:
@@ -473,13 +472,13 @@ Outputs:
     Description: The AWS KMS Key used to Auto Unseal HashiCorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
   VaultKMSKeyArn:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultKMSKeyArn"
-    Description: The AWS KMS Key used to Auto Unseal HashiCorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
+    Description: The AWS KMS key used to Auto Unseal HashiCorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
   VaultLoadBalancer:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultLoadBalancer"
-    Description: HashiCorp Vault Load Balancer address
+    Description: HashiCorp Vault Load Balancer address.
   VaultAuditLogGroup:
     Value: !GetAtt "HashiCorpVaultStack.Outputs.VaultAuditLogGroup"
-    Description: CloudWatch Log Group where the HashiCorp Vault audit logs are recorded
+    Description: CloudWatch log group where the HashiCorp Vault audit logs are recorded.
 Rules:
   DomainNamePresentWithHostedID:
     RuleCondition:
