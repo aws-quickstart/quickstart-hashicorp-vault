@@ -3,3 +3,17 @@ This Quick Start deploys {partner-product-name} on the AWS Cloud. This guide cov
 // For advanced information about the product, troubleshooting, or additional functionality, refer to the https://{quickstart-github-org}.github.io/{quickstart-project-name}/operational/index.html[Operational Guide^].
 
 // For information about using this Quick Start for migrations, refer to the https://{quickstart-github-org}.github.io/{quickstart-project-name}/migration/index.html[Migration Guide^].
+
+{partner-product-name} is a product that centrally secures, stores, and tightly controls access to tokens, passwords, certificates, encryption keys, protecting secrets and other sensitive data through a user interface (UI), a command line interface (CLI), or an HTTP application programming interface (API). {partner-product-short-name}’s core use cases include the following:
+
+* Secrets management: Securely manage and deploy secrets across different environments, applications, and services.
+
+* Encryption and data protection: Manage encryption and keys for developers and operators across different environments, applications, and services.
+
+* Privileged-access management: Secure workloads for application-to-application and user-to-application credential management across different environments and services.
+
+{partner-product-short-name} is designed for DevOps professionals and application developers who want to manage their secrets, data, and key-value stores. It’s built using the open-source version of {partner-product-short-name}, but it’s also compatible with {partner-product-short-name} Enterprise.
+
+Supplemental details, with instructions and screenshots, are available on the https://www.vaultproject.io/[{partner-product-name}^] and https://www.hashicorp.com/vault.html[{partner-product-short-name}^] Enterprise websites.
+
+NOTE: Amazon may share user-deployment information with the AWS Partner that collaborated with AWS on the Quick Start.
