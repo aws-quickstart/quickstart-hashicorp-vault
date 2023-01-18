@@ -5,3 +5,4 @@ venv/
 tmp/
 taskcat_outputs/
 functions/packages/
+.vscode/
