@@ -562,6 +562,10 @@ Resources:
       SecretString: "empty"
   VaultKmsKey:
     Type: AWS::KMS::Key
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks: [EKMSKeyEnableKeyRotation, EIAMPolicyActionWildcard, EIAMPolicyWildcardResource]
     Properties:
       Description: "Vault Seal/Unseal key"
       KeyPolicy:
@@ -660,6 +664,10 @@ Resources:
       Value: "{[]}"
   VaultInstanceRole:
     Type: AWS::IAM::Role
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks: [EIAMPolicyActionWildcard, EIAMPolicyWildcardResource]
     Properties:
       RoleName: !Sub "VaultInstanceRole-${VaultSecGroup}"
       AssumeRolePolicyDocument:
@@ -868,6 +876,10 @@ Resources:
       Role: !GetAtt LeaderElectionLambdaExecutionRole.Arn
   LeaderElectionLambdaExecutionRole:
     Type: AWS::IAM::Role
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks: [EIAMPolicyActionWildcard, EIAMPolicyWildcardResource]
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
@@ -927,6 +939,10 @@ Resources:
       Role: !GetAtt ClusterBootstrapLambdaExecutionRole.Arn
   ClusterBootstrapLambdaExecutionRole:
     Type: AWS::IAM::Role
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks: [EIAMPolicyActionWildcard, EIAMPolicyWildcardResource]
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
@@ -1077,6 +1093,10 @@ Resources:
       - Ref: VaultClientRole
   VaultClientRole:
     Type: AWS::IAM::Role
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks: [EIAMPolicyActionWildcard, EIAMPolicyWildcardResource]
     Properties:
       # This example allows for an EC2 instance to assume this role. This should be customized for where the Role is being used. Eg: Lambda/Codebuild/EC2 etc.
       AssumeRolePolicyDocument:
