@@ -4,3 +4,5 @@ venv/
 .taskcat_overrides.yml
 tmp/
 taskcat_outputs/
+functions/packages/
+.vscode/
