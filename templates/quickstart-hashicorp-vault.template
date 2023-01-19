@@ -440,7 +440,7 @@ Conditions:
         - !Ref DomainName
         - ''
 Resources:
-  # ALB & ACM 
+  # ALB & ACM
   VaultDNSRecord:
     Condition: CreateDns
     Type: AWS::Route53::RecordSet
@@ -462,11 +462,11 @@ Resources:
   VaultServerApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
-      Subnets: 
+      Subnets:
       - !If [InternalLoadBalancer, !Ref PrivateSubnet1ID, !Ref PublicSubnet1ID]
       - !If [InternalLoadBalancer, !Ref PrivateSubnet2ID, !Ref PublicSubnet2ID]
       - !If [InternalLoadBalancer, !Ref PrivateSubnet3ID, !Ref PublicSubnet3ID]
-      SecurityGroups: 
+      SecurityGroups:
       - !Ref VaultServerApplicationLoadBalancerSecurityGroup
       Scheme: !If [InternalLoadBalancer, internal, internet-facing]
   VaultServerTargetGroup:
@@ -759,7 +759,7 @@ Resources:
       LaunchConfigurationName: !Sub VaultLC-${AWS::StackName}
       InstanceType: !Ref VaultInstanceType
       KeyName: !Ref KeyPairName
-      SecurityGroups: 
+      SecurityGroups:
       - !Ref VaultSecGroup
       ImageId:
         Fn::FindInMap:
@@ -779,7 +779,7 @@ Resources:
         Fn::Base64: !Sub
           - |
             #!/bin/bash -x
-            
+
             # Install git
             apt-get update
             apt-get install -y git jq zip curl
@@ -787,7 +787,7 @@ Resources:
             #Load Linux utils
             until git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git ; do echo "Retrying"; done
             cd /quickstart-linux-utilities && source quickstart-cfn-tools.source
-            
+
             # Prep operating systems
             qs_update-os || qs_err
             qs_bootstrap_pip || qs_err
@@ -799,13 +799,13 @@ Resources:
             export LEADER_SSM_PARAM=${VaultLeaderSSM}
             export VAULT_CLUSTER_MEMBERS_SSM_PARAMETER=${VaultClusterMembersSSM}
             export VAULT_LOG_GROUP=${VaultLogGroup}
-            
+
             export AWS_REGION=${AWS::Region}
             export CFN_STACK_NAME=${AWS::StackName}
             export LEADER_ELECTION_LAMBDA=${LeaderElectionLambda}
             export CLUSTER_BOOTSTRAP_LAMBDA=${ClusterBootstrapLambda}
             export KMS_KEY=${VaultKmsKey}
-            
+
             export VAULT_SECRET=VaultSecret-${VaultSecGroup}
             export VAULT_CLIENT_ROLE=${VaultClientRole.Arn}
             export VAULT_CLIENT_ROLE_NAME=${VaultClientRoleName}
@@ -818,14 +818,14 @@ Resources:
             export VAULT_KUBERNETES_HOST_URL=${VaultKubernetesHostURL}
             export VAULT_KUBERNETES_CERTIFICATE=${VaultKubernetesCertificate}
             export VAULT_KUBERNETES_JWT=${VaultKubernetesJWT}
-            
+
             export VAULT_KUBERNETES_SERVICE_ACCOUNT=${VaultKubernetesServiceAccount}
             export VAULT_KUBERNETES_NAME_SPACE=${VaultKubernetesNameSpace}
             export VAULT_KUBERNETES_POLICIES=${VaultKubernetesPolicies}
 
             pip install awscli
             mkdir -p /opt/vault/policies/ /opt/vault/scripts/ /etc/vault.d/
-            
+
             aws s3 cp s3://${S3Bucket}/${QSS3KeyPrefix}scripts/functions.sh .
             aws s3 cp s3://${S3Bucket}/${QSS3KeyPrefix}scripts/bootstrap_server.sh .
             chmod +x bootstrap_server.sh
@@ -969,7 +969,7 @@ Resources:
             Action:
               - logs:CreateLogGroup
               - logs:CreateLogStream
-              - logs:PutLogEvents  
+              - logs:PutLogEvents
           # TODO: Restrict permissions to just the SSM Parameters we create
           - Effect: Allow
             Resource:
@@ -1011,7 +1011,7 @@ Resources:
         Fn::Base64: !Sub
           - |
             #!/bin/bash -x
-            
+
             # Install git
             apt-get update
             apt-get install -y git jq zip curl
@@ -1019,7 +1019,7 @@ Resources:
             #Load Linux utils
             until git clone https://github.com/aws-quickstart/quickstart-linux-utilities.git ; do echo "Retrying"; done
             cd /quickstart-linux-utilities && source quickstart-cfn-tools.source
-            
+
             # Prep operating systems
             qs_update-os || qs_err
             qs_bootstrap_pip || qs_err
