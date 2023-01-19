@@ -2,6 +2,7 @@ project:
   name: quickstart-hashicorp-vault
   owner: quickstart-eng@amazon.com
   package_lambda: true
+  build_submodules: true
   shorten_stack_name: true
   lambda_source_path: functions/source
   lambda_zip_path: functions/packages
@@ -24,15 +25,18 @@ project:
   - us-west-2
   parameters:
     AvailabilityZones: $[taskcat_genaz_3]
-    NumBastionHosts: '1'
+    AccessCIDR: --override--
+    KeyPairName: --override--
+    NumBastionHosts: 1
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
-    VaultClientNodes: '1'
+    VaultClientNodes: 1
     QSS3KeyPrefix: quickstart-hashicorp-vault/
 tests:
   ubuntu-base:
     parameters:
       VaultAMIOS: Ubuntu-2004-HVM
+      VaultKubernetesHostURL: ''
     regions:
     # No SSM Support
     # - eu-north-1 # StockHolm
@@ -60,6 +64,7 @@ tests:
   cis-level-1:
     parameters:
       VaultAMIOS: CIS-Ubuntu-2004-HVM
+      VaultKubernetesHostURL: ''
     regions:
     # No SSM Support
     # - eu-north-1
