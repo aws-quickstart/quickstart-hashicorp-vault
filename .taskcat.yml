@@ -24,6 +24,8 @@ project:
   - us-west-2
   parameters:
     AvailabilityZones: $[taskcat_genaz_3]
+    AccessCIDR: --override--
+    KeyPairName: --override--
     NumBastionHosts: 1
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
@@ -33,6 +35,7 @@ tests:
   ubuntu-base:
     parameters:
       VaultAMIOS: Ubuntu-2004-HVM
+      VaultKubernetesHostURL: ''
     regions:
     # No SSM Support
     # - eu-north-1 # StockHolm
@@ -60,6 +63,7 @@ tests:
   cis-level-1:
     parameters:
       VaultAMIOS: CIS-Ubuntu-2004-HVM
+      VaultKubernetesHostURL: ''
     regions:
     # No SSM Support
     # - eu-north-1
