@@ -493,8 +493,7 @@ Resources:
         - /
       Actions:
       - Type: forward
-        TargetGroupArn:
-          Ref: VaultServerTargetGroup
+        TargetGroupArn: !Ref VaultServerTargetGroup
   VaultServerListenerHTTPS:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -617,32 +616,24 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enables SSH access from the Bastion servers.
-      VpcId:
-        Ref: VPCID
+      VpcId: !Ref VPCID
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
-        SourceSecurityGroupId:
-          Ref: BastionSecurityGroupID
+        SourceSecurityGroupId: !Ref BastionSecurityGroupID
       # Allow the VPC to connect to the vault API of the Cluster
       - IpProtocol: tcp
         FromPort: 8200
         ToPort: 8200
-        CidrIp:
-          Ref: VPCCIDR
+        CidrIp: !Ref VPCCIDR
       - IpProtocol: tcp
         FromPort: 0
         ToPort: 65535
-        CidrIp:
-          Ref: VPCCIDR
+        CidrIp: !Ref VPCCIDR
       Tags:
       - Key: Name
-        Value:
-          Fn::Join:
-          - "-"
-          - - Ref: AWS::StackName
-            - VaultSecGroup
+        Value: !Sub ${AWS::StackName}-VaultSecGroup
   VaultLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -751,8 +742,7 @@ Resources:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: /
-      Roles:
-      - Ref: VaultInstanceRole
+      Roles: [!Ref VaultInstanceRole]
   VaultServerLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
@@ -850,10 +840,7 @@ Resources:
         - !Ref PrivateSubnet3ID
       Tags:
         - Key: Name
-          Value: !Join
-            - "-"
-            - - !Ref "AWS::StackName"
-              - VaultServer
+          Value: !Sub ${AWS::StackName}-VaultServer
           PropagateAtLaunch: true
     CreationPolicy:
       ResourceSignal:
@@ -864,11 +851,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: !GetAtt CopyZipsTemplate.Outputs.LambdaZipsBucket
-        S3Key: 
-          Fn::Join:
-            - ""
-            - - !Ref QSS3KeyPrefix
-              - "functions/packages/LeaderElection/lambda.zip"
+        S3Key: !Sub ${QSS3KeyPrefix}functions/packages/LeaderElection/lambda.zip
       Handler: lambda_function.lambda_handler
       Runtime: python3.9
       Environment:
@@ -926,11 +909,7 @@ Resources:
     Properties:
       Code:
         S3Bucket: !GetAtt CopyZipsTemplate.Outputs.LambdaZipsBucket
-        S3Key: 
-          Fn::Join:
-            - ""
-            - - !Ref QSS3KeyPrefix
-              - "functions/packages/ClusterBootstrap/lambda.zip"
+        S3Key: !Sub ${QSS3KeyPrefix}functions/packages/ClusterBootstrap/lambda.zip
       Handler: lambda_function.lambda_handler
       Environment:
         Variables:
@@ -986,10 +965,8 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       LaunchConfigurationName: !Sub VaultClientLC-${AWS::StackName}
-      InstanceType:
-        Ref: VaultInstanceType
-      KeyName:
-        Ref: KeyPairName
+      InstanceType: !Ref VaultInstanceType
+      KeyName: !Ref KeyPairName
       SecurityGroups:
         - !Ref VaultClientSecurityGroup
       ImageId:
@@ -1005,8 +982,7 @@ Resources:
         Ebs:
           VolumeSize: 20
           VolumeType: gp2
-      IamInstanceProfile: 
-        Ref: "VaultClientInstanceProfile" 
+      IamInstanceProfile: !Ref VaultClientInstanceProfile
       UserData:
         Fn::Base64: !Sub
           - |
@@ -1056,10 +1032,7 @@ Resources:
         - !Ref PrivateSubnet3ID
       Tags:
         - Key: Name
-          Value: !Join
-            - "-"
-            - - !Ref "AWS::StackName"
-              - VaultClient
+          Value: !Sub ${AWS::StackName}-VaultClient
           PropagateAtLaunch: true
     CreationPolicy:
       ResourceSignal:
@@ -1069,32 +1042,24 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Enables SSH access from the Bastion servers.
-      VpcId:
-        Ref: VPCID
+      VpcId: !Ref VPCID
       SecurityGroupIngress:
       - IpProtocol: tcp
         FromPort: 22
         ToPort: 22
-        SourceSecurityGroupId:
-          Ref: BastionSecurityGroupID
+        SourceSecurityGroupId: !Ref BastionSecurityGroupID
       - IpProtocol: tcp
         FromPort: 0
         ToPort: 65535
-        CidrIp:
-          Ref: VPCCIDR
+        CidrIp: !Ref VPCCIDR
       Tags:
       - Key: Name
-        Value:
-          Fn::Join:
-          - "-"
-          - - Ref: AWS::StackName
-            - VaultClientSecurityGroup
+        Value: !Sub ${AWS::StackName}-VaultClientSecurityGroup
   VaultClientInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: /
-      Roles:
-      - Ref: VaultClientRole
+      Roles: [!Ref VaultClientRole]
   VaultClientRole:
     Type: AWS::IAM::Role
     Metadata:
@@ -1140,10 +1105,10 @@ Resources:
             Resource: '*'
 Outputs:
   VaultLoadBalancer:
-    Value: 
-      !Sub 
-      - "https://${DNSAddress}/"
-      - DNSAddress: !If [ CustomDns, !Ref DomainName, !GetAtt "VaultServerApplicationLoadBalancer.DNSName"  ]
+    Value:
+      !Sub
+      - https://${DNSAddress}/
+      - DNSAddress: !If [ CustomDns, !Ref DomainName, !GetAtt VaultServerApplicationLoadBalancer.DNSName  ]
   VaultSecret:
     Value: !Ref VaultSecret
     Description: The AWS Secrets Manager Secret containing the ROOT TOKEN and Recovery Secret for HashiCorp Vault.
