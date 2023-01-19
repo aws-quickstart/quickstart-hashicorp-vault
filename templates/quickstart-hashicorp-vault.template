@@ -310,8 +310,9 @@ Parameters:
     - External
   DomainName:
     Type: String
-    Description: Fully qualified domain name for the HashiCorp Vault load balancer.
-      If you dont provide a value for ACMSSLCertificateArn, use the HostedZoneID.
+    Description: >-
+      Fully qualified domain name for the HashiCorp Vault load balancer.
+      If you don't provide a value for ACMSSLCertificateArn, use the HostedZoneID.
     MaxLength: 128
     Default: ''
   HostedZoneID:
