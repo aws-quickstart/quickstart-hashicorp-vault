@@ -24,10 +24,10 @@ project:
   - us-west-2
   parameters:
     AvailabilityZones: $[taskcat_genaz_3]
-    NumBastionHosts: '1'
+    NumBastionHosts: 1
     QSS3BucketName: $[taskcat_autobucket]
     QSS3BucketRegion: $[taskcat_current_region]
-    VaultClientNodes: '1'
+    VaultClientNodes: 1
     QSS3KeyPrefix: quickstart-hashicorp-vault/
 tests:
   ubuntu-base:
