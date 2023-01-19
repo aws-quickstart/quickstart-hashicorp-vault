@@ -2,6 +2,7 @@ project:
   name: quickstart-hashicorp-vault
   owner: quickstart-eng@amazon.com
   package_lambda: true
+  build_submodules: true
   shorten_stack_name: true
   lambda_source_path: functions/source
   lambda_zip_path: functions/packages
