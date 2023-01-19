@@ -579,13 +579,13 @@ Resources:
         - Sid: Enable IAM User Permissions
           Effect: Allow
           Principal:
-            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:root"
+            AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:root
           Action: kms:*
           Resource: '*'
         - Sid: Allow administration of the key
           Effect: Allow
           Principal:
-            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:role/${VaultInstanceRole}"
+            AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/${VaultInstanceRole}
           Action:
           - kms:Create*
           - kms:Describe*
@@ -604,7 +604,7 @@ Resources:
           Effect: Allow
           Principal:
             # If the Lambda Functions need to use this key we must add their execution roles here as principles
-            AWS: !Sub "arn:aws:iam::${AWS::AccountId}:role/${VaultInstanceRole}"
+            AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/${VaultInstanceRole}
           Action:
           - kms:DescribeKey
           - kms:Encrypt
