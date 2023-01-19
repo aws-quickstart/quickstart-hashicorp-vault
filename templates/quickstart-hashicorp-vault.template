@@ -1,13 +1,14 @@
 ---
-AWSTemplateFormatVersion: '2010-09-09'
-Description: '(qs-1qup6ra90) HashiCorp Vault License: Apache 2.0 (Please do not remove)'
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  (qs-1qup6ra90) HashiCorp Vault License: Apache 2.0 (Please do not remove)
 Metadata:
   AWSAMIRegionMap:
     Filters:
       CISUBUNTU2004:
         product-code: 8wt6moitlqquyt3sdfbsorz2d
   QuickStartDocumentation:
-    EntrypointName: "Launch into an existing VPC"
+    EntrypointName: Launch into an existing VPC
     Order: 2
   LintSpellExclude:
     - Kubernetes
@@ -127,7 +128,7 @@ Metadata:
       VaultClientRoleName:
         default: Vault AWS role name
       LoadBalancerType:
-        default: "Internal/external load balancer?"
+        default: Internal/external load balancer?
       ACMSSLCertificateArn:
         default: SSL certificate ARN
       HostedZoneID:
@@ -135,21 +136,21 @@ Metadata:
       DomainName:
         default: Load balancer DNS domain name
       VaultKubernetesEnable:
-        default: "Enable Kubernetes authentication"
+        default: Enable Kubernetes authentication
       VaultKubernetesRoleName:
         default: Kubernetes Vault role name
       VaultKubernetesHostURL:
-        default: "Kubernetes host URL"
+        default: Kubernetes host URL
       VaultKubernetesCertificate:
-        default: "Kubernetes CA certificate"
+        default: Kubernetes CA certificate
       VaultKubernetesJWT:
-        default: "Kubernetes JWT token"
+        default: Kubernetes JWT token
       VaultKubernetesServiceAccount:
-        default: "Kubernetes service account name"
+        default: Kubernetes service account name
       VaultKubernetesNameSpace:
-        default: "Kubernetes name space"
+        default: Kubernetes name space
       VaultKubernetesPolicies:
-        default: "Kubernetes Vault policies"
+        default: Kubernetes Vault policies
 Parameters:
   VaultAMIOS:
     AllowedValues:
@@ -169,71 +170,71 @@ Parameters:
     Type: AWS::EC2::SecurityGroup::Id
   VaultServerNodes:
     Type: String
-    Description: 'Sets DesiredCapacity and MaxSize for Vault server Auto Scaling group.'
-    Default: '5'
+    Description: Sets DesiredCapacity and MaxSize for Vault server Auto Scaling group.
+    Default: 5
     AllowedValues:
-     - '3'
-     - '5'
-     - '7'
+     - 3
+     - 5
+     - 7
   VaultClientNodes:
     Type: String
-    Description: 'Sets DesiredCapacity and MaxSize for Vault client Auto Scaling group.'
-    Default: '0'
+    Description: Sets DesiredCapacity and MaxSize for Vault client Auto Scaling group.
+    Default: 0
     AllowedValues:
-     - '0'
-     - '1'
+     - 0
+     - 1
   VaultNumberOfKeys:
     Type: String
-    Default: '5'
-    AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
+    Default: 5
+    AllowedPattern: ^([1-9]|[1-8][0-9]|9[0-9])$
     ConstraintDescription: Must be a value between 1 and 99.
     Description: Number of un seal keys to create for HashiCorp Vault.
   VaultNumberOfKeysForUnseal:
     Type: String
-    Default: '3'
-    AllowedPattern: "^([1-9]|[1-8][0-9]|9[0-9])$"
+    Default: 3
+    AllowedPattern: ^([1-9]|[1-8][0-9]|9[0-9])$
     ConstraintDescription: Must be a value between 1 and 99.
     Description: Number of keys required to unseal HashiCorp Vault.
   VaultInstanceType:
     Type: String
     Description: HashiCorp Vault node instance type.
     AllowedValues:
-    - 'c5.12xlarge'
-    - 'c5.18xlarge'
-    - 'c5.24xlarge'
-    - 'c5.2xlarge'
-    - 'c5.4xlarge'
-    - 'c5.9xlarge'
-    - 'c5.large'
-    - 'c5.xlarge'
-    - 'm5.12xlarge'
-    - 'm5.16xlarge'
-    - 'm5.24xlarge'
-    - 'm5.2xlarge'
-    - 'm5.4xlarge'
-    - 'm5.8xlarge'
-    - 'm5.large'
-    - 'm5.metal'
-    - 'm5.xlarge'
-    - 'r5.12xlarge'
-    - 'r5.16xlarge'
-    - 'r5.24xlarge'
-    - 'r5.2xlarge'
-    - 'r5.4xlarge'
-    - 'r5.8xlarge'
-    - 'r5.large'
-    - 'r5.xlarge'
-    - 't3.2xlarge'
-    - 't3.large'
-    - 't3.medium'
-    - 't3.micro'
-    - 't3.nano'
-    - 't3.small'
-    - 't3.xlarge'
+    - c5.12xlarge
+    - c5.18xlarge
+    - c5.24xlarge
+    - c5.2xlarge
+    - c5.4xlarge
+    - c5.9xlarge
+    - c5.large
+    - c5.xlarge
+    - m5.12xlarge
+    - m5.16xlarge
+    - m5.24xlarge
+    - m5.2xlarge
+    - m5.4xlarge
+    - m5.8xlarge
+    - m5.large
+    - m5.metal
+    - m5.xlarge
+    - r5.12xlarge
+    - r5.16xlarge
+    - r5.24xlarge
+    - r5.2xlarge
+    - r5.4xlarge
+    - r5.8xlarge
+    - r5.large
+    - r5.xlarge
+    - t3.2xlarge
+    - t3.large
+    - t3.medium
+    - t3.micro
+    - t3.nano
+    - t3.small
+    - t3.xlarge
     ConstraintDescription: Choose an instance type. m5.large or larger recommended.
     Default: m5.large
   QSS3BucketName:
-    AllowedPattern: "^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$"
+    AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
       letters, uppercase letters, and hyphens (-). It cannot start or end with a hyphen
       (-).
@@ -243,11 +244,11 @@ Parameters:
       It cannot start or end with a hyphen (-).
     Type: String
   QSS3BucketRegion:
-    Default: 'us-east-1'
-    Description: 'AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.'
+    Default: us-east-1
+    Description: AWS Region where the Quick Start S3 bucket (QSS3BucketName) is hosted. When using your own bucket, you must specify this value.
     Type: String
   QSS3KeyPrefix:
-    AllowedPattern: "^[0-9a-zA-Z-/]*$"
+    AllowedPattern: ^[0-9a-zA-Z-/]*$
     ConstraintDescription: Quick Start key prefix can include numbers, lowercase letters,
       uppercase letters, hyphens (-), and forward slash (/).
     Default: quickstart-hashicorp-vault/
@@ -274,15 +275,16 @@ Parameters:
     Description: ID of public subnet 3 in Availability Zone 3 (e.g., subnet-xxxxxxxx).
     Type: AWS::EC2::Subnet::Id
   AccessCIDR:
-    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
-    Description: 'The CIDR IP range that is permitted to access Vault. Note: A value
-      of 0.0.0.0/0 allows access from ANY IP address.'
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$
+    Description: >-
+      The CIDR IP range that is permitted to access Vault. Note: A value
+      of 0.0.0.0/0 allows access from ANY IP address.
     Type: String
   VPCID:
     Description: VPC ID.
     Type: AWS::EC2::VPC::Id
   VPCCIDR:
-    AllowedPattern: "^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$"
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\\/([0-9]|[1-2][0-9]|3[0-2]))$
     Description: CIDR block for the VPC.
     Type: String
   VaultVersion:
@@ -295,28 +297,28 @@ Parameters:
     - 1.10.3
   VaultClientRoleName:
     Type: String
-    Default: "quickstart-client-role-iam"
-    MinLength: "3"
+    Default: quickstart-client-role-iam
+    MinLength: 3
     ConstraintDescription: This identifier should be at least 3 characters in length.
     Description: The HashiCorp Vault name for the AWS IAM role.
   LoadBalancerType:
     Type: String
-    Default: "Internal"
+    Default: Internal
     Description: Specify if the load balancer for HashiCorp Vault is internal or external.
     AllowedValues:
-    - "Internal"
-    - "External"
+    - Internal
+    - External
   DomainName:
     Type: String
     Description: Fully qualified domain name for the HashiCorp Vault load balancer.
-      If you don't provide a value for ACMSSLCertificateArn, use the HostedZoneID.
+      If you dont provide a value for ACMSSLCertificateArn, use the HostedZoneID.
     MaxLength: 128
-    Default: ""
+    Default: ''
   HostedZoneID:
     Type: String
     Description: Route 53-hosted zone ID of the domain name. If you don't provide an ACMSSLCertificateArn value,
       the Quick Start creates the ACM certificate for you using HostedZoneID in conjunction with DomainName.
-    Default: ""
+    Default: ''
   ACMSSLCertificateArn:
     Description: Amazon Resource Name (ARN) of the load balancer's SSL certificate. If you don't provide values for
       DomainName and HostedZoneID, provide a value for ACMSSLCertificateArn.
@@ -332,31 +334,33 @@ Parameters:
   VaultKubernetesRoleName:
     Description: Internal Vault name for the Kubernetes authentication role.
     Type: String
-    Default: 'kube-auth-role'
+    Default: kube-auth-role
   VaultKubernetesHostURL:
-    Description: "URL of Kubernetes cluster eg: https://192.168.99.100:8443."
+    Description: >-
+      URL of Kubernetes cluster eg: https://192.168.99.100:8443.
     Type: String
   VaultKubernetesCertificate:
-    Description: "AWS SSM parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service
-      account."
-    Default: ""
+    Description: >-
+      AWS SSM parameter containing a base64-encoded PEM CA certificate of the Kubernetes cluster service
+      account.
+    Default: ''
     Type: String
   VaultKubernetesJWT:
-    Description: "AWS SSM secure parameter containing a base64-encoded JWT token of the Kubernetes cluster service account."
-    Default: ""
+    Description: AWS SSM secure parameter containing a base64-encoded JWT token of the Kubernetes cluster service account.
+    Default: ''
     Type: String
   VaultKubernetesServiceAccount:
-    Description: "Name of Kubernetes service account."
+    Description: Name of Kubernetes service account.
     Default: vault-auth
-    Type: String 
+    Type: String
   VaultKubernetesNameSpace:
-    Description: "Vault namespace of the Kubernetes service account."
+    Description: Vault namespace of the Kubernetes service account.
     Default: default
-    Type: String 
+    Type: String
   VaultKubernetesPolicies:
-    Description: "Vault policies for the Kubernetes service account."
+    Description: Vault policies for the Kubernetes service account.
     Default: default
-    Type: String 
+    Type: String
 Mappings:
   LinuxAMINameMap:
     Ubuntu-2004-HVM:
@@ -365,8 +369,8 @@ Mappings:
       Code: CISUBUNTU2004
   AWSAMIRegionMap:
     AMI:
-      CISUBUNTU2004: "CIS 1 Ubuntu 20.04"
-      US2004HVM: "Ubuntu 20.04 LTS"
+      CISUBUNTU2004: CIS 1 Ubuntu 20.04
+      US2004HVM: Ubuntu 20.04 LTS
     eu-north-1:
       CISUBUNTU2004: ami-057614a40c691ad25
       US2004HVM: ami-0ac289f307b3e90d1
@@ -423,17 +427,17 @@ Mappings:
       US2004HVM: ami-067573cd8d4480518
 
 Conditions:
-  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  InternalLoadBalancer: !Equals [!Ref LoadBalancerType, 'Internal']
+  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, aws-quickstart]
+  InternalLoadBalancer: !Equals [!Ref LoadBalancerType, Internal]
   CustomDns: !Not [!Equals [!Ref DomainName, '']]
   CreateDns: !And
     - !Not
       - !Equals
-        - !Ref 'HostedZoneID'
+        - !Ref HostedZoneID
         - ''
     - !Not
       - !Equals
-        - !Ref 'DomainName'
+        - !Ref DomainName
         - ''
 Resources:
   # ALB & ACM 
@@ -446,7 +450,7 @@ Resources:
       AliasTarget:
         HostedZoneId: !GetAtt VaultServerApplicationLoadBalancer.CanonicalHostedZoneID
         DNSName: !GetAtt VaultServerApplicationLoadBalancer.DNSName
-      HostedZoneId: !Ref 'HostedZoneID'
+      HostedZoneId: !Ref HostedZoneID
   VaultServerApplicationLoadBalancerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -454,7 +458,7 @@ Resources:
       VpcId: !Ref VPCID
       SecurityGroupIngress:
         - CidrIp: !Ref AccessCIDR
-          IpProtocol: '-1'
+          IpProtocol: -1
   VaultServerApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -464,7 +468,7 @@ Resources:
       - !If [InternalLoadBalancer, !Ref PrivateSubnet3ID, !Ref PublicSubnet3ID]
       SecurityGroups: 
       - !Ref VaultServerApplicationLoadBalancerSecurityGroup
-      Scheme: !If [InternalLoadBalancer, "internal", "internet-facing"]
+      Scheme: !If [InternalLoadBalancer, internal, internet-facing]
   VaultServerTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -486,7 +490,7 @@ Resources:
       Conditions:
       - Field: path-pattern
         Values:
-        - "/"
+        - /
       Actions:
       - Type: forward
         TargetGroupArn:
@@ -495,7 +499,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       Certificates:
-      - CertificateArn: !If [ CreateDns, !GetAtt "ACMCertificate.Outputs.ACMCertificate", !Ref ACMSSLCertificateArn ]
+      - CertificateArn: !If [ CreateDns, !GetAtt ACMCertificate.Outputs.ACMCertificate, !Ref ACMSSLCertificateArn ]
       DefaultActions:
       - Type: forward
         TargetGroupArn: !Ref VaultServerTargetGroup
@@ -503,20 +507,20 @@ Resources:
       Port: 443
       Protocol: HTTPS
   VaultServerListenerRedirectToHTTPS:
-    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       DefaultActions:
-        - Type: "redirect"
+        - Type: redirect
           RedirectConfig:
-            Protocol: "HTTPS"
-            Port: "443"
-            Host: "#{host}"
-            Path: "/#{path}"
-            Query: "#{query}"
-            StatusCode: "HTTP_301"
+            Protocol: HTTPS
+            Port: 443
+            Host: '#{host}'
+            Path: /#{path}
+            Query: '#{query}'
+            StatusCode: HTTP_301
       LoadBalancerArn: !Ref VaultServerApplicationLoadBalancer
       Port: 80
-      Protocol: "HTTP"
+      Protocol: HTTP
   ACMCertificate:
     Metadata:
       cfn-lint:
@@ -528,8 +532,8 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-acm-certificate/templates/quickstart-aws-acm-certificate.template.yml'
-          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-acm-certificate/templates/quickstart-aws-acm-certificate.template.yml
+          - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         QSS3BucketName: !Ref QSS3BucketName
@@ -544,22 +548,22 @@ Resources:
     Properties:
       TemplateURL:
         !Sub
-          - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/lambda-copyzips/templates/copy-zips.template.yaml'
-          - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          - https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/lambda-copyzips/templates/copy-zips.template.yaml
+          - S3Region: !If [UsingDefaultBucket, !Ref AWS::Region, !Ref QSS3BucketRegion]
             S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
         QSS3BucketName: !Ref QSS3BucketName
         QSS3BucketRegion: !Ref QSS3BucketRegion
         QSS3KeyPrefix: !Ref QSS3KeyPrefix
-        SourceObjects:  "functions/packages/LeaderElection/lambda.zip,functions/packages/ClusterBootstrap/lambda.zip"
+        SourceObjects:  functions/packages/LeaderElection/lambda.zip,functions/packages/ClusterBootstrap/lambda.zip
   # Vault will populate this when the cluster is initialized
   VaultSecret:
     Type: AWS::SecretsManager::Secret
     Properties:
-      Name: !Sub "VaultSecret-${VaultSecGroup}"
-      Description: "Vault Root/Recovery key"
-      KmsKeyId: !Ref VaultKmsKey 
-      SecretString: "empty"
+      Name: !Sub VaultSecret-${VaultSecGroup}
+      Description: Vault Root/Recovery key
+      KmsKeyId: !Ref VaultKmsKey
+      SecretString: empty
   VaultKmsKey:
     Type: AWS::KMS::Key
     Metadata:
@@ -567,9 +571,9 @@ Resources:
         config:
           ignore_checks: [EKMSKeyEnableKeyRotation, EIAMPolicyActionWildcard, EIAMPolicyWildcardResource]
     Properties:
-      Description: "Vault Seal/Unseal key"
+      Description: Vault Seal/Unseal key
       KeyPolicy:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Id: key-default-1
         Statement:
         - Sid: Enable IAM User Permissions
@@ -642,26 +646,26 @@ Resources:
   VaultLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub "Vault-Audit-Logs-${AWS::StackName}"
+      LogGroupName: !Sub Vault-Audit-Logs-${AWS::StackName}
       RetentionInDays: 7
   # Informs the cluster nodes if they should boot strap
   VaultLeaderElectedSSM:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Value: "false"
+      Value: 'false'
   # This is to know who the elected leader is
   VaultLeaderSSM:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Value: "null"
+      Value: 'null'
   # List of Vault Cluster members managed by Lambda for cluster bootstrap control
   VaultClusterMembersSSM:
     Type: AWS::SSM::Parameter
     Properties:
       Type: String
-      Value: "{[]}"
+      Value: '{[]}'
   VaultInstanceRole:
     Type: AWS::IAM::Role
     Metadata:
@@ -669,9 +673,9 @@ Resources:
         config:
           ignore_checks: [EIAMPolicyActionWildcard, EIAMPolicyWildcardResource]
     Properties:
-      RoleName: !Sub "VaultInstanceRole-${VaultSecGroup}"
+      RoleName: !Sub VaultInstanceRole-${VaultSecGroup}
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
         - Effect: Allow
           Principal:
@@ -679,11 +683,11 @@ Resources:
             - ec2.amazonaws.com
           Action:
           - sts:AssumeRole
-      Path: "/"
+      Path: /
       Policies:
       - PolicyName: root
         PolicyDocument:
-          Version: '2012-10-17'
+          Version: 2012-10-17
           Statement:
           - Effect: Allow
             Action:
@@ -692,39 +696,39 @@ Resources:
             - logs:CreateLogStream
             - logs:DescribeLogStreams
             Resource:
-            - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:Vault-Audit-Logs-${AWS::StackName}"
+            - !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:Vault-Audit-Logs-${AWS::StackName}
           - Effect: Allow
             Action:
             - logs:PutLogEvents
             Resource:
-            - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:Vault-Audit-Logs-${AWS::StackName}:log-stream:*"
+            - !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:Vault-Audit-Logs-${AWS::StackName}:log-stream:*
           - Effect: Allow
             Action:
             - ec2:DescribeInstances
-            Resource: "*"
+            Resource: '*'
           - Effect: Allow
             Action:
             - ssm:GetParameter
             Resource:
-            - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultLeaderSSM}"
-            - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultClusterMembersSSM}"
-            - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultLeaderElectedSSM}"
-            - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultKubernetesCertificate}"
-            - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultKubernetesJWT}"
+            - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultLeaderSSM}
+            - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultClusterMembersSSM}
+            - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultLeaderElectedSSM}
+            - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultKubernetesCertificate}
+            - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultKubernetesJWT}
           - Effect: Allow
             Action:
             - lambda:InvokeFunction
             Resource:
-            - !Sub "${LeaderElectionLambda.Arn}"
-            - !Sub "${ClusterBootstrapLambda.Arn}"
+            - !GetAtt LeaderElectionLambda.Arn
+            - !GetAtt ClusterBootstrapLambda.Arn
           - Effect: Allow
             Action:
             - autoscaling:Describe*
-            Resource: "*"
+            Resource: '*'
           - Effect: Allow
             Action:
             - ec2:DescribeInstances
-            Resource: "*"
+            Resource: '*'
           - Effect: Allow
             Action:
             - secretsmanager:UpdateSecretVersionStage
@@ -732,7 +736,7 @@ Resources:
             - secretsmanager:PutSecretValue
             - secretsmanager:GetSecretValue
             Resource:
-            - !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:VaultSecret-${VaultSecGroup}*"
+            - !Sub arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:VaultSecret-${VaultSecGroup}*
           - Effect: Allow
             Action:
               - iam:GetRole
@@ -746,13 +750,13 @@ Resources:
   VaultInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      Path: "/"
+      Path: /
       Roles:
       - Ref: VaultInstanceRole
   VaultServerLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      LaunchConfigurationName: !Sub "VaultLC-${AWS::StackName}"
+      LaunchConfigurationName: !Sub VaultLC-${AWS::StackName}
       InstanceType: !Ref VaultInstanceType
       KeyName: !Ref KeyPairName
       SecurityGroups: 
@@ -760,17 +764,17 @@ Resources:
       ImageId:
         Fn::FindInMap:
         - AWSAMIRegionMap
-        - !Ref 'AWS::Region'
+        - !Ref AWS::Region
         - !FindInMap
           - LinuxAMINameMap
           - !Ref VaultAMIOS
           - Code
       BlockDeviceMappings:
-      - DeviceName: "/dev/sda1"
+      - DeviceName: /dev/sda1
         Ebs:
           VolumeSize: 20
           VolumeType: gp2
-      IamInstanceProfile: !Ref "VaultInstanceProfile" 
+      IamInstanceProfile: !Ref VaultInstanceProfile
       UserData:
         Fn::Base64: !Sub
           - |
@@ -831,9 +835,9 @@ Resources:
             # Signalling done from within bootstrap script
           - S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
   VaultServerAutoScalingGroup:
-    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
-      AutoScalingGroupName: !Sub "VaultServerAutoScalingGroup-${AWS::StackName}"
+      AutoScalingGroupName: !Sub VaultServerAutoScalingGroup-${AWS::StackName}
       LaunchConfigurationName: !Ref VaultServerLaunchConfiguration
       TargetGroupARNs:
       - !Ref VaultServerTargetGroup
@@ -856,22 +860,22 @@ Resources:
         Count: !Ref VaultServerNodes
         Timeout: PT20M
   LeaderElectionLambda:
-    Type: "AWS::Lambda::Function"
+    Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: !GetAtt 'CopyZipsTemplate.Outputs.LambdaZipsBucket'
+        S3Bucket: !GetAtt CopyZipsTemplate.Outputs.LambdaZipsBucket
         S3Key: 
           Fn::Join:
             - ""
             - - !Ref QSS3KeyPrefix
               - "functions/packages/LeaderElection/lambda.zip"
-      Handler: "lambda_function.lambda_handler"
+      Handler: lambda_function.lambda_handler
       Runtime: python3.9
       Environment:
         Variables:
           LeaderElectedSSM: !Ref VaultLeaderElectedSSM
           LeaderSSM: !Ref VaultLeaderSSM
-          AutoScalingGroup: !Sub "VaultServerAutoScalingGroup-${AWS::StackName}"
+          AutoScalingGroup: !Sub VaultServerAutoScalingGroup-${AWS::StackName}
       Timeout: 300
       Role: !GetAtt LeaderElectionLambdaExecutionRole.Arn
   LeaderElectionLambdaExecutionRole:
@@ -882,7 +886,7 @@ Resources:
           ignore_checks: [EIAMPolicyActionWildcard, EIAMPolicyWildcardResource]
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
         - Effect: Allow
           Principal:
@@ -890,15 +894,15 @@ Resources:
             - lambda.amazonaws.com
           Action:
           - sts:AssumeRole
-      Path: "/"
+      Path: /
       Policies:
       - PolicyName: root
         PolicyDocument:
-          Version: '2012-10-17'
+          Version: 2012-10-17
           Statement:
           - Effect: Allow
             Resource:
-              - !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*'
+              - !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*
             Action:
               - logs:CreateLogGroup
               - logs:CreateLogStream
@@ -906,9 +910,9 @@ Resources:
           # TODO: Restrict permissions to just the SSM Parameters we create
           - Effect: Allow
             Resource:
-              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultLeaderSSM}"
-              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultLeaderElectedSSM}"
-              - !Sub "arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultClusterMembersSSM}"
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultLeaderSSM}
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultLeaderElectedSSM}
+              - !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${VaultClusterMembersSSM}
             Action:
               - ssm:*
           # TODO: Restrict to only our AutoScaling group
@@ -916,24 +920,24 @@ Resources:
             Resource:
               - '*'
             Action:
-              - autoscaling:DescribeAutoScalingGroups         
+              - autoscaling:DescribeAutoScalingGroups
   ClusterBootstrapLambda:
-    Type: "AWS::Lambda::Function"
+    Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: !GetAtt 'CopyZipsTemplate.Outputs.LambdaZipsBucket'
+        S3Bucket: !GetAtt CopyZipsTemplate.Outputs.LambdaZipsBucket
         S3Key: 
           Fn::Join:
             - ""
             - - !Ref QSS3KeyPrefix
               - "functions/packages/ClusterBootstrap/lambda.zip"
-      Handler: "lambda_function.lambda_handler"
+      Handler: lambda_function.lambda_handler
       Environment:
         Variables:
           LeaderElectedSSM: !Ref VaultLeaderElectedSSM
           LeaderSSM: !Ref VaultLeaderElectedSSM
           ClusterMembersSSM: !Ref VaultClusterMembersSSM
-          AutoScalingGroup: !Sub "VaultServerAutoScalingGroup-${AWS::StackName}"
+          AutoScalingGroup: !Sub VaultServerAutoScalingGroup-${AWS::StackName}
       Runtime: python3.9
       Timeout: 300
       Role: !GetAtt ClusterBootstrapLambdaExecutionRole.Arn
@@ -945,7 +949,7 @@ Resources:
           ignore_checks: [EIAMPolicyActionWildcard, EIAMPolicyWildcardResource]
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
         - Effect: Allow
           Principal:
@@ -953,15 +957,15 @@ Resources:
             - lambda.amazonaws.com
           Action:
           - sts:AssumeRole
-      Path: "/"
+      Path: /
       Policies:
       - PolicyName: root
         PolicyDocument:
-          Version: '2012-10-17'
+          Version: 2012-10-17
           Statement:
           - Effect: Allow
             Resource:
-              - !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*'
+              - !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:*
             Action:
               - logs:CreateLogGroup
               - logs:CreateLogStream
@@ -981,7 +985,7 @@ Resources:
   VaultClientLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      LaunchConfigurationName: !Sub "VaultClientLC-${AWS::StackName}"
+      LaunchConfigurationName: !Sub VaultClientLC-${AWS::StackName}
       InstanceType:
         Ref: VaultInstanceType
       KeyName:
@@ -991,13 +995,13 @@ Resources:
       ImageId:
         Fn::FindInMap:
         - AWSAMIRegionMap
-        - !Ref 'AWS::Region'
+        - !Ref AWS::Region
         - !FindInMap
           - LinuxAMINameMap
           - !Ref VaultAMIOS
           - Code
       BlockDeviceMappings:
-      - DeviceName: "/dev/sda1"
+      - DeviceName: /dev/sda1
         Ebs:
           VolumeSize: 20
           VolumeType: gp2
@@ -1039,9 +1043,9 @@ Resources:
             # Signalling done from within bootstrap script
           - S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
   VaultClientAutoScalingGroup:
-    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
-      AutoScalingGroupName: !Sub "VaultClientAutoScalingGroup-${AWS::StackName}"
+      AutoScalingGroupName: !Sub VaultClientAutoScalingGroup-${AWS::StackName}
       LaunchConfigurationName: !Ref VaultClientLaunchConfiguration
       MinSize: !Ref VaultClientNodes
       MaxSize: !Ref VaultClientNodes
@@ -1088,7 +1092,7 @@ Resources:
   VaultClientInstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
-      Path: "/"
+      Path: /
       Roles:
       - Ref: VaultClientRole
   VaultClientRole:
@@ -1100,7 +1104,7 @@ Resources:
     Properties:
       # This example allows for an EC2 instance to assume this role. This should be customized for where the Role is being used. Eg: Lambda/Codebuild/EC2 etc.
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: 2012-10-17
         Statement:
         - Effect: Allow
           Principal:
@@ -1111,29 +1115,29 @@ Resources:
       Policies:
       - PolicyName: root
         PolicyDocument:
-          Version: '2012-10-17'
+          Version: 2012-10-17
           Statement:
           # TODO: Restrict to the Lambda functions LeaderElection/ClusterBootstrapping
           - Effect: Allow
             Action:
             - s3:*
-            Resource: "*"
+            Resource: '*'
           # TODO: Adjust this to be a distinct policy to reference this role. (Circular dependency)
           #- Effect: Allow
           #  Action:
           #  - sts:AssumeRole
-          #  Resource: !GetAtt "VaultClientRole.Arn"
+          #  Resource: !GetAtt VaultClientRole.Arn
           - Effect: Allow
             Action:
             - ec2:DescribeInstances
             - iam:GetInstanceProfile
             - iam:GetUser
             - iam:GetRole
-            Resource: "*"
+            Resource: '*'
           - Effect: Allow
             Action:
             - autoscaling:DescribeAutoScalingGroups
-            Resource: "*"
+            Resource: '*'
 Outputs:
   VaultLoadBalancer:
     Value: 
@@ -1141,19 +1145,19 @@ Outputs:
       - "https://${DNSAddress}/"
       - DNSAddress: !If [ CustomDns, !Ref DomainName, !GetAtt "VaultServerApplicationLoadBalancer.DNSName"  ]
   VaultSecret:
-    Value: !Ref "VaultSecret"
+    Value: !Ref VaultSecret
     Description: The AWS Secrets Manager Secret containing the ROOT TOKEN and Recovery Secret for HashiCorp Vault.
   VaultClientIAMRoleArn:
-    Value: !GetAtt "VaultClientRole.Arn"
+    Value: !GetAtt VaultClientRole.Arn
     Description: The ARN of the AWS IAM role linked to HashiCorp Vault.
   VaultClientIAMRoleName:
-    Value: !Ref "VaultClientRole"
+    Value: !Ref VaultClientRole
     Description: The name of the AWS IAM role linked to HashiCorp Vault.
   VaultKMSKeyId:
-    Value: !Ref "VaultKmsKey"
+    Value: !Ref VaultKmsKey
     Description: The AWS KMS Key used to Auto Unseal HashiCorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
   VaultKMSKeyArn:
-    Value: !GetAtt "VaultKmsKey.Arn"
+    Value: !GetAtt VaultKmsKey.Arn
     Description: The AWS KMS Key used to Auto Unseal HashiCorp Vault and encrypt the ROOT TOKEN and Recovery Secret.
   VaultClientRoleId:
     Value: !Ref VaultClientRoleName
