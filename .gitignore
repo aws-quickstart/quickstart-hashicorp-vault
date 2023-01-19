@@ -3,6 +3,7 @@ venv/
 *.swo
 .taskcat_overrides.yml
 tmp/
+.taskcat/
 taskcat_outputs/
 functions/packages/
 .vscode/
